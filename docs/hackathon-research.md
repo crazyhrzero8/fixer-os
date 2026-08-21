@@ -643,6 +643,35 @@ Constraints applied: must NOT overlap Haqdarshak/Nyaykar/UnDeny/Dastavez/GovBot 
 
 ---
 
+## TURN 11 — REALITY CHECK + PHASE 7 HARDENING (shipped)
+
+User challenged: "is this just a toy?" Audit said: partially yes. Fixed in commit 5d6f06d.
+
+### What was toy → what it is now
+| Was | Now |
+|---|---|
+| In-memory single-case ledger | CaseStore interface, two seeded verticals (EPFO false rejection + IRCTC/RBI-TAT payment failure) |
+| Client-sent FSM state (injection flaw) | Server-owned httpOnly-cookie sessions with TTL sweep |
+| Unvalidated API bodies | zod enums gate every POST |
+| No rate limiting | Sliding-window 30/min/IP on POSTs, 429+retry-after |
+| Zero tests | npm test — tamper detection at exact broken event, deadlock proof, FSM replay, rupee math. 4/4 |
+| One hardcoded traceroute | Per-case traces; TAT case cites the actual RBI master direction |
+
+### The WHY (reasons this exists — for write-up/defense)
+1. **Legal automation, not policy advocacy:** RBI TAT ₹100/day auto-compensation and CPA-2019 deficiency precedents ALREADY exist; citizens never claim because tracking is manual. We mechanize existing entitlements.
+2. **Verification direction inverted:** industry checks citizen→rules; we check state→facts and preserve contradictions as evidence.
+3. **Accountability made visible:** CaseFlow sells who-holds-the-file views to departments; the citizen gets nothing. The traceroute hands the citizen the same map.
+4. **Institutional pressure design:** every escalation letter cites breached deadlines + codified law — converting individual grief into auditable patterns.
+5. **Why mock portals:** hackathon rules forbid live systems; the FSM replays DOCUMENTED real failures (cited in playbooks) so the demo is evidence-based, not imagined.
+
+### Remaining honest gaps (post-submission roadmap)
+- Evidence store = per-process by design (sandbox); swap-in adapter documented for Postgres/DigiLocker-backed deployment
+- npm audit highs are build-time-only (postcss/sharp via Next 15); Next 16 migration deferred deliberately past submission window
+- Voice/multilingual layer not built (Bhashini integration path documented)
+- Traceroute org-graph is synthetic; real version needs RTI-sourced office/delegation data
+
+---
+
 ## TURN 9 — VERIFICATION ROUND 2 + HOW TO BUILD, DEFEND & REACH GOV
 
 ### Verification results (N1–N4)
