@@ -1,13 +1,23 @@
 import { z } from "zod";
 
-export const LLM_VERSION = "1.0.0";
+export const LLM_VERSION = "2.0.0";
 
 export const AGENT_MODE = (process.env.AGENT_MODE ?? "llm") as "llm" | "deterministic";
 
-export function requireApiKey(): string {
-  const key = process.env.OPENAI_API_KEY;
-  if (!key) throw new Error("OPENAI_API_KEY not configured");
-  return key;
+interface Provider { name: string; baseUrl: string; apiKey: string; model: string; }
+
+export function resolveProvider(): Provider | null {
+  const openai = process.env.OPENAI_API_KEY;
+  if (openai) return { name: "openai", baseUrl: "https://api.openai.com/v1", apiKey: openai, model: process.env.LLM_MODEL ?? "gpt-4o-mini" };
+  const groq = process.env.GROQ_API_KEY;
+  if (groq) return { name: "groq", baseUrl: "https://api.groq.com/openai/v1", apiKey: groq, model: process.env.LLM_MODEL ?? "llama-3.3-70b-versatile" };
+  const gemini = process.env.GEMINI_API_KEY;
+  if (gemini) return { name: "gemini", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai", apiKey: gemini, model: process.env.LLM_MODEL ?? "gemini-2.0-flash" };
+  return null;
+}
+
+export function activeProviderName(): string {
+  return AGENT_MODE === "deterministic" ? "none" : resolveProvider()?.name ?? "fallback";
 }
 
 const LLMDecision = z.object({
@@ -31,19 +41,22 @@ export async function decideNextAction(input: {
   caseStatus: string;
   remainingActions: string[];
   recentEvents: { actor: string; type: string; payload: Record<string, unknown> }[];
-}): Promise<LLMDecision> {
+}): Promise<LLMDecision & { provider: string }> {
+  const provider = resolveProvider();
+  if (!provider) throw new Error("No LLM provider configured");
+
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 10_000);
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch(`${provider.baseUrl}/chat/completions`, {
       method: "POST",
       signal: controller.signal,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${requireApiKey()}`
+        Authorization: `Bearer ${provider.apiKey}`
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: provider.model,
         temperature: 0,
         response_format: { type: "json_object" },
         messages: [
@@ -61,11 +74,11 @@ export async function decideNextAction(input: {
         ]
       })
     });
-    if (!response.ok) throw new Error(`OpenAI HTTP ${response.status}`);
+    if (!response.ok) throw new Error(`LLM HTTP ${response.status} (${provider.name})`);
     const body = (await response.json()) as { choices?: { message?: { content?: string } }[] };
     const raw = body.choices?.[0]?.message?.content;
     if (!raw) throw new Error("Empty completion");
-    return LLMDecision.parse(JSON.parse(raw));
+    return { ...LLMDecision.parse(JSON.parse(raw)), provider: provider.name };
   } finally {
     clearTimeout(timer);
   }

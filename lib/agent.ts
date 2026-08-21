@@ -139,7 +139,7 @@ export async function nextAgentStep(caseId: string): Promise<AgentResult> {
       if (match) {
         chosen = match;
         mode = "llm";
-        appendEvent(record.id, "system", "LLM_DECISION", { chosenAction: decision.action, reasoning: decision.reasoning, allowListEnforced: true });
+        appendEvent(record.id, "system", "LLM_DECISION", { provider: decision.provider, chosenAction: decision.action, reasoning: decision.reasoning, allowListEnforced: true });
       }
     } catch {
       mode = "deterministic";
