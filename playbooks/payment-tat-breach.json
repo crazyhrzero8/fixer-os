@@ -1,0 +1,47 @@
+{
+  "id": "payment-tat-breach",
+  "caseId": "synthetic-irctc-001",
+  "kind": "payment-tat-breach",
+  "title": "Tatkal payment debited, no ticket",
+  "context": {
+    "source": "docs/hackathon-research.md — Batch 1 (IRCTC), Batch 4; legal: RBI circular DPSS.CO.PD No.629/02.01.014/2019-20 row UPI-merchant (auto-reversal T+5, ₹100/day thereafter)"
+  },
+  "steps": [
+    {
+      "marker": "PAYMENT_FAILURE_CONFIRMED",
+      "action": "INTERPRET_STATE",
+      "event": { "actor": "agent", "type": "PAYMENT_FAILURE_CONFIRMED", "payload": { "rrn": "{{facts.rrn}}", "ticketIssued": "{{facts.ticketIssued}}", "conclusion": "Debit without service confirmed against verified bank record" } },
+      "summary": "Failed transaction confirmed",
+      "detail": "RRN {{facts.rrn}}: money debited, no ticket issued. This is the exact failure pattern covered by RBI's TAT framework."
+    },
+    {
+      "marker": "TAT_DEMAND_DRAFTED",
+      "action": "DRAFT_REBUTTAL",
+      "event": { "actor": "agent", "type": "TAT_DEMAND_DRAFTED", "payload": { "rrn": "{{facts.rrn}}", "basis": "RBI TAT direction — auto-reversal within T+5 days, ₹100/day thereafter, effected suo moto without a claim" } },
+      "summary": "Auto-credit demand drafted",
+      "detail": "Cites RRN {{facts.rrn}} and the RBI TAT direction: the bank must reverse automatically; no claim form is even required."
+    },
+    {
+      "marker": "GATEWAY_COMPLAINT_FILED",
+      "action": "FILE_APPEAL",
+      "event": { "actor": "agent", "type": "GATEWAY_COMPLAINT_FILED", "payload": { "channel": "Bank grievance + merchant refund cell (parallel)", "closureGap": "No reversal credited past the T+5 window" } },
+      "summary": "Parallel complaints recorded",
+      "detail": "Bank grievance cites the RRN; a parallel RTI-ready note is filed against the merchant's refund cell."
+    },
+    {
+      "marker": "SLA_BREACH_CALCULATED",
+      "action": "CHECK_SLA",
+      "event": { "actor": "agent", "type": "SLA_BREACH_CALCULATED", "payload": { "daysElapsed": "{{tat.daysElapsed}}", "daysOverdue": "{{tat.daysOverdue}}", "compensationPaise": "{{tat.compensationPaise}}", "approximation": "calendar-day approximation of working days" } },
+      "summary": "TAT breach: {{tat.daysOverdue}} day(s) overdue",
+      "detail": "₹{{tat.compensationRupees}} accrued at ₹100/day beyond the T+5 reversal deadline."
+    },
+    {
+      "marker": "ESCALATION_SENT",
+      "action": "ESCALATE",
+      "event": { "actor": "agent", "type": "ESCALATION_SENT", "payload": { "addressee": "{{trace.blocker.designation}}", "letter": "{{letter}}" } },
+      "summary": "Escalation packet routed",
+      "detail": "The accountable node is named with the codified RBI entitlement attached.",
+      "complete": { "status": "RESOLVED", "systemEvent": { "type": "CASE_RESOLVED", "payload": { "resolution": "Synthetic escalation packet prepared and routed" } } }
+    }
+  ]
+}

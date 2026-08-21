@@ -1,3 +1,6 @@
+import { APP_CONFIG } from "./config";
+import { CASE_IDS } from "./ledger";
+
 export interface TraceNode { id: string; office: string; designation: string; statutoryDeadlineDays: number; daysHeld: number; rule: string; breached: boolean; }
 
 const EPFO_TRACE: TraceNode[] = [
@@ -13,8 +16,8 @@ const TAT_TRACE: TraceNode[] = [
   { id: "bank-nodal", office: "Bank Nodal Officer", designation: "Principal Nodal Officer", statutoryDeadlineDays: 30, daysHeld: 0, rule: "RBI Banking Ombudsman escalation destination", breached: false }
 ];
 
-export const SLA_COMPENSATION_PER_DAY = 100;
-const TRACES: Record<string, TraceNode[]> = { "synthetic-epfo-001": EPFO_TRACE, "synthetic-irctc-001": TAT_TRACE };
+export const SLA_COMPENSATION_PER_DAY = APP_CONFIG.sla.perDayRupees;
+const TRACES: Record<string, TraceNode[]> = { [CASE_IDS.epfo]: EPFO_TRACE, [CASE_IDS.irctc]: TAT_TRACE };
 
 export function traceSummary(caseId: string) {
   const nodes = TRACES[caseId] ?? EPFO_TRACE;
@@ -25,7 +28,7 @@ export function traceSummary(caseId: string) {
 
 export function escalationLetter(caseId: string): string {
   const { blocker, daysOverdue, tatCompensationAccrued } = traceSummary(caseId);
-  const isTat = caseId === "synthetic-irctc-001";
+  const isTat = caseId === CASE_IDS.irctc;
   const legalLine = isTat
     ? "RBI circular DPSS.CO.PD No.629/02.01.014/2019-20 (effective 15 Oct 2019) mandates suo-moto auto-reversal of this failed debit within T+5 days and ₹100/day compensation thereafter — no claim form is required, and para 5 obliges the bank to credit it without waiting for a complaint."
     : "The Chandigarh Consumer Commission (March 2026) held that software glitches do not excuse unexplained delays by EPFO — deficiency in service under CPA 2019.";

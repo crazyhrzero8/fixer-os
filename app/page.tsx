@@ -34,6 +34,14 @@ export default function Home() {
         state&rsquo;s claims against an independent, tamper-evident case ledger, proves rule
         deadlocks mathematically, and escalates with teeth.
       </p>
+      <div className="mt-8 grid max-w-2xl grid-cols-1 gap-2 text-[13px] sm:grid-cols-3">
+        {[["763 Mn/day", "UPI transactions — India's rails already work"], ["₹100/day", "RBI-mandated compensation citizens never claim"], ["31 / 957", "govt portals that passed their own GIGW audit"]].map(([stat, label]) => (
+          <div key={stat} className="rounded-lg border border-gray-800 bg-gray-900/60 px-3 py-2">
+            <p className="font-bold text-amber-400">{stat}</p>
+            <p className="text-xs leading-snug text-gray-400">{label}</p>
+          </div>
+        ))}
+      </div>
       <div className="mt-12 grid gap-6 sm:grid-cols-3">
         {routes.map((r) => (
           <Link

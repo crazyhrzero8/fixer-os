@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { initialPortalSnapshot, portalCitizen, PORTAL_STATES, PROCESSING_DAYS, type PortalAction, type PortalSnapshot } from "@/lib/portalFsm";
 
 const NAV = ["Home", "Member Passbook", "Claim Status", "Register Grievance", "Establishment Search", "Contact Us"];
@@ -13,6 +13,7 @@ const MARQUEE_ITEMS = [
 
 export default function Portal() {
   const [snapshot, setSnapshot] = useState<PortalSnapshot>(initialPortalSnapshot);
+  const [captchaText, setCaptchaText] = useState("");
   const [captcha, setCaptcha] = useState("");
   const [uan, setUan] = useState("100000000000");
   const [password, setPassword] = useState("demo1234");
@@ -20,13 +21,30 @@ export default function Portal() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    void (async () => {
+      try {
+        const r = await fetch("/api/portal/action");
+        const p = await r.json();
+        if (p.spaced) setCaptchaText(p.spaced as string);
+      } catch { setCaptchaText("7 K 3 M"); }
+    })();
+  }, []);
+
   async function dispatch(action: PortalAction) {
     setBusy(true); setError("");
     try {
-      const response = await fetch("/api/portal/action", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action }) });
+      const response = await fetch("/api/portal/action", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, value: action === "VERIFY_CAPTCHA" ? captcha : undefined }) });
       const result = (await response.json()) as { snapshot?: PortalSnapshot; error?: string };
       if (!response.ok || !result.snapshot) throw new Error(result.error ?? "Portal unavailable.");
       setSnapshot(result.snapshot);
+      if (result.error) setError(result.error);
+      if (action === "VERIFY_CAPTCHA") {
+        const refreshed = await fetch("/api/portal/action");
+        const p = await refreshed.json();
+        if (p.spaced) setCaptchaText(p.spaced as string);
+        setCaptcha("");
+      }
     } catch (caught) { setError(caught instanceof Error ? caught.message : "Portal unavailable."); }
     finally { setBusy(false); }
   }
@@ -88,12 +106,12 @@ export default function Portal() {
             <tr><td className="py-1 pr-4">Password:</td><td className="py-1"><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-52 border border-[#7f9db9] px-2 py-1 text-[13px]" aria-label="Password" /></td></tr>
             <tr><td className="py-1 pr-4">Enter Captcha Characters:</td><td className="py-1">
               <div className="flex items-center gap-3">
-                <span className="select-none border border-[#999] bg-[#2f2f2f] px-4 py-1.5 font-mono text-lg italic tracking-[0.35em] text-lime-300" style={{ textDecoration: "line-through dotted" }}>7 K 3 M</span>
+                <span className="select-none border border-[#999] bg-[#2f2f2f] px-4 py-1.5 font-mono text-lg italic tracking-[0.35em] text-lime-300" style={{ textDecoration: "line-through dotted" }}>{captchaText || "·····"}</span>
                 <input value={captcha} onChange={(e) => setCaptcha(e.target.value)} aria-label="Captcha" className="w-40 border border-[#7f9db9] px-2 py-1 text-[13px]" />
               </div>
               <p className="mt-1 text-[11px] text-[#777]">(Characters are case-insensitive. Kindly enter without spaces.)</p>
             </td></tr>
-            <tr><td colSpan={2} className="pt-3"><button onClick={() => dispatch("VERIFY_CAPTCHA")} disabled={busy || uan.trim() !== "100000000000" || password.length < 4 || captcha.trim().toUpperCase() !== "7K3M"} className={btn}>{busy ? "Verifying…" : "Verify &amp; Proceed"}</button></td></tr>
+            <tr><td colSpan={2} className="pt-3"><button onClick={() => dispatch("VERIFY_CAPTCHA")} disabled={busy || !uan.trim() || password.length < 4 || !captcha.trim()} className={btn}>{busy ? "Verifying…" : "Verify &amp; Proceed"}</button></td></tr>
           </tbody></table>
         </div>
       </section>}

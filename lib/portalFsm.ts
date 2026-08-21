@@ -1,4 +1,5 @@
 import { SYNTHETIC_CITIZEN } from "@/data/seed";
+import { APP_CONFIG } from "./config";
 
 /** Public states for the mock-portal replay. Kept exported for the agent module in Phase 3. */
 export const PORTAL_STATES = {
@@ -14,7 +15,7 @@ export const PORTAL_STATES = {
 export type PortalState = (typeof PORTAL_STATES)[keyof typeof PORTAL_STATES];
 export type PortalAction = "VERIFY_CAPTCHA" | "SUBMIT_ADVANCE_CLAIM" | "ADVANCE_DAY" | "OPEN_GRIEVANCE" | "SUBMIT_GRIEVANCE" | "RESET";
 export interface PortalSnapshot { state: PortalState; simulatedDays: number; message?: string; }
-export const PROCESSING_DAYS = 7;
+export const PROCESSING_DAYS = APP_CONFIG.portal.processingDays;
 export const initialPortalSnapshot = (): PortalSnapshot => ({ state: PORTAL_STATES.LOGIN_FRICTION, simulatedDays: 0 });
 
 export function transitionPortal(snapshot: PortalSnapshot, action: PortalAction): PortalSnapshot {

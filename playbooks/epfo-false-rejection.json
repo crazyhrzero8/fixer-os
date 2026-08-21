@@ -1,0 +1,47 @@
+{
+  "id": "epfo-false-rejection",
+  "caseId": "synthetic-epfo-001",
+  "kind": "epfo-false-rejection",
+  "title": "PF advance false rejection",
+  "context": {
+    "source": "docs/hackathon-research.md — Batch 3 (EPFO), legal: RBI circular DPSS.CO.PD No.629/02.01.014/2019-20; Chandigarh Consumer Commission order reported March 2026"
+  },
+  "steps": [
+    {
+      "marker": "FALSE_REJECTION_PROVEN",
+      "action": "INTERPRET_STATE",
+      "event": { "actor": "agent", "type": "FALSE_REJECTION_PROVEN", "payload": { "field": "name", "left": "{{facts.nameAsPerEmployer}}", "right": "{{facts.nameAsPerAadhaar}}", "result": "MATCH" } },
+      "summary": "False rejection proven",
+      "detail": "The portal claims a mismatch; the independently verified member-ID and primary-UAN names are both {{facts.nameAsPerAadhaar}}."
+    },
+    {
+      "marker": "REBUTTAL_DRAFTED",
+      "action": "DRAFT_REBUTTAL",
+      "event": { "actor": "agent", "type": "REBUTTAL_DRAFTED", "payload": { "subject": "Request for reversal of false name-mismatch rejection", "evidence": "Verified names match in hash-chained ledger" } },
+      "summary": "Evidence-backed rebuttal drafted",
+      "detail": "The draft cites matching-name evidence and requests a written disposition."
+    },
+    {
+      "marker": "APPEAL_FILED",
+      "action": "FILE_APPEAL",
+      "event": { "actor": "agent", "type": "APPEAL_FILED", "payload": { "channel": "Escalation route", "closureGap": "Grievance rejected its own tracking ID" } },
+      "summary": "Appeal route opened",
+      "detail": "The agent records the invalid-tracking-ID closure gap rather than retrying the locked grievance form."
+    },
+    {
+      "marker": "SLA_BREACH_CALCULATED",
+      "action": "CHECK_SLA",
+      "event": { "actor": "agent", "type": "SLA_BREACH_CALCULATED", "payload": { "daysOverdue": "{{trace.daysOverdue}}", "compensationAccrued": "{{trace.tatCompensationAccrued}}", "ratePerDay": "{{sla.perDayRupees}}" } },
+      "summary": "SLA breach: {{trace.daysOverdue}} days overdue",
+      "detail": "The clock records ₹{{trace.tatCompensationAccrued}} at ₹{{sla.perDayRupees}}/day for the overdue period, per RBI circular DPSS.CO.PD No.629/02.01.014/2019-20."
+    },
+    {
+      "marker": "ESCALATION_SENT",
+      "action": "ESCALATE",
+      "event": { "actor": "agent", "type": "ESCALATION_SENT", "payload": { "addressee": "{{trace.blocker.designation}}", "letter": "{{letter}}" } },
+      "summary": "Escalation packet routed",
+      "detail": "The accountable blocking node is named, the evidence bundle is chained, and the synthetic case is ready for disposition.",
+      "complete": { "status": "RESOLVED", "systemEvent": { "type": "CASE_RESOLVED", "payload": { "resolution": "Synthetic escalation packet prepared and routed" } } }
+    }
+  ]
+}

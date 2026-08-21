@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getCase, resetCase, verifyLedger } from "@/lib/ledger";
+import { CASE_IDS, getCase, resetCase, verifyLedger } from "@/lib/ledger";
 
-const idSchema = z.enum(["synthetic-epfo-001", "synthetic-irctc-001"]);
+const idSchema = z.enum([CASE_IDS.epfo, CASE_IDS.irctc]);
 
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
