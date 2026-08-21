@@ -12,7 +12,16 @@ what, phase by phase.
   `.env*`.
 - No business logic implemented yet, by design.
 
-## Phase 1 — Mock EPFO villain — PENDING (to be executed by Codex)
+## Phase 1 — Mock EPFO villain (Aug 21, 2026)
+
+- Implemented by: Codex.
+- Built `/portal` as a synthetic, deliberately hostile Member e-Sewa-style workflow: captcha
+  friction, PF advance submission, seven simulated days in `Under Process`, a false name-mismatch
+  rejection, an `Invalid tracking ID` grievance failure, and a 30-day grievance lockout.
+- Added `POST /api/portal/action` and the exported finite-state-machine contract in
+  `lib/portalFsm.ts`, so future modules can read and replay the same states. The rejection screen
+  cross-checks the two matching synthetic seed names directly; no live systems or real identity
+  data are used.
 
 ## Phase 2 — Hash-chained ledger — PENDING (Codex)
 
