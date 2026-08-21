@@ -897,3 +897,10 @@ After each phase: commit + push + paste the diff/summary back to me (opencode) f
 3. **LEDGER-AS-RECEIPT-PRINTER** (documented) — hash-chained payment events regenerate proof-of-payment when systems refuse; answers Sarathi print deadlock class.
 
 Wind-tunnel demo line for video: "We don't wait for the government to reject you — we run their own checks against your verified facts first."
+
+
+## TURN 18 — 4TH EVOLVED NOVELTY: PROVENANCE VERIFIER (SHIPPED)
+Agent sweep of account/credential/trust/compatibility clusters surfaced the highest-value unmet pain: citizens cannot verify they are on the REAL portal before damage occurs. Evidence: phishing = initial vector in 38% of fintech frauds (CERT-In); 28.15 lakh cybercrime cases 2025 (+24% YoY); fake IRCTC/EPFO/DigiLocker clones on Play Store; MeriPehchaan itself admits authenticity verification is delegated to citizens with no in-flow tooling; ITR portal browser-support page still lists Chrome 88-90 + Windows 7 (stale compat guidance as official policy).
+**Shipped:** /api/provenance POST {caseId, origin} → allowlist match over simulated official manifest → tier OFFICIAL/SANDBOX/UNKNOWN + TLS check → PROVENANCE_VERIFIED event chained into ledger. UI card auto-checks window.location.origin on case load.
+Complete citizen arc now: VERIFY you are on the real portal → PREDICT rejection (wind-tunnel) → PREVENT (fix list) → PROVE deadlocks (RuleGuard) → PROSECUTE (traceroute + SLA clock). Four mutations, one coherent product.
+Account-lifecycle findings archived for post-deadline: IRCTC double-OTP loops, EPFO 24h lockouts, mobile-change = office visit, Aadhaar-mobile propagation 10-90 days, SSO fatigue (MeriPehchaan ~11k services, low awareness), stale browser pins on official pages.
