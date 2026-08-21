@@ -3,7 +3,7 @@ import { nextAgentStep } from "@/lib/agent";
 import { getCase, verifyLedger } from "@/lib/ledger";
 
 export async function POST() {
-  const result = nextAgentStep();
+  const result = await nextAgentStep();
   const caseRecord = getCase();
   return NextResponse.json({ result, case: caseRecord, verification: caseRecord ? verifyLedger(caseRecord) : null });
 }

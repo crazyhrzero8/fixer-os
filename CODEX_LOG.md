@@ -36,6 +36,21 @@ what, phase by phase.
   records the grievance closure gap, calculates SLA impact, and routes an escalation while
   appending every action to the ledger. This demo path deliberately needs no API key.
 
+### Phase 3b — LLM action-selection layer (Aug 21, 2026)
+
+- Implemented by: opencode assistant (ox-alpha). Reason: contributor's Codex quota was
+  exhausted mid-build; Codex had delivered Phases 0–1 and the WIP architecture in commits
+  `8e3f558` and `3e887a9`.
+- Added `lib/llm.ts`: OpenAI gpt-4o-mini via fetch (zero new dependencies), JSON-mode output,
+  10s abort timeout, strict zod validation of `{action, reasoning}`.
+- Portal state and ledger events are passed to the model as untrusted data behind an
+  anti-injection system prompt; the model may only PICK an action from the remaining
+  allow-listed set — execution stays deterministic.
+- Every LLM decision is appended to the ledger as an `LLM_DECISION` event; any API or schema
+  failure silently falls back to the deterministic path; the console shows an
+  LLM-DECIDED / DETERMINISTIC FALLBACK badge per step. Without `OPENAI_API_KEY` the demo
+  still runs end-to-end.
+
 ## Phase 4 — RuleGuard proof integration (Aug 21, 2026)
 
 - Exposed the interval-constraint pension deadlock proof through `GET /api/prove/pension` and
