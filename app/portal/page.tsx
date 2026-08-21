@@ -14,6 +14,8 @@ const MARQUEE_ITEMS = [
 export default function Portal() {
   const [snapshot, setSnapshot] = useState<PortalSnapshot>(initialPortalSnapshot);
   const [captcha, setCaptcha] = useState("");
+  const [uan, setUan] = useState("100000000000");
+  const [password, setPassword] = useState("demo1234");
   const [trackingId, setTrackingId] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -37,6 +39,7 @@ export default function Portal() {
     <div className="h-1.5 w-full bg-gradient-to-r from-[#FF9933] via-white to-[#138808]" />
     <div className="bg-[#fff3cd] px-4 py-1 text-center text-[11px] text-[#664d03]">
       SIMULATION ONLY — independent hackathon prototype. Not affiliated with EPFO or any Government body. All data synthetic.
+      <b> Evaluation login — UAN: 100000000000 · Password: demo1234</b>
     </div>
 
     <header className="border-b-2 border-[#1a4b8e] bg-white">
@@ -81,7 +84,8 @@ export default function Portal() {
         <div className="border-b border-[#b8c4d0] bg-gradient-to-b from-[#eef3f9] to-[#dfe8f3] px-4 py-2 text-[15px] font-bold text-[#1a4b8e]">Member Login — Universal Account Number (UAN)</div>
         <div className="p-5">
           <table className="w-full max-w-xl text-[13px]"><tbody>
-            <tr><td className="py-1 pr-4 w-56">UAN:</td><td className="py-1">{portalCitizen.uan}</td></tr>
+            <tr><td className="py-1 pr-4 w-56">UAN:</td><td className="py-1"><input value={uan} onChange={(e) => setUan(e.target.value)} className="w-52 border border-[#7f9db9] px-2 py-1 text-[13px]" aria-label="UAN" /></td></tr>
+            <tr><td className="py-1 pr-4">Password:</td><td className="py-1"><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-52 border border-[#7f9db9] px-2 py-1 text-[13px]" aria-label="Password" /></td></tr>
             <tr><td className="py-1 pr-4">Enter Captcha Characters:</td><td className="py-1">
               <div className="flex items-center gap-3">
                 <span className="select-none border border-[#999] bg-[#2f2f2f] px-4 py-1.5 font-mono text-lg italic tracking-[0.35em] text-lime-300" style={{ textDecoration: "line-through dotted" }}>7 K 3 M</span>
@@ -89,7 +93,7 @@ export default function Portal() {
               </div>
               <p className="mt-1 text-[11px] text-[#777]">(Characters are case-insensitive. Kindly enter without spaces.)</p>
             </td></tr>
-            <tr><td colSpan={2} className="pt-3"><button onClick={() => dispatch("VERIFY_CAPTCHA")} disabled={busy || captcha.trim().toUpperCase() !== "7K3M"} className={btn}>{busy ? "Verifying…" : "Verify &amp; Proceed"}</button></td></tr>
+            <tr><td colSpan={2} className="pt-3"><button onClick={() => dispatch("VERIFY_CAPTCHA")} disabled={busy || uan.trim() !== "100000000000" || password.length < 4 || captcha.trim().toUpperCase() !== "7K3M"} className={btn}>{busy ? "Verifying…" : "Verify &amp; Proceed"}</button></td></tr>
           </tbody></table>
         </div>
       </section>}
