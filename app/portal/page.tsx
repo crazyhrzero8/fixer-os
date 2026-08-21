@@ -16,8 +16,8 @@ export default function Portal() {
   const [snapshot, setSnapshot] = useState<PortalSnapshot>(initialPortalSnapshot);
   const [captchaText, setCaptchaText] = useState("");
   const [captcha, setCaptcha] = useState("");
-  const [uan, setUan] = useState(SYNTHETIC_CITIZEN.evaluationUan);
-  const [password, setPassword] = useState(SYNTHETIC_CITIZEN.evaluationPassword);
+  const [uan, setUan] = useState<string>(SYNTHETIC_CITIZEN.evaluationUan);
+  const [password, setPassword] = useState<string>(SYNTHETIC_CITIZEN.evaluationPassword);
   const [trackingId, setTrackingId] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
