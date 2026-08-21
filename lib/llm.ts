@@ -13,6 +13,8 @@ export function resolveProvider(): Provider | null {
   if (groq) return { name: "groq", baseUrl: "https://api.groq.com/openai/v1", apiKey: groq, model: process.env.LLM_MODEL ?? "llama-3.3-70b-versatile" };
   const gemini = process.env.GEMINI_API_KEY;
   if (gemini) return { name: "gemini", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai", apiKey: gemini, model: process.env.LLM_MODEL ?? "gemini-2.0-flash" };
+  const gateway = process.env.AI_GATEWAY_API_KEY;
+  if (gateway) return { name: "vercel-ai-gateway", baseUrl: "https://ai-gateway.vercel.sh/v1", apiKey: gateway, model: process.env.LLM_MODEL ?? "zai/glm-5.2" };
   return null;
 }
 
