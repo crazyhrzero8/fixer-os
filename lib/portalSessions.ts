@@ -38,17 +38,16 @@ export function getCaptcha(sid: string): string {
 
 export function applyAction(sid: string, action: PortalAction, value?: string): PortalSnapshot {
   const session = getOrCreateSession(sid);
-  let next = transitionPortal(session.snapshot, action);
-  if (action === "VERIFY_CAPTCHA") {
-    next = (value ?? "").trim().toUpperCase() === session.captcha
-      ? transitionPortal(session.snapshot, "VERIFY_CAPTCHA")
-      : session.snapshot;
-  }
-  if (action === "RESET") next = transitionPortal(session.snapshot, "RESET");
-  if (next.state !== session.snapshot.state || action === "RESET" || action === "VERIFY_CAPTCHA") {
-    session.captcha = newCaptcha();
-  }
-  session.snapshot = next;
   session.lastSeen = Date.now();
-  return next;
+  if (action === "VERIFY_CAPTCHA") {
+    const ok = (value ?? "").trim().toUpperCase() === session.captcha;
+    if (!ok) {
+      session.captcha = newCaptcha();
+      return session.snapshot;
+    }
+    session.snapshot = transitionPortal(session.snapshot, action);
+    return session.snapshot;
+  }
+  session.snapshot = transitionPortal(session.snapshot, action);
+  return session.snapshot;
 }

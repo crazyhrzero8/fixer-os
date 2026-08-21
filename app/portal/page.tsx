@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { initialPortalSnapshot, portalCitizen, PORTAL_STATES, PROCESSING_DAYS, type PortalAction, type PortalSnapshot } from "@/lib/portalFsm";
+import { SYNTHETIC_CITIZEN } from "@/data/seed";
 
 const NAV = ["Home", "Member Passbook", "Claim Status", "Register Grievance", "Establishment Search", "Contact Us"];
 const MARQUEE_ITEMS = [
@@ -15,8 +16,8 @@ export default function Portal() {
   const [snapshot, setSnapshot] = useState<PortalSnapshot>(initialPortalSnapshot);
   const [captchaText, setCaptchaText] = useState("");
   const [captcha, setCaptcha] = useState("");
-  const [uan, setUan] = useState("100000000000");
-  const [password, setPassword] = useState("demo1234");
+  const [uan, setUan] = useState(SYNTHETIC_CITIZEN.evaluationUan);
+  const [password, setPassword] = useState(SYNTHETIC_CITIZEN.evaluationPassword);
   const [trackingId, setTrackingId] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -27,7 +28,7 @@ export default function Portal() {
         const r = await fetch("/api/portal/action");
         const p = await r.json();
         if (p.spaced) setCaptchaText(p.spaced as string);
-      } catch { setCaptchaText("7 K 3 M"); }
+      } catch { setError("Captcha service unavailable. Kindly refresh the page."); }
     })();
   }, []);
 
@@ -71,7 +72,7 @@ export default function Portal() {
           </div>
         </div>
         <div className="flex flex-col items-end gap-1 text-[11px] text-[#333]">
-          <div className="flex items-center gap-1"><span className="rounded border px-1.5 py-0.5 hover:bg-gray-100">हिन्दी</span><span className="rounded border border-[#1a4b8e] bg-[#1a4b8e] px-1.5 py-0.5 text-white">English</span><span className="ml-2">|&nbsp; A<sup>-</sup>&nbsp; A&nbsp; A<sup>+</sup></span></div>
+          <div className="flex items-center gap-1"><button type="button" className="rounded border px-1.5 py-0.5 hover:bg-gray-100">हिन्दी</button><button type="button" className="rounded border border-[#1a4b8e] bg-[#1a4b8e] px-1.5 py-0.5 text-white">English</button><span className="ml-2">|&nbsp; A<sup>-</sup>&nbsp; A&nbsp; A<sup>+</sup></span></div>
           <div className="flex items-center gap-1"><input className="border border-[#7f9db9] px-2 py-0.5 text-[12px]" placeholder="Search this website" /><button className={btn} type="button">Search</button></div>
           <span className="text-slate-500">Last updated: 21 August 2026 · Visitor No. 04,71,83,209</span>
         </div>
@@ -88,7 +89,7 @@ export default function Portal() {
       <div className="whitespace-nowrap will-change-transform" style={{ animation: "govmarquee 28s linear infinite" }}>
         {MARQUEE_ITEMS.map((m) => <span className="mr-16">&nbsp;&nbsp;◆&nbsp;&nbsp;{m}</span>)}
       </div>
-      <style jsx>{`@keyframes govmarquee { from { transform: translateX(100vw); } to { transform: translateX(-200vw); } }`}</style>
+      <style jsx>{`@keyframes govmarquee { from { transform: translateX(100vw); } to { transform: translateX(-200vw); } } @media (prefers-reduced-motion: reduce) { div[style*="govmarquee"] { animation: none; } }`}</style>
     </div>
 
     <div className="mx-auto max-w-6xl px-4 py-3 text-[12px] text-[#1a4b8e]">
@@ -96,7 +97,7 @@ export default function Portal() {
     </div>
 
     <main className="mx-auto max-w-6xl px-4 pb-10">
-      {error && <p className="mb-4 border-l-4 border-red-700 bg-red-50 p-3 text-[13px] text-red-900">{error}</p>}
+      {error && <p role="alert" className="mb-4 border-l-4 border-red-700 bg-red-50 p-3 text-[13px] text-red-900">{error}</p>}
 
       {snapshot.state === PORTAL_STATES.LOGIN_FRICTION && <section className="border border-[#b8c4d0]">
         <div className="border-b border-[#b8c4d0] bg-gradient-to-b from-[#eef3f9] to-[#dfe8f3] px-4 py-2 text-[15px] font-bold text-[#1a4b8e]">Member Login — Universal Account Number (UAN)</div>
@@ -126,13 +127,13 @@ export default function Portal() {
             <tr><td className="th">Bank Account (IFSC)</td><td className="border border-[#b8c4d0] px-2 py-1">{portalCitizen.bankIfsc}</td></tr>
             <tr><td className="th">Amount Required</td><td className="border border-[#b8c4d0] px-2 py-1">₹ 50,000/- (Rupees Fifty Thousand only)</td></tr>
           </tbody></table>
-          <label className="mt-4 block max-w-xl text-[12px]"><input type="checkbox" readOnly checked /> I hereby declare that the particulars furnished above are true and correct.</label>
+          <label className="mt-4 block max-w-xl text-[12px]"><input type="checkbox" checked disabled /> I hereby declare that the particulars furnished above are true and correct.</label>
           <div className="mt-4"><button onClick={() => dispatch("SUBMIT_ADVANCE_CLAIM")} disabled={busy} className={btn}>{busy ? "Submitting…" : "Submit Claim Form-31"}</button></div>
         </div>
       </section>}
 
       {snapshot.state === PORTAL_STATES.UNDER_PROCESS && <section className="border border-[#b8c4d0]">
-        <div className="border-b border-[#b8c4d0] bg-gradient-to-b from-[#eef3f9] to-[#dfe8f3] px-4 py-2 text-[15px] font-bold text-[#1a4b8e]">Online Claim Status — Tracking ID: PF/2026/A/0091847</div>
+        <div className="border-b border-[#b8c4d0] bg-gradient-to-b from-[#eef3f9] to-[#dfe8f3] px-4 py-2 text-[15px] font-bold text-[#1a4b8e]">Online Claim Status — Tracking ID: {SYNTHETIC_CITIZEN.claimTrackingId}</div>
         <div className="p-5">
           <table className="w-full max-w-2xl text-[13px]"><thead><tr><th className={th}>Date</th><th className={th}>Event</th><th className={th}>Remarks</th></tr></thead><tbody>
             <tr><td className="border px-2 py-1">Day 1</td><td className="border px-2 py-1">Claim Received</td><td className="border px-2 py-1">Under Process at Field Office</td></tr>
@@ -144,7 +145,7 @@ export default function Portal() {
       </section>}
 
       {snapshot.state === PORTAL_STATES.REJECTED && <section className="border border-[#b8c4d0]">
-        <div className="border-b border-[#b8c4d0] bg-gradient-to-b from-[#eef3f9] to-[#dfe8f3] px-4 py-2 text-[15px] font-bold text-[#1a4b8e]">Online Claim Status — Tracking ID: PF/2026/A/0091847</div>
+        <div className="border-b border-[#b8c4d0] bg-gradient-to-b from-[#eef3f9] to-[#dfe8f3] px-4 py-2 text-[15px] font-bold text-[#1a4b8e]">Online Claim Status — Tracking ID: {SYNTHETIC_CITIZEN.claimTrackingId}</div>
         <div className="p-5">
           <div className="max-w-2xl border-l-4 border-red-700 bg-red-50 p-3 text-[13px]"><b>Claim Rejected.</b><br />Reason: Name on requested Member ID and Primary UAN does not match. Kindly contact your employer for KYC updation.</div>
           <table className="mt-4 w-full max-w-2xl text-[13px]"><thead><tr><th className={th}>Particulars</th><th className={th}>As per Office Record</th></tr></thead><tbody>

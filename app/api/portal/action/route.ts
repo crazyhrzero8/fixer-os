@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { applyAction, getCaptcha } from "@/lib/portalSessions";
+import { APP_CONFIG } from "@/lib/config";
 import { clientKey, rateLimit } from "@/lib/ratelimit";
 
 const bodySchema = z.object({
@@ -15,7 +16,7 @@ async function ensureSessionCookie(): Promise<string> {
   const existing = jar.get(SESSION_COOKIE)?.value;
   if (existing) return existing;
   const sid = crypto.randomUUID();
-  jar.set(SESSION_COOKIE, sid, { httpOnly: true, sameSite: "lax", path: "/", maxAge: 1800 });
+  jar.set(SESSION_COOKIE, sid, { httpOnly: true, sameSite: "lax", path: "/", maxAge: APP_CONFIG.portalSessionTtlMs / 1000 });
   return sid;
 }
 

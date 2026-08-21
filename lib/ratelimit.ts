@@ -1,5 +1,7 @@
-const WINDOW_MS = 60_000;
-const MAX_REQUESTS = 30;
+import { APP_CONFIG } from "./config";
+
+const WINDOW_MS = APP_CONFIG.rateLimit.windowMs;
+const MAX_REQUESTS = APP_CONFIG.rateLimit.maxRequests;
 const hits = new Map<string, number[]>();
 
 export function rateLimit(key: string): { allowed: boolean; retryAfterSeconds: number } {

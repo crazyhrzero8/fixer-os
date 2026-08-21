@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { APP_CONFIG } from "./config";
 
 export const LLM_VERSION = "2.0.0";
 
@@ -24,7 +25,7 @@ export function activeProviderName(): string {
 
 const LLMDecision = z.object({
   action: z.enum(["INTERPRET_STATE", "DRAFT_REBUTTAL", "FILE_APPEAL", "CHECK_SLA", "ESCALATE"]),
-  reasoning: z.string().min(1).max(700)
+  reasoning: z.string().min(1).max(APP_CONFIG.llm.maxReasoningChars)
 });
 export type LLMDecision = z.infer<typeof LLMDecision>;
 
@@ -48,7 +49,7 @@ export async function decideNextAction(input: {
   if (!provider) throw new Error("No LLM provider configured");
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 10_000);
+  const timer = setTimeout(() => controller.abort(), APP_CONFIG.llm.timeoutMs);
   try {
     const response = await fetch(`${provider.baseUrl}/chat/completions`, {
       method: "POST",

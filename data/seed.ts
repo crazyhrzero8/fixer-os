@@ -8,7 +8,10 @@ export const SYNTHETIC_CITIZEN = {
   nameAsPerEmployer: "Arjun Kumar",
   bankIfsc: "SBIN0000001",
   bankIfscValid: true,
-  serviceYears: 9.67
+  serviceYears: 9.67,
+  claimTrackingId: "PF/2026/A/0091847",
+  evaluationUan: "100000000000",
+  evaluationPassword: "demo1234"
 } as const;
 
 export const SYNTHETIC_TXN = {
