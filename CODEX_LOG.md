@@ -23,14 +23,37 @@ what, phase by phase.
   cross-checks the two matching synthetic seed names directly; no live systems or real identity
   data are used.
 
-## Phase 2 — Hash-chained ledger — PENDING (Codex)
+## Phase 2 — Hash-chained ledger (Aug 21, 2026)
 
-## Phase 3 — Playbooks + agent loop — PENDING (Codex)
+- Implemented a seeded synthetic case with append-only SHA-256 event chaining, ledger verification,
+  reset/replay support, and `GET /api/case/:id`. The console displays each hash so the evidence
+  trail is inspectable rather than a visual-only claim.
 
-## Phase 4 — RuleGuard proof integration — PENDING (Codex)
+## Phase 3 — Playbooks + agent loop (Aug 21, 2026)
 
-## Phase 4.5 — Kaun Zimmedar traceroute — PENDING (Codex)
+- Activated provenance-noted playbooks and added a deterministic, allow-listed agent loop at
+  `POST /api/agent/step`. It proves the matching-name contradiction, creates a rebuttal,
+  records the grievance closure gap, calculates SLA impact, and routes an escalation while
+  appending every action to the ledger. This demo path deliberately needs no API key.
 
-## Phase 5 — Split-screen demo theater — PENDING (Codex)
+## Phase 4 — RuleGuard proof integration (Aug 21, 2026)
 
-## Phase 6 — Polish + submission assets — PENDING (Codex)
+- Exposed the interval-constraint pension deadlock proof through `GET /api/prove/pension` and
+  rendered its proof steps, route-around, and developer-ready bug report in the agent console.
+
+## Phase 4.5 — Kaun Zimmedar traceroute (Aug 21, 2026)
+
+- Added an accountable-route model and `GET /api/traceroute`: Member Portal → Field Office →
+  Regional Office → CPC. The trace marks breached nodes, identifies the Regional Office blocker,
+  calculates a synthetic ₹100/day SLA clock, and produces a pre-addressed escalation draft.
+
+## Phase 5 — Split-screen demo theater (Aug 21, 2026)
+
+- Built `/demo` as an auto-run comparison: one synthetic citizen remains stuck in the portal loop,
+  while the other follows the evidence/agent path to a routed resolution packet. It has replay and
+  pause controls for a live demo.
+
+## Phase 6 — Polish + submission assets (Aug 21, 2026)
+
+- Replaced the placeholder console and demo with cohesive dark, high-contrast presentation views;
+  added honest real-versus-mocked disclosures and preserved all synthetic-data constraints.

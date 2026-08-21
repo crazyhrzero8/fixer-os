@@ -1,6 +1,11 @@
 {
   "id": "name-mismatch",
   "version": "0.1.0",
-  "status": "stub",
-  "source": "to be populated from documented EPFO false-rejection cases (Phase 3)"
+  "status": "active",
+  "source": "Synthetic replay of documented EPFO false-rejection reports in docs/hackathon-research.md, Batch 3.",
+  "nodes": [
+    { "observe": "CLAIM_REJECTED", "match": "reason includes name does not match", "act": "INTERPRET_STATE" },
+    { "observe": "verified facts", "match": "nameAsPerEmployer equals nameAsPerAadhaar", "act": "DRAFT_REBUTTAL" },
+    { "observe": "GRIEVANCE_LOCKED_OUT", "match": "invalid tracking ID", "act": "FILE_APPEAL" }
+  ]
 }

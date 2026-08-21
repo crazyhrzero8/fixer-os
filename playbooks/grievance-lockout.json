@@ -1,6 +1,10 @@
 {
   "id": "grievance-lockout",
   "version": "0.1.0",
-  "status": "stub",
-  "source": "to be populated from documented EPFO grievance-trap cases (Phase 3)"
+  "status": "active",
+  "source": "Synthetic replay of documented EPFO grievance-lockout reports in docs/hackathon-research.md, Batch 3.",
+  "nodes": [
+    { "observe": "GRIEVANCE_LOCKED_OUT", "match": "next grievance allowed in 30 days", "act": "CHECK_SLA" },
+    { "observe": "SLA_BREACH_CALCULATED", "match": "daysOverdue > 0", "act": "ESCALATE" }
+  ]
 }

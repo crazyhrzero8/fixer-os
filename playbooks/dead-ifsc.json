@@ -1,6 +1,10 @@
 {
   "id": "dead-ifsc",
   "version": "0.1.0",
-  "status": "stub",
-  "source": "to be populated from r/epfoindia silent-rejection cases (Phase 3)"
+  "status": "active",
+  "source": "Synthetic playbook based on documented silent IFSC rejection patterns in docs/hackathon-research.md, Batch 3.",
+  "nodes": [
+    { "observe": "CLAIM_REJECTED", "match": "bank IFSC invalid", "act": "INTERPRET_STATE" },
+    { "observe": "verified facts", "match": "bankIfscValid is true", "act": "DRAFT_REBUTTAL" }
+  ]
 }

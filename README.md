@@ -17,15 +17,28 @@ between citizens and hostile public-service portals:
 
 ## Stack
 
-Next.js 15 (App Router) · TypeScript · Tailwind v4 · SQLite (planned, Phase 2) ·
-OpenAI structured outputs (Phase 3) · deterministic fallback mode.
+Next.js 15 (App Router) · TypeScript · Tailwind v4 · SHA-256 append-only in-memory demo ledger ·
+deterministic, allow-listed agent loop.
+
+## Architecture
+
+```text
+Mock portal → rejection/grievance events ┐
+Verified synthetic facts ────────────────┼→ hash-chained case ledger → FIXER.OS agent
+RuleGuard interval proof ────────────────┤                         ├→ rebuttal + escalation packet
+Mock office route ───────────────────────┘                         └→ accountable traceroute + SLA clock
+```
+
+The prototype is intentionally deterministic: it runs without an API key and only permits the
+five published agent actions. This makes the live demo repeatable and keeps untrusted portal text
+from becoming executable instructions.
 
 ## Structure
 
 ```
 app/          landing + /portal (mock villain) + /fixer (agent console) + /demo (theater)
-lib/          ledger (hash chain), schemas (zod), prover (RuleGuard), llm client
-playbooks/    JSON playbooks mined from documented real-world failure cases, sources cited
+lib/          ledger (hash chain), deterministic agent, traceroute, RuleGuard proof
+playbooks/    JSON playbooks with documented-case provenance notes
 data/         synthetic seed citizen (no real personal data, ever)
 docs/         research dossier behind the idea
 ```
