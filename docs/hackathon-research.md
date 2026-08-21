@@ -762,6 +762,38 @@ Deliberately NOT done (rationale): file-backed store (Vercel FS ephemeral → fa
 
 ---
 
+## TURN 16 — AGENT-SWEEP RESULTS + FINAL FIX BATCH (commits 0cc4f69→274e017)
+
+### Fresh rant research (2025-26 sources, agent sweep)
+- CPGRAMS iOS app rated **1.8/5** — "grievances unilaterally closed without reply" (App Store reviews 2025-26)
+- GSTN helpdesk: complaints spike **300-400% on due dates**; OTP valid 10 min while delivery lags under load
+- UIDAI OTP quota (~8-10/day) → "Maximum OTP attempts exceeded" → 24h lockout; 570 consumer complaints vs UIDAI, 442 unresolved
+- Sarathi deadlock: ~2/10 applications fail fee-receipt printing; RTO refuses application, portal forbids re-payment
+- EPFO: ~1 in 4 PF claims rejected yearly, mostly silent KYC mismatches; UAN allotment moved UMANG-mobile-only Aug 2025 → desktop users locked out entirely
+- Judge intel (JetBrains 2026 round-up, MLH rules, SIH rubric): working prototype in first 2 minutes beats everything; mock aggressively; honesty reads as confidence; core loop visible fast
+
+### Code-audit fixes shipped (final batch)
+| Audit finding | Fix |
+|---|---|
+| Unwinnable fallback captcha ("7 K 3 M" could never match server-random) | Removed; explicit service-unavailable error instead |
+| Captcha rotated even on SUCCESS → tab races | Rotates only on FAILED verification |
+| No try/catch or abort on console fetches | Wrapped runStep; errors surfaced via role="alert" |
+| rateLimit/llm-timeout/reasoning-cap/cookie-TTL duplicated config | All consume APP_CONFIG |
+| UAN/password/tracking-ID duplicated literals | Single source: data/seed.ts evaluation fields |
+| Fake `<li>`/`<span>` controls not keyboard-operable | Real `<button>` elements |
+| Marquee ignores prefers-reduced-motion | Media-query guard added |
+| slate-500-on-black contrast failures | Bumped to slate-400 |
+| Rant-driven: PDF/download failures everywhere in gov portals | **Download escalation letter (.txt)** button added |
+
+### Remaining honest gaps (documented, post-submission)
+1. Per-instance memory store on serverless (adapter documented for Postgres/Upstash)
+2. readFileSync playbook loading depends on Next file tracing (works; note for Edge migration)
+3. Ledger payload templates render before hashing (prose fidelity note)
+4. Full WCAG audit + screen-reader pass pending
+5. Secret scanning CI step (gitleaks) recommended before making repo public-sharable
+
+---
+
 ## TURN 13 — FINAL EVIDENCE ROUND + THE PLAIN-LANGUAGE STORY
 
 ### New hard numbers (Aug 2026 verified)
