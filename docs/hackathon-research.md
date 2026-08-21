@@ -707,6 +707,42 @@ User challenged: "is this just a toy?" Audit said: partially yes. Fixed in commi
 
 ---
 
+## TURN 14 — AUGUST 2026 REGULATORY COMPLIANCE AUDIT (fresh regs verified)
+
+### 1. DPDP Rules 2025 — NOTIFIED Nov 13, 2025 (MeitY). Phased enforcement:
+- Phase 1 (Nov 13, 2025): Rules live, Data Protection Board established
+- Phase 2 (Nov 12, 2026): Consent Manager registration obligations
+- Phase 3 (**May 12, 2027**): FULL compliance — itemized notices, consent flows, breach notification (immediate + detailed report in 72h), security safeguards (encryption, masking, access controls, log retention ≥1 year), grievance redressal ≤90 days, rights automation
+- **Our posture:** synthetic-only data = outside "personal data" scope today. Design already implements masking (Aadhaar XXXX-1234), audit logs (hash-chained ledger), security headers. Write-up claim: "DPDP-aware by design; full fiduciary obligations attach only at real-data deployment, before Phase 3 deadline May 12, 2027."
+
+### 2. India AI Governance Guidelines (MeitY, Nov 2025; launched at AI Impact Summit Feb 2026)
+- Voluntary framework; seven sutras incl. **Accountability** and **Understandable by Design**
+- Recommends: grievance redressal mechanisms, transparency reports, algorithmic fairness assessments, human oversight
+- **Our posture:** allow-listed LLM actions + reasoning logged per decision in ledger + deterministic fallback = textbook alignment. Cite the sutras in write-up.
+
+### 3. IT Amendment Rules 2026 (effective Feb 20, 2026) — first BINDING AI-specific rules
+- Scoped to intermediaries enabling synthetically generated information (deepfakes): labeling, provenance metadata, user declarations
+- **Our posture:** out of scope (no SGI generation). Noted for completeness.
+
+### 4. ⭐ NEW: RBI Responsible Business Conduct Third Amendment Directions 2026
+- Draft Mar 6, 2026 → FINAL issued **Jun 24, 2026 → effective Jan 1, 2027**
+- Creates a compensation regime for FRAUDULENT electronic banking transactions: small-value fraud (≤₹50k) victims get **85% of net loss or ₹25,000** (whichever lower), with **RBI itself funding 65%**
+- Complaint resolution SLA cut to **45 days** (domestic); shadow reversal within 5 calendar days for credit cards
+- **Why this matters enormously:** (a) proves the 2019 TAT framework is NOT superseded — different failure class (failed vs unauthorized transactions), both coexist; (b) the state is ACTIVELY EXPANDING citizen compensation obligations in digital payments — a regulatory tailwind proving demand for enforcement tooling; (c) suggests a THIRD future playbook type for FIXER.OS (fraud-EBT claims, report-within-5-days deadline tracking)
+- Sources: rbi.org.in press releases 2025-2026/2224 (Mar 6) & 2026-2027/533 (Jun 24); final directions DOR.MCS.REC.No.130/01-01-032/2026-27
+
+### Updated legal map (as of Aug 21, 2026)
+| Failure class | Governing rule | Citizen entitlement |
+|---|---|---|
+| Failed txn (debited, no service) | TAT circular 2019 (in force, unamended) | Auto-reversal T+5 (T+1 UPI P2P), ₹100/day after |
+| Fraudulent/unauthorized EBT | **NEW: RBC 3rd Amendment Directions 2026** (eff. Jan 1, 2027) | 85% of net loss / ₹25k cap, RBI-funded 65%, 45-day SLA |
+| Personal data handling | DPDP Act 2023 + Rules 2025 (full force May 12, 2027) | Consent, erasure, breach notice, grievance ≤90d |
+| AI systems | AI Gov Guidelines Nov 2025 (voluntary) + IT Rules 2026 SGI duties (intermediaries) | Transparency, grievance paths, provenance |
+
+**Meta-conclusion for the pitch:** every year the state writes MORE compensation law and builds LESS enforcement tooling. That gap IS the market. FIXER.OS sits exactly inside it.
+
+---
+
 ## TURN 13 — FINAL EVIDENCE ROUND + THE PLAIN-LANGUAGE STORY
 
 ### New hard numbers (Aug 2026 verified)
