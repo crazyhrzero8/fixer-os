@@ -1,0 +1,107 @@
+Rules and Harnesses for the challenge: Read it along with the transcribe!
+
+**STEP ONE**
+**WHAT TO BUILD**
+
+**10 OFFICIAL PLATFORMS TO PICK FROM**
+
+---
+
+* **IRCTC**
+(Indian Railway Catering and Tourism Corporation)
+* **Income Tax**
+e-Filing Portal
+* **CPGRAMS**
+(Centralised Public Grievance edress and Monitoring System)
+* **GST**
+(Goods and Services Tax)
+* **EPFO**
+(Employees' Provident Fund Organisation)
+* **MCA**
+(Ministry of Corporate Affairs) Portal
+* **National Cyber Crime**
+Reporting Portal
+* **UMANG**
+(Unified Mobile Application for New-age Governance)
+* **Parivahan Sewa**
+* **RTI**
+(Right to Information) Online
+
+
+**STEP ONE**
+
+**WHAT TO BUILD**
+
+---
+
+* **PICK FROM THE 10 LISTED PLATFORMS**
+Choose any of the 10 public-service platforms shown in the video.
+* **OFF-LIST PICKS ARE ALLOWED**
+Frustrated with a government site that isn't listed? Submit it anyway just know your odds dip if the judges haven't used that platform.
+* **EXCEPTIONAL WORK GETS SEEN**
+Build something truly outstanding and the team will notice on the list or off it.
+
+
+**STEP TWO**
+
+**A COMPLETE PROOF OF CONCEPT**
+
+---
+
+* **MOCK THE BACKEND**
+Rebuild the platform end-to-end with mock data, a mock backend, and mock accounts. It only needs to work for the judges not at real-world scale.
+* **MAKE IT WEB-ACCESSIBLE**
+Host anywhere ChatGPT's new Sites, Vercel, your own stack. Judges won't download mobile apps: if it doesn't open in a browser, it won't be reviewed.
+* **PROVIDE INSTANT LOGINS**
+Include working test credentials so the team can log in and try the product exactly like an end user would.
+* **PRIORITIZE THE USER EXPERIENCE**
+Only the consumer side is evaluated the admin side is assumed. Real implementation comes later, if your project is selected.
+
+
+**STEP THREE**
+
+**IDEAS OVER CODE**
+
+---
+
+* **INTERFACES & INTERACTIONS**
+Put your energy into the experience, not the plumbing. Implementation depends on each legacy stack that comes later, only if you are selected.
+* **SHIP BOLD, USEFUL IDEAS**
+A map, a tax calculator, a chatbot-driven flow the more unique but still useful to the end consumer, the better.
+* **BUILD FOR BUSY CITIZENS**
+They're frustrated, they don't have time, and they want a solution faster and simpler than the site they use today.
+* **SKIP THE BELLS & WHISTLES**
+Crazy 3D and Three.js showpieces look impressive but don't actually help the end user. Useful beats flashy.
+
+
+**STEP FOUR**
+
+**TEAM & EMAIL RULES**
+
+---
+
+* **TWO PEOPLE, MAX**
+Go solo or bring exactly one partner that is the hard cap.
+* **BOTH MUST REGISTER**
+Your partner needs the official form too. Send them the link today.
+* **ONE EMAIL, ALWAYS**
+Your registered email is your identity for every form, result, and invite no exceptions.
+* **SAME EMAIL IN BOTH ROUNDS**
+Switch emails, lose access, or submit from an unregistered ID and the small team can't recover you at 5,000+ scale.
+
+
+
+**STEP FIVE**
+
+**FOUR THINGS TO SUBMIT**
+
+---
+
+* **LIVE PUBLIC LINK**
+Host it anywhere - ChatGPT Sites, Vercel, your own domain, but it must open in a browser. No mobile-app downloads.
+* **2-MINUTE DEMO VIDEO**
+Minute 1: demo the product as a citizen. Minute 2: explain how you built it and why. Loom, OBS, or self-recorded teammates can co-present.
+* **250-WORD SUMMARY**
+Exactly 250 words on what it is and why it's better than the current solution.
+* **PARTNER'S EMAIL ID**
+You enter theirs; they enter yours the cross-match proves you're a real team. Going solo? Leave it blank. 
