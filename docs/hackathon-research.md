@@ -743,6 +743,25 @@ User challenged: "is this just a toy?" Audit said: partially yes. Fixed in commi
 
 ---
 
+## TURN 15 — FULL HARDENING PASS (rant→fix matrix, commit 0cc4f69)
+
+External evidence base: OWASP NHI Top 10 (secret leakage = top risk; 37% of orgs keep secrets in env/hardcoded), "Keys on Doormats" 2026 study (most web key leaks born in BUILD stage via JS bundles; NEXT_PUBLIC-style prefix accidents), GitGuardian (AI-assisted commits leak secrets 2× human rate; June 2026 Aikido: JetBrains plugins exfiltrated pasted API keys), OWASP Secrets Cheat Sheet (rotation, least privilege, audit).
+
+| Rant / risk class | Found in our code? | Fix shipped |
+|---|---|---|
+| Hardcoded journeys/logic | YES — agent step tables were TS; playbook JSONs decorative | **Playbook engine**: steps now live entirely in JSON (markers/actions/events/templates); adding a department = one JSON file + seed. Template renderer with dotted-path context |
+| Client-trusted captcha | YES — "7K3M" checked only client-side; static forever | **Server-generated per-session captcha**, server-verified, auto-rotates on each attempt/failure; UI fetches challenge from API |
+| Duplicated case-id literals | YES — zod enums duplicated across routes | Single CASE_IDS source; schemas derive from it |
+| Magic numbers scattered | YES — TTLs, limits, SLA rate, processing days inline | lib/config.ts single source; all modules consume it |
+| Missing CSP / Permissions-Policy | YES — only had X-Frame/nosniff/referrer | Full CSP + Permissions-Policy headers |
+| Secrets hygiene | Clean by design (server-only route handlers, no NEXT_PUBLIC_*) | Documented against OWASP NHI + bundling-leak patterns; warning issued re pasting keys into AI tools (Aikido campaign) |
+| Progress visibility | Console gave no sense of journey position | 5-stage progress chips (Interpret→Escalate) |
+| Evidence credibility on landing | Stats claimed but invisible | Three sourced chips: 763Mn/day UPI · ₹100/day law · 31/957 GIGW |
+
+Deliberately NOT done (rationale): file-backed store (Vercel FS ephemeral → fake persistence worse than honest adapter), auth beyond evaluation gate (consumer-side judging only), Next 16 migration (post-submission).
+
+---
+
 ## TURN 13 — FINAL EVIDENCE ROUND + THE PLAIN-LANGUAGE STORY
 
 ### New hard numbers (Aug 2026 verified)
