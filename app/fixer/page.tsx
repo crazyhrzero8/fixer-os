@@ -8,6 +8,7 @@ type CaseData = { id: string; kind: CaseKind; title: string; status: string; fac
 type Proof = { contradiction: boolean; domain: string; proofSteps: string[]; suggestedRouteAround: string; bugReport: string };
 type Trace = { nodes: { id: string; office: string; designation: string; statutoryDeadlineDays: number; daysHeld: number; rule: string; breached: boolean }[]; blocker: { office: string; designation: string }; daysOverdue: number; tatCompensationAccrued: number; escalationLetter: string };
 type CaseOption = { id: string; title: string; status: string };
+type Preflight = { ruleId: string; status: "PASS" | "FAIL" | "WARN"; message: string; fix: string };
 
 const eventLabel = (value: string) => value.replaceAll("_", " ");
 const factLine = (kind: CaseKind, facts: Record<string, unknown>) => {
@@ -30,6 +31,7 @@ export default function Fixer() {
   const [verified, setVerified] = useState(false);
   const [proof, setProof] = useState<Proof | null>(null);
   const [trace, setTrace] = useState<Trace | null>(null);
+  const [preflight, setPreflight] = useState<Preflight[]>([]);
   const [lastAction, setLastAction] = useState<{ action: string; summary: string; detail: string; mode?: string } | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -37,13 +39,15 @@ export default function Fixer() {
     const [caseResponse, proofResponse, traceResponse] = await Promise.all([
       fetch(`/api/case/${caseId}`),
       fetch("/api/prove/pension"),
-      fetch(`/api/traceroute?case=${caseId}`)
+      fetch(`/api/traceroute?case=${caseId}`),
+      fetch(`/api/preflight?case=${caseId}`)
     ]);
     if (caseResponse.ok) {
       const casePayload = await caseResponse.json();
       setCaseData(casePayload.case); setVerified(casePayload.verification?.valid === true);
     }
     setProof(await proofResponse.json()); setTrace(await traceResponse.json());
+    setPreflight((await preflightResponse.json()).results ?? []);
   }
   useEffect(() => { void (async () => { const r = await fetch("/api/cases"); const p = await r.json(); setCases(p.cases); })(); }, []);
   useEffect(() => { void load(selected); }, [selected]);
@@ -91,6 +95,7 @@ export default function Fixer() {
             </div>
             {lastAction && <div role="alert" className="mt-4 rounded border border-cyan-500/30 bg-cyan-500/10 p-3"><p className="text-xs font-bold text-cyan-300">{eventLabel(lastAction.action)}{lastAction.mode && <span className={`ml-2 rounded px-1.5 py-0.5 text-[10px] font-bold ${lastAction.mode === "llm" ? "bg-fuchsia-500/20 text-fuchsia-300" : "bg-slate-700/60 text-slate-300"}`}>{lastAction.mode === "llm" ? "LLM-DECIDED" : "DETERMINISTIC FALLBACK"}</span>}</p><p className="mt-1 font-semibold">{lastAction.summary}</p><p className="mt-1 text-sm text-slate-300">{lastAction.detail}</p></div>}
           </div>
+          <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-5"><p className="text-xs font-bold tracking-widest text-emerald-300 uppercase">Rejection Wind-Tunnel / pre-flight simulation</p><h2 className="mt-1 text-xl font-semibold">Would this claim survive the department&apos;s own checks?</h2><div className="mt-4 space-y-2">{preflight.map((r) => <div key={r.ruleId} className={`rounded border p-3 text-sm ${r.status === "PASS" ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-200" : r.status === "WARN" ? "border-amber-500/40 bg-amber-500/10 text-amber-200" : "border-red-500/40 bg-red-500/10 text-red-200"}`}><b className="mr-2">{r.status}</b>{r.message}{r.fix && <p className="mt-1 text-xs opacity-80">Fix: {r.fix}</p>}</div>)}</div><p className="mt-3 text-xs text-slate-400">Predicted against the same validation classes that silently reject ~1 in 4 PF claims. Synthetic rules; real pattern.</p></div>
           <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-5"><h2 className="font-semibold">Court-ready evidence timeline</h2><div className="mt-4 space-y-3 border-l border-slate-700 pl-4">{caseData.events.map((item) => <div key={item.id} className="relative"><span className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full bg-cyan-400" /><p className="text-xs text-slate-500">{item.actor.toUpperCase()} · {new Date(item.ts).toLocaleString()}</p><p className="text-sm font-semibold">{eventLabel(item.type)}</p><p className="mt-1 break-all font-mono text-[10px] text-slate-500">sha256 {item.hash}</p></div>)}</div></div>
           {proof && caseData.kind === "epfo-false-rejection" && <div className="rounded-xl border border-fuchsia-500/30 bg-fuchsia-500/5 p-5"><p className="text-xs font-bold tracking-widest text-fuchsia-300 uppercase">RuleGuard / mechanically proven</p><h2 className="mt-1 text-xl font-semibold">No valid outcome exists for {proof.domain}</h2><ol className="mt-3 list-decimal space-y-1 pl-5 text-sm text-slate-300">{proof.proofSteps.map((step) => <li key={step}>{step}</li>)}</ol><p className="mt-4 text-sm text-fuchsia-200">Route around: {proof.suggestedRouteAround}</p></div>}
         </section>

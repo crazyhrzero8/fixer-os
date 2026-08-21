@@ -9,6 +9,7 @@ export const SYNTHETIC_CITIZEN = {
   bankIfsc: "SBIN0000001",
   bankIfscValid: true,
   serviceYears: 9.67,
+  enominationDone: true,
   claimTrackingId: "PF/2026/A/0091847",
   evaluationUan: "100000000000",
   evaluationPassword: "demo1234"
