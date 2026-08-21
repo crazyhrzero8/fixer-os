@@ -27,7 +27,7 @@ const SYSTEM_PROMPT = [
 ].join(" ");
 
 export async function decideNextAction(input: {
-  portalState: string;
+  caseKind: string;
   caseStatus: string;
   remainingActions: string[];
   recentEvents: { actor: string; type: string; payload: Record<string, unknown> }[];
@@ -52,8 +52,8 @@ export async function decideNextAction(input: {
             role: "user",
             content: JSON.stringify({
               instruction: "Pick one action strictly from remainingActions.",
+              caseKind: input.caseKind,
               remainingActions: input.remainingActions,
-              portalState: input.portalState,
               caseStatus: input.caseStatus,
               recentLedgerEvents: input.recentEvents.slice(-6)
             })

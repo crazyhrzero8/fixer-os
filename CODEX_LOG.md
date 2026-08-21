@@ -72,3 +72,24 @@ what, phase by phase.
 
 - Replaced the placeholder console and demo with cohesive dark, high-contrast presentation views;
   added honest real-versus-mocked disclosures and preserved all synthetic-data constraints.
+
+## Phase 7 — Production-hardening (Aug 21, 2026)
+
+- Implemented by: opencode assistant (ox-alpha). Trigger: contributor audit flagged toy-grade
+  properties — single in-memory case, client-trusted FSM state, unvalidated requests, zero tests.
+- **Multi-case platform:** ledger refactored from a global singleton to a `CaseStore` interface
+  (`lib/store.ts`) holding two seeded verticals — EPFO false rejection AND an IRCTC/RBI-TAT
+  payment-failure case — proving the playbook engine generalizes beyond one macro.
+- **Server-owned portal sessions:** `/api/portal/action` no longer accepts a client-supplied
+  snapshot (state-injection flaw closed). FSM state lives in httpOnly-cookie-keyed server
+  sessions with TTL sweep; clients submit only validated actions.
+- **Validation everywhere:** zod schemas gate every API body (`action`, `caseId` enums).
+- **Rate limiting:** sliding-window limiter (30 req/min per IP per route) on all POST APIs
+  with 429 + retry-after.
+- **Tests:** `npm test` (tsx + node:test) covers ledger tamper detection at the exact broken
+  event, the pension interval deadlock proof, the full portal FSM failure replay, and
+  traceroute overdue/rupee math for both cases. 4/4 passing.
+- **Known accepted risk (documented):** `npm audit` flags 3 highs inside postcss/sharp pulled
+  in by Next 15 build tooling. These are build-time dependencies with no runtime request path;
+  remediation requires a Next 16 major migration, deliberately deferred until after the
+  submission window to protect stability.

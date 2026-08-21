@@ -16,7 +16,7 @@ export default function Portal() {
   async function dispatch(action: PortalAction) {
     setBusy(true); setError("");
     try {
-      const response = await fetch("/api/portal/action", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, snapshot }) });
+      const response = await fetch("/api/portal/action", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action }) });
       const result = (await response.json()) as { snapshot?: PortalSnapshot; error?: string };
       if (!response.ok || !result.snapshot) throw new Error(result.error ?? "Portal unavailable.");
       setSnapshot(result.snapshot);
