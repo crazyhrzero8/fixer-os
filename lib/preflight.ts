@@ -28,10 +28,11 @@ function lookup(ctx: Record<string, unknown>, template: string): unknown {
 
 function evaluate(rule: z.infer<typeof ruleSchema>, ctx: Record<string, unknown>): PreflightResult {
   const left = lookup(ctx, rule.test.left);
+  const right = lookup(ctx, String(rule.test.right ?? ""));
   let passed: boolean;
   switch (rule.test.op) {
-    case "eq": passed = left === rule.test.right; break;
-    case "neq": passed = left !== rule.test.right; break;
+    case "eq": passed = left === right; break;
+    case "neq": passed = left !== right; break;
     case "truthy": passed = Boolean(left); break;
     case "notInRange": {
       const n = Number(left);

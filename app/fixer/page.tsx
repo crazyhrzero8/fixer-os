@@ -79,7 +79,7 @@ export default function Fixer() {
     setLastAction(null); await load(selected); setBusy(false);
   }
 
-  return <main className="min-h-screen bg-[#090b12] px-4 py-8 text-slate-100 sm:px-8">
+  return <main className="min-h-screen bg-[#0a0a0f] px-4 py-8 text-slate-100 sm:px-8">
     <div className="mx-auto max-w-7xl">
       <header className="flex flex-wrap items-end justify-between gap-4 border-b border-slate-800 pb-6">
         <div><p className="text-xs font-bold tracking-[0.24em] text-cyan-400 uppercase">FIXER.OS / Accountability console</p><h1 className="mt-2 text-3xl font-bold sm:text-4xl">Audit the decision, not the citizen.</h1><p className="mt-2 max-w-2xl text-sm text-slate-400">Synthetic demonstration. The portal is untrusted; verified facts and every agent action are chained into independent evidence.</p></div>
