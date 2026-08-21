@@ -9,6 +9,7 @@ type Proof = { contradiction: boolean; domain: string; proofSteps: string[]; sug
 type Trace = { nodes: { id: string; office: string; designation: string; statutoryDeadlineDays: number; daysHeld: number; rule: string; breached: boolean }[]; blocker: { office: string; designation: string }; daysOverdue: number; tatCompensationAccrued: number; escalationLetter: string };
 type CaseOption = { id: string; title: string; status: string };
 type Preflight = { ruleId: string; status: "PASS" | "FAIL" | "WARN"; message: string; fix: string };
+type Prov = { origin: string; secure: boolean; tier: "OFFICIAL" | "SANDBOX" | "UNKNOWN"; service: string | null; note: string };
 
 const eventLabel = (value: string) => value.replaceAll("_", " ");
 const factLine = (kind: CaseKind, facts: Record<string, unknown>) => {
@@ -32,6 +33,7 @@ export default function Fixer() {
   const [proof, setProof] = useState<Proof | null>(null);
   const [trace, setTrace] = useState<Trace | null>(null);
   const [preflight, setPreflight] = useState<Preflight[]>([]);
+  const [provenance, setProvenance] = useState<Prov | null>(null);
   const [lastAction, setLastAction] = useState<{ action: string; summary: string; detail: string; mode?: string } | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -51,6 +53,14 @@ export default function Fixer() {
   }
   useEffect(() => { void (async () => { const r = await fetch("/api/cases"); const p = await r.json(); setCases(p.cases); })(); }, []);
   useEffect(() => { void load(selected); }, [selected]);
+  useEffect(() => {
+    void (async () => {
+      try {
+        const r = await fetch("/api/provenance", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ caseId: selected, origin: window.location.origin }) });
+        if (r.ok) setProvenance((await r.json()).verdict);
+      } catch { /* provenance check is best-effort */ }
+    })();
+  }, [selected]);
 
   async function runStep() {
     setBusy(true);
@@ -101,6 +111,7 @@ export default function Fixer() {
         </section>
         <aside className="space-y-6">
           {trace && <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-5"><p className="text-xs font-bold tracking-widest text-amber-300 uppercase">Kaun Zimmedar? / File traceroute</p><h2 className="mt-1 text-xl font-semibold">The blocking node is visible.</h2><div className="mt-5 space-y-2">{trace.nodes.map((node, index) => <div key={node.id}><div className={`rounded border p-3 ${node.breached ? "border-red-500/50 bg-red-500/10" : "border-slate-700 bg-slate-950"}`}><div className="flex justify-between gap-2"><b className="text-sm">{node.office}</b><span className={node.breached ? "text-xs text-red-300" : "text-xs text-slate-400"}>{node.breached ? "BREACHED" : "ESCALATION TARGET"}</span></div><p className="mt-1 text-xs text-slate-300">{node.designation} · held {node.daysHeld}d / deadline {node.statutoryDeadlineDays}d</p><p className="mt-1 text-[11px] text-slate-500">{node.rule}</p></div>{index < trace.nodes.length - 1 && <div className="ml-5 h-4 border-l border-slate-600" />}</div>)}</div><div className="mt-5 rounded bg-amber-500/10 p-3"><p className="text-xs text-amber-200">SLA CLOCK{caseData.kind === "payment-tat-breach" ? " · RBI TAT" : ""}</p><p className="text-2xl font-bold text-amber-300">₹{trace.tatCompensationAccrued.toLocaleString("en-IN")}</p><p className="text-xs text-slate-400">{trace.daysOverdue} overdue days × ₹100/day · synthetic demo calculator</p></div><details className="mt-4"><summary className="cursor-pointer text-sm text-cyan-300">View pre-addressed escalation draft</summary><pre className="mt-3 whitespace-pre-wrap rounded bg-slate-950 p-3 text-xs text-slate-300">{trace.escalationLetter}</pre><button type="button" onClick={() => { const blob = new Blob([trace.escalationLetter], { type: "text/plain" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `escalation-${caseData.id}.txt`; a.click(); URL.revokeObjectURL(url); }} className="mt-2 rounded border border-slate-700 px-2 py-1 text-xs hover:border-cyan-400">Download letter (.txt)</button></details></div>}
+          <div className="rounded-xl border border-sky-500/30 bg-sky-500/5 p-5"><p className="text-xs font-bold tracking-widest text-sky-300 uppercase">Provenance verifier / is this portal genuine?</p><h2 className="mt-1 text-xl font-semibold">{provenance ? (provenance.tier === "OFFICIAL" ? "Official manifest match." : provenance.tier === "SANDBOX" ? "Registered sandbox origin." : "Untrusted origin.") : "Checking origin…"}</h2><div className="mt-3 space-y-1 text-sm text-slate-300">{provenance && <><p>Origin: <b className="break-all">{provenance.origin}</b></p><p>TLS secure: <b className={provenance.secure ? "text-emerald-400" : "text-red-400"}>{String(provenance.secure)}</b></p><p>Verdict written to ledger as PROVENANCE_VERIFIED.</p><p className="text-xs text-slate-400">{provenance.note}</p></>}</div><p className="mt-3 text-xs text-slate-400">Phishing clones are the top monetized attack on citizens (28 lakh+ cybercrime cases in 2025). Verification belongs in-flow, before any claim is filed.</p></div>
           <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-5"><h2 className="font-semibold">What is real in this prototype?</h2><ul className="mt-3 space-y-2 text-sm text-slate-400"><li>✓ SHA-256 hash-chain verification per case</li><li>✓ LLM action-selection with strict schema + allow-list, deterministic fallback</li><li>✓ Server-owned portal sessions, request validation, rate limiting</li><li>✓ Interval-logic deadlock proof (EPFO rules)</li><li>✓ Codified RBI TAT compensation calculator (payment case)</li><li className="text-slate-500">◌ Portal, case facts, deadlines, and outcomes are synthetic; evidence store is per-process by design for this sandboxed demo.</li></ul></div>
         </aside>
       </div>}

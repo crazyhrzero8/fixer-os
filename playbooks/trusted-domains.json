@@ -1,0 +1,10 @@
+{
+  "registry": [
+    { "patterns": ["https://www.epfindia.gov.in", "https://epfindia.gov.in", "https://unifiedportal-mem.epfindia.gov.in"], "service": "EPFO", "tier": "OFFICIAL" },
+    { "patterns": ["https://www.irctc.co.in"], "service": "IRCTC", "tier": "OFFICIAL" },
+    { "patterns": ["https://incometax.gov.in"], "service": "Income Tax e-Filing", "tier": "OFFICIAL" },
+    { "patterns": ["https://web.umang.gov.in"], "service": "UMANG", "tier": "OFFICIAL" },
+    { "patterns": ["https://parivahan.gov.in"], "service": "Parivahan Sewa", "tier": "OFFICIAL" }
+  ],
+  "sandboxNote": "Any HTTPS origin not listed above is classified SANDBOX during this hackathon simulation. In production, the registry would be a signed, government-published manifest distributed via DigiLocker/CDN."
+}
