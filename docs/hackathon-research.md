@@ -888,3 +888,12 @@ After each phase: commit + push + paste the diff/summary back to me (opencode) f
 - Never commit .env.local
 - If Codex goes off-track: stop, don't patch manually, tell me — I'll rewrite the prompt
 - Fallback phrase if LLM features misbehave later: AGENT_MODE=deterministic env flag (built in Phase 3)
+
+
+## TURN 17 — EVOLVED NOVELTIES from final rant sweep
+
+1. **REJECTION WIND-TUNNEL** (SHIPPED, commit "feat: Rejection Wind-Tunnel") — mutation of the 1-in-4 silent-rejection stat + GST due-date spikes. Generic JSON-rule engine evaluates department validation classes against ledger facts BEFORE filing; PASS/FAIL/WARN chips with fixes. Narrative loop complete: predict (wind-tunnel) → prevent (fix list) → prove (RuleGuard) → prosecute (traceroute + SLA clock). No competitor does pre-flight rejection prediction.
+2. **CLOSURE-QUALITY INDEX** (documented) — template-closure detection scored per department; weaponizes disposal KPIs. Post-deadline build.
+3. **LEDGER-AS-RECEIPT-PRINTER** (documented) — hash-chained payment events regenerate proof-of-payment when systems refuse; answers Sarathi print deadlock class.
+
+Wind-tunnel demo line for video: "We don't wait for the government to reject you — we run their own checks against your verified facts first."
