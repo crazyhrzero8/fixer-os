@@ -707,6 +707,27 @@ User challenged: "is this just a toy?" Audit said: partially yes. Fixed in commi
 
 ---
 
+## TURN 13 — FINAL EVIDENCE ROUND + THE PLAIN-LANGUAGE STORY
+
+### New hard numbers (Aug 2026 verified)
+- **UPI (NPCI official):** 23.66 billion transactions in July 2026 alone; ₹29.88 lakh crore value; **763 million transactions/day average**; FY26 sustained rate **7,639 payments/second**; processes more daily volume than Visa handles globally. India's rails are world-class.
+- **CrowdStrike/Delta case:** one faulty software update → **$500M+ damage to one airline**, 7,000 cancelled flights, 1.3M passengers disrupted, years of litigation over WHO PAYS. Total direct losses across companies: **$5.4 billion** (Parametrix estimate).
+- **FCA (UK regulator) post-mortem lessons:** firms with pre-approved communication templates, service status pages, and mapped business-service ownership recovered faster. Regulators now MANDATE this (PS21/3).
+
+### The story in one breath
+India built the world's fastest payment rails (UPI: 7,639 TPS) but left citizens to fight the state's broken front-ends alone. In private industry, every failure class has an owner, a compensation rule, and an audit trail. In government, the citizen IS the owner of every failure — that's what FIXER.OS reverses.
+
+### Delta vs EPFO comparison (write-up gold)
+| | CrowdStrike→Delta | EPFO→Citizen |
+|---|---|---|
+| Failure | Faulty update crashed systems | False rejection + portal lockout |
+| Cost to victim | $500M, publicly quantified | Untold — nobody even measures |
+| Accountability | Lawsuits, SEC filings, regulators engaged | "Invalid tracking ID", 30-day lockout |
+| Compensation path | Courts/litigation (expensive) | RBI TAT exists but ~nobody claims it |
+| FIXER.OS role | — | Automates the claim path the law already grants |
+
+---
+
 ## TURN 9 — VERIFICATION ROUND 2 + HOW TO BUILD, DEFEND & REACH GOV
 
 ### Verification results (N1–N4)
