@@ -672,6 +672,41 @@ User challenged: "is this just a toy?" Audit said: partially yes. Fixed in commi
 
 ---
 
+## TURN 12 — INDUSTRY BENCHMARK ROUND (Aug 2026 sources): how MNCs solve each pillar we touch
+
+### Pillar A — Burst absorption (our QueueNet thesis)
+- **Cloudflare Waiting Room**: runs in 300+ cities; Durable Objects hierarchy (per-DC DOs reporting to a global DO); queue decision = user slots vs `total_active_users` (recommended: 75% of origin capacity); ETA math = users-ahead ÷ avg-admissions-per-minute. Proven: Canada's Verto Health served **4M+ vaccination customers**, Latvia survived thousands of RPS, County of San Luis Obispo held 23k-user surges.
+- **Akamai**: two modes — probabilistic admission ("a valve, not a queue") vs third-party ordered queues (Queue-it/CrowdHandler) that keep ordering CENTRAL and enforce at the EDGE via signed tokens (~20ms overhead). Key lesson: edge is great at stateless validation, bad at stateful ordering.
+- **Ticketmaster scale**: Taylor Swift onsale = **5M fans : 60K seats (83:1)**; architecture = Redis sorted-set queue (ZADD join-ts, ZRANK position, ZPOPMIN release @5K/sec), signed JWT admission tokens (15-min TTL, nonce replay protection), Kafka-driven seat maps.
+- **Mapping**: IRCTC Tatkal = 4 lakh simultaneous logins daily (official figure) with ZERO waiting room. Our QueueNet concept mirrors Cloudflare's slot model. NOT BUILT (documented alternative) — flagship instead attacks the accountability layer.
+
+### Pillar B — Transaction integrity (our TAT case is the citizen-side version)
+- **Stripe** ($1T volume): Idempotency-Key per mutating request (per-account scoped, cached responses INCLUDING errors, parameter fingerprinting → 409 on mismatch, v2 retries re-execute safely within 30 days); atomic phases = commit local intent BEFORE any foreign call; recovery points survive crashes; background "completer" drains orphans; append-only double-entry LEDGER as source of truth; reconciliation jobs flag mismatches >24h.
+- **Government reality**: IRCTC/Vahan/passport all exhibit debit-without-service with NO idempotency visible to citizens, NO reconciliation surface, manual refund chasing.
+- **Mapping**: our payment-tat-breach case + hash-chained ledger IS a citizen-side reconciliation instrument. Stripe proves the pattern; RBI TAT provides the legal hook; we productize the claim side.
+
+### Pillar C — SLA compensation automation
+- **EU261**: €250/400/600 distance-tiered compensation; extraordinary-circumstances defense excluded for mechanical/crew issues.
+- **US DOT 2024 automatic refund rule**: cash refunds within 7 business days for 3+hr domestic changes; penalties up to **$37,377/violation**.
+- **Industry products**: Koala (detects disruption BEFORE traveller complains, pays <48h), Autocomp (>3s decisions), Payouts Network (rules-based instant payouts, push-to-card <30s).
+- **AWS SLA credits**: exist but CLAIM-BASED — customer must file, must include specified info, missed deadlines disqualify. (Same trap as RBI TAT!)
+- **Mapping**: India's RBI TAT ₹100/day is codified but 100% claim-invisible. We are the Koala/Autocomp of government-service failures — the only missing piece nobody built.
+
+### Pillar D — Incident transparency
+- Every major vendor runs status pages (Cloudflare/Atlassian/AWS health dashboards) + proactive subscriber notifications. Gov India: zero surfaces (verified Batch 7). SarkarStatus remains an open build slot.
+
+### What this round CHANGES in our positioning
+- The write-up can now cite exact industry numbers (83:1 demand ratio, 4M queued vaccinations, Stripe $1T idempotency, DOT $37,377 penalties) proving every FIXER.OS pillar has a proven private-sector analogue that Indian gov infrastructure lacks.
+- Category sentence final form: *"Ticketmaster queues demand. Stripe guarantees money moves atomically. Airlines auto-compensate delays. Governments do none of the three — FIXER.OS gives citizens the enforcement side."*
+
+### Pending checklist after this round
+1. Next 16 migration (kills 3 audit highs) — deferred deliberately, post-submission
+2. Vercel deploy + env key
+3. Video + write-up (industry numbers above feed directly into it)
+4. Registration form
+
+---
+
 ## TURN 9 — VERIFICATION ROUND 2 + HOW TO BUILD, DEFEND & REACH GOV
 
 ### Verification results (N1–N4)
