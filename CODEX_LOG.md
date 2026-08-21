@@ -93,3 +93,13 @@ what, phase by phase.
   in by Next 15 build tooling. These are build-time dependencies with no runtime request path;
   remediation requires a Next 16 major migration, deliberately deferred until after the
   submission window to protect stability.
+
+## Phase 8 — Multi-provider LLM layer (Aug 21, 2026)
+
+- Implemented by: opencode assistant (ox-alpha).
+- Contributor has no paid AI access; requirement is that AI remains meaningfully integrated
+  without cost. `lib/llm.ts` now auto-detects any of three OpenAI-protocol providers:
+  OpenAI (paid) / Groq (free tier, console.groq.com) / Gemini (free tier,
+  aistudio.google.com). Provider used is recorded inside every LLM_DECISION ledger event.
+- With zero keys configured the console still completes every journey deterministically —
+  the submission never depends on a live model.
