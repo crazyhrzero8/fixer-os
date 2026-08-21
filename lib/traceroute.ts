@@ -27,7 +27,7 @@ export function escalationLetter(caseId: string): string {
   const { blocker, daysOverdue, tatCompensationAccrued } = traceSummary(caseId);
   const isTat = caseId === "synthetic-irctc-001";
   const legalLine = isTat
-    ? "RBI's Harmonisation of TAT framework mandates auto-reversal of a failed debit within T+5 working days and ₹100/day compensation thereafter — no claim form required."
+    ? "RBI circular DPSS.CO.PD No.629/02.01.014/2019-20 (effective 15 Oct 2019) mandates suo-moto auto-reversal of this failed debit within T+5 days and ₹100/day compensation thereafter — no claim form is required, and para 5 obliges the bank to credit it without waiting for a complaint."
     : "The Chandigarh Consumer Commission (March 2026) held that software glitches do not excuse unexplained delays by EPFO — deficiency in service under CPA 2019.";
   return `To: ${blocker.designation}, ${blocker.office}\n\nSubject: Escalation — synthetic case ${caseId}\n\nThe independent case ledger records the failure and every subsequent inaction. The case has remained at ${blocker.office} for ${blocker.daysHeld} days against a ${blocker.statutoryDeadlineDays}-day handling window — ${daysOverdue} days overdue.\n\n${legalLine}\n\nThe demo SLA clock records ₹${tatCompensationAccrued.toLocaleString("en-IN")} for the overdue period. Please issue a written disposition and restore the citizen's grievance path.\n\nThis is a synthetic demonstration draft; verify applicable rules before use.`;
 }
