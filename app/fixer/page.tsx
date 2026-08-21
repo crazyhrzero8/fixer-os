@@ -38,7 +38,7 @@ export default function Fixer() {
   const [busy, setBusy] = useState(false);
 
   async function load(caseId: string) {
-    const [caseResponse, proofResponse, traceResponse] = await Promise.all([
+    const [caseResponse, proofResponse, traceResponse, preflightResponse] = await Promise.all([
       fetch(`/api/case/${caseId}`),
       fetch("/api/prove/pension"),
       fetch(`/api/traceroute?case=${caseId}`),
@@ -49,7 +49,8 @@ export default function Fixer() {
       setCaseData(casePayload.case); setVerified(casePayload.verification?.valid === true);
     }
     setProof(await proofResponse.json()); setTrace(await traceResponse.json());
-    setPreflight((await preflightResponse.json()).results ?? []);
+    const preflightPayload = await preflightResponse.json().catch(() => null);
+    setPreflight(preflightPayload?.results ?? []);
   }
   useEffect(() => { void (async () => { const r = await fetch("/api/cases"); const p = await r.json(); setCases(p.cases); })(); }, []);
   useEffect(() => { void load(selected); }, [selected]);
