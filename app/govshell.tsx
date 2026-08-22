@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export const NAV = [
   { href: "/", label: "Home" },
@@ -15,8 +18,29 @@ export const cardCls = "rounded-md border border-slate-300 bg-white shadow-sm";
 export const pageWrap = "mx-auto w-full max-w-6xl px-4 sm:px-6";
 
 export function GovShell({ active, children }: { active: string; children: React.ReactNode }) {
+  // ponytail: native font scaling + localStorage, no i18n dep — minimal client state
+  const [lang, setLangState] = useState("en");
+  const [fontReady, setFontReady] = useState(false);
+  useEffect(() => {
+    try {
+      const savedLang = localStorage.getItem("fixer-lang") || "en";
+      const savedFont = localStorage.getItem("fixer-font") || "100";
+      setLangState(savedLang);
+      document.documentElement.style.fontSize = savedFont + "%";
+      setFontReady(true);
+    } catch { setFontReady(true); }
+  }, []);
+  const setLang = (v: string) => { try { localStorage.setItem("fixer-lang", v); setLangState(v); } catch {} };
+  const setFont = (d: number) => {
+    try {
+      const cur = parseInt(localStorage.getItem("fixer-font") || "100", 10);
+      const nxt = Math.min(130, Math.max(85, cur + d));
+      localStorage.setItem("fixer-font", String(nxt));
+      document.documentElement.style.fontSize = nxt + "%";
+    } catch {}
+  };
   return (
-    <div className="min-h-screen bg-[#f5f7fa] font-sans text-slate-900">
+    <div className="min-h-screen bg-[#f5f7fa] font-sans text-slate-900" lang={lang === "hi" ? "hi" : "en"} suppressHydrationWarning>
       <div className="h-1.5 w-full bg-gradient-to-r from-[#FF9933] via-white to-[#138808]" />
       <div className="bg-[#fff8e6] px-4 py-1 text-center text-[11px] text-[#8a6d00]">
         SIMULATION ONLY — independent hackathon prototype · not affiliated with any Government body · all data synthetic
@@ -36,9 +60,12 @@ export function GovShell({ active, children }: { active: string; children: React
             </div>
           </Link>
           <div className="flex items-center gap-2 text-[11px]">
-            <button type="button" className={btnOutline}>हिन्दी</button>
-            <button type="button" className="rounded-sm border border-[#1a4b8e] bg-[#1a4b8e] px-2 py-1 font-semibold text-white">English</button>
-            <span className="ml-1 hidden sm:inline">| A⁻ A A⁺</span>
+            <button type="button" onClick={() => setLang("hi")} className={lang === "hi" ? "rounded-sm border border-[#1a4b8e] bg-[#1a4b8e] px-2 py-1 font-semibold text-white" : btnOutline} aria-pressed={lang === "hi"}>हिन्दी</button>
+            <button type="button" onClick={() => setLang("en")} className={lang === "en" ? "rounded-sm border border-[#1a4b8e] bg-[#1a4b8e] px-2 py-1 font-semibold text-white" : btnOutline} aria-pressed={lang === "en"}>English</button>
+            <span className="ml-1 hidden sm:inline" aria-hidden>|</span>
+            <button type="button" onClick={() => setFont(-10)} aria-label="Decrease font size" className="rounded-sm border border-slate-300 bg-white px-1.5 py-1 hover:border-[#1a4b8e]">A⁻</button>
+            <button type="button" onClick={() => setFont(0)} aria-label="Reset font size" className="rounded-sm border border-slate-300 bg-white px-1.5 py-1 hover:border-[#1a4b8e]">A</button>
+            <button type="button" onClick={() => setFont(10)} aria-label="Increase font size" className="rounded-sm border border-slate-300 bg-white px-1.5 py-1 hover:border-[#1a4b8e]">A⁺</button>
           </div>
         </div>
       </header>
@@ -63,16 +90,16 @@ export function GovShell({ active, children }: { active: string; children: React
       <footer className="mt-8 border-t-4 border-[#FF9933] bg-white">
         <div className={`${pageWrap} grid grid-cols-2 gap-6 py-6 text-[12px] text-slate-600 sm:grid-cols-4`}>
           {[
-            ["Product", ["Agent Console", "Simulated Portal", "Demo Theater"]],
-            ["Evidence", ["Hash-Chained Ledger", "RuleGuard Proofs", "Pre-flight Checks"]],
-            ["Legal Basis", ["RBI TAT Circular 2019", "CPA 2019 Precedents", "DPDP-Aware Design"]],
-            ["About", ["Research Dossier", "Codex Build Log", "Honesty Disclosures"]]
+            ["Product", [{ label: "Agent Console", href: "/fixer" }, { label: "Simulated Portal", href: "/portal" }, { label: "Demo Theater", href: "/demo" }]],
+            ["Evidence", [{ label: "Hash-Chained Ledger", href: "/fixer" }, { label: "RuleGuard Proofs", href: "/fixer" }, { label: "Pre-flight Checks", href: "/fixer" }]],
+            ["Legal Basis", [{ label: "RBI TAT Circular 2019", href: "https://www.rbi.org.in/commonman/English/Scripts/Notification.aspx?Id=3074" }, { label: "CPA 2019 Precedents", href: "/fixer" }, { label: "DPDP-Aware Design", href: "/fixer" }]],
+            ["About", [{ label: "Research Dossier", href: "https://github.com/crazyhrzero8/fixer-os/blob/main/docs/hackathon-research.md" }, { label: "Codex Build Log", href: "https://github.com/crazyhrzero8/fixer-os/blob/main/CODEX_LOG.md" }, { label: "Honesty Disclosures", href: "/fixer" }]]
           ].map(([title, items]) => (
             <div key={title as string}>
               <p className="mb-2 font-bold text-[#1a4b8e]">{title as string}</p>
               <ul className="space-y-1">
-                {(items as string[]).map((it) => (
-                  <li key={it}>» {it}</li>
+                {(items as { label: string; href: string }[]).map((it) => (
+                  <li key={it.label}>» <Link href={it.href} className="hover:text-[#1a4b8e] hover:underline focus:outline-none focus:ring-2 focus:ring-[#1a4b8e]">{it.label}</Link></li>
                 ))}
               </ul>
             </div>

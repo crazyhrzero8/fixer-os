@@ -1,13 +1,17 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { applyAction, getCaptcha } from "@/lib/portalSessions";
+import { applyAction, getCaptcha, getOtpForTest, getOrCreateSession, refreshCaptcha } from "@/lib/portalSessions";
 import { APP_CONFIG } from "@/lib/config";
 import { clientKey, rateLimit } from "@/lib/ratelimit";
 
 const bodySchema = z.object({
-  action: z.enum(["VERIFY_CAPTCHA", "SUBMIT_ADVANCE_CLAIM", "ADVANCE_DAY", "OPEN_GRIEVANCE", "SUBMIT_GRIEVANCE", "RESET"]),
-  value: z.string().max(16).optional()
+  action: z.enum(["VERIFY_CAPTCHA", "VERIFY_OTP", "RESEND_OTP", "REFRESH_CAPTCHA", "SUBMIT_ADVANCE_CLAIM", "ADVANCE_DAY", "OPEN_GRIEVANCE", "SUBMIT_GRIEVANCE", "RESET"]),
+  value: z.string().max(256).optional(),
+  uan: z.string().max(20).optional(),
+  password: z.string().max(64).optional(),
+  captcha: z.string().max(16).optional(),
+  otp: z.string().max(10).optional()
 });
 const SESSION_COOKIE = "portal_sid";
 
@@ -36,9 +40,37 @@ export async function POST(request: Request) {
   if (!parsed.success) return NextResponse.json({ error: "Invalid action." }, { status: 400 });
 
   const sid = await ensureSessionCookie();
-  const snapshot = applyAction(sid, parsed.data.action, parsed.data.value);
+  // Normalize VERIFY_CAPTCHA payload to include uan/password/captcha for server validation
+  let valueForSession = parsed.data.value;
+  if (parsed.data.action === "VERIFY_CAPTCHA" && (parsed.data.uan || parsed.data.password || parsed.data.captcha)) {
+    valueForSession = JSON.stringify({ captcha: parsed.data.captcha ?? parsed.data.value ?? "", uan: parsed.data.uan ?? "", password: parsed.data.password ?? "" });
+  }
+  if (parsed.data.action === "VERIFY_OTP" && parsed.data.otp) valueForSession = parsed.data.otp;
+  if (parsed.data.action === "VERIFY_OTP" && parsed.data.value) valueForSession = parsed.data.value;
+
+  // Handle explicit refresh — ponytail: one random captcha per click, native crypto
+  if (parsed.data.action === "REFRESH_CAPTCHA") {
+    const newCap = refreshCaptcha(sid);
+    const snap = getOrCreateSession(sid).snapshot;
+    return NextResponse.json({ snapshot: snap, captcha: newCap, spaced: newCap.split("").join(" ") });
+  }
+
+  const snapshot = applyAction(sid, parsed.data.action, valueForSession);
   if (parsed.data.action === "VERIFY_CAPTCHA" && snapshot.state === "LOGIN_FRICTION") {
-    return NextResponse.json({ snapshot, error: "Invalid captcha characters. A new challenge has been issued; kindly retry." });
+    // Distinguish captcha vs credential failure via fresh captcha — ponytail single message
+    return NextResponse.json({ snapshot, error: "Invalid credentials or captcha. New captcha issued — kindly retry. (Demo: UAN 100000000000 / demo1234)" });
+  }
+  if (parsed.data.action === "VERIFY_OTP" && snapshot.state === "OTP_REQUIRED") {
+    return NextResponse.json({ snapshot, error: "Invalid or expired OTP. New OTP sent (synthetic)." });
+  }
+  if (parsed.data.action === "VERIFY_CAPTCHA" && snapshot.state === "OTP_REQUIRED") {
+    // Success — expose demo OTP for hackathon evaluation (never in real gov)
+    const demoOtp = getOtpForTest(sid);
+    return NextResponse.json({ snapshot, demoOtp });
+  }
+  if (parsed.data.action === "RESEND_OTP") {
+    const demoOtp = getOtpForTest(sid);
+    return NextResponse.json({ snapshot, demoOtp });
   }
   return NextResponse.json({ snapshot });
 }

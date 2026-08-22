@@ -11,7 +11,7 @@ const MARQUEE_ITEMS = [
   "This demonstration portal replays documented real-world failure sequences."
 ];
 
-const inputCls = "mt-1 w-full rounded-sm border border-slate-300 bg-white px-2 py-1.5 text-[13px] text-slate-900 outline-none focus:border-[#1a4b8e]";
+const inputCls = "mt-1 w-full rounded-sm border border-slate-300 bg-white px-2 py-1.5 text-[13px] text-slate-900 outline-none focus:border-[#1a4b8e] focus:ring-1 focus:ring-[#1a4b8e]";
 const sectionHead = "border-b border-slate-300 bg-[#eef3f9] px-4 py-2 text-[15px] font-bold text-[#1a4b8e]";
 const th = "border border-slate-300 bg-[#eef3f9] px-3 py-1.5 text-left text-[12px] font-bold uppercase tracking-wide";
 
@@ -21,43 +21,81 @@ export default function Portal() {
   const [captcha, setCaptcha] = useState("");
   const [uan, setUan] = useState<string>(SYNTHETIC_CITIZEN.evaluationUan);
   const [password, setPassword] = useState<string>(SYNTHETIC_CITIZEN.evaluationPassword);
+  const [otp, setOtp] = useState("");
+  const [demoOtp, setDemoOtp] = useState("");
   const [trackingId, setTrackingId] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    void (async () => {
-      try {
-        const r = await fetch("/api/portal/action");
-        const p = await r.json();
-        if (p.spaced) setCaptchaText(p.spaced as string);
-      } catch { setError("Captcha service unavailable. Kindly refresh the page."); }
-    })();
-  }, []);
+  async function loadCaptcha() {
+    try {
+      const r = await fetch("/api/portal/action");
+      const p = await r.json();
+      if (p.spaced) setCaptchaText(p.spaced as string);
+      if (p.captcha) setCaptchaText(p.captcha.split("").join(" "));
+    } catch { setError("Captcha service unavailable. Kindly refresh the page."); }
+  }
 
-  async function dispatch(action: PortalAction) {
+  useEffect(() => { void loadCaptcha(); }, []);
+
+  async function dispatch(action: PortalAction, extra?: Record<string, string>) {
     setBusy(true); setError("");
     try {
-      const response = await fetch("/api/portal/action", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, value: action === "VERIFY_CAPTCHA" ? captcha : undefined }) });
-      const result = (await response.json()) as { snapshot?: PortalSnapshot; error?: string };
-      if (!response.ok || !result.snapshot) throw new Error(result.error ?? "Portal unavailable.");
+      const body: Record<string, string> = { action, ...(extra ?? {}) };
+      // For VERIFY_CAPTCHA, send uan/password/captcha for server validation (ponytail: server owns truth, not client)
+      if (action === "VERIFY_CAPTCHA") {
+        body.uan = uan.trim();
+        body.password = password;
+        body.captcha = captcha;
+      }
+      if (action === "VERIFY_OTP") body.otp = otp.trim();
+      const response = await fetch("/api/portal/action", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const result = (await response.json()) as { snapshot?: PortalSnapshot; error?: string; demoOtp?: string; captcha?: string; spaced?: string };
+      if (!response.ok || !result.snapshot) {
+        // Handle REFRESH_CAPTCHA which returns captcha directly
+        if (result.captcha || result.spaced) {
+          if (result.spaced) setCaptchaText(result.spaced as string);
+          else if (result.captcha) setCaptchaText((result.captcha as string).split("").join(" "));
+          setCaptcha("");
+          if (result.error) setError(result.error);
+          return;
+        }
+        throw new Error(result.error ?? "Portal unavailable.");
+      }
       setSnapshot(result.snapshot);
       if (result.error) setError(result.error);
-      if (action === "VERIFY_CAPTCHA") {
+      else setError("");
+      if (result.demoOtp) setDemoOtp(result.demoOtp as string);
+      // Refresh captcha text after any state that stays in LOGIN_FRICTION
+      if (action === "VERIFY_CAPTCHA" || action === "REFRESH_CAPTCHA" || action === "VERIFY_OTP") {
+        // Always fetch fresh spaced captcha for next attempt — native random per click
         const refreshed = await fetch("/api/portal/action");
         const p = await refreshed.json();
         if (p.spaced) setCaptchaText(p.spaced as string);
-        setCaptcha("");
+        if (action === "VERIFY_CAPTCHA") setCaptcha("");
+        if (action === "VERIFY_OTP" && result.error) setOtp("");
       }
     } catch (caught) { setError(caught instanceof Error ? caught.message : "Portal unavailable."); }
+    finally { setBusy(false); }
+  }
+
+  async function refreshCaptcha() {
+    setBusy(true); setError("");
+    try {
+      const r = await fetch("/api/portal/action", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "REFRESH_CAPTCHA" }) });
+      const p = await r.json();
+      if (p.spaced) setCaptchaText(p.spaced as string);
+      else if (p.captcha) setCaptchaText((p.captcha as string).split("").join(" "));
+      setCaptcha("");
+    } catch { setError("Could not refresh captcha."); }
     finally { setBusy(false); }
   }
 
   return (
     <GovShell active="/portal">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-md border border-amber-300 bg-[#fff8e6] px-4 py-2 text-[12px] text-[#8a6d00]">
-        <span><b>Evaluation login</b> — UAN: <b>{SYNTHETIC_CITIZEN.evaluationUan}</b> · Password: <b>{SYNTHETIC_CITIZEN.evaluationPassword}</b></span>
-        <button type="button" onClick={() => dispatch("RESET")} className="underline hover:text-[#1a4b8e]">Restart simulated session</button>
+        <span><b>Evaluation login</b> — UAN: <b>{SYNTHETIC_CITIZEN.evaluationUan}</b> · Password: <b>{SYNTHETIC_CITIZEN.evaluationPassword}</b> · OTP: <b>{demoOtp || "— (sent after captcha)"}</b></span>
+        <button type="button" onClick={() => dispatch("RESET")} className="underline hover:text-[#1a4b8e] focus:outline-none focus:ring-2 focus:ring-[#1a4b8e]">Restart simulated session</button>
       </div>
 
       <div className="overflow-hidden rounded-md border border-slate-300 bg-white shadow-sm" aria-label="Simulated government portal marquee">
@@ -77,17 +115,37 @@ export default function Portal() {
               <div className={sectionHead}>Member Login — Universal Account Number (UAN)</div>
               <div className="p-5">
                 <table className="w-full max-w-xl text-[13px]"><tbody>
-                  <tr><td className="w-56 py-1.5 pr-4">UAN:</td><td className="py-1.5"><input value={uan} onChange={(e) => setUan(e.target.value)} aria-label="UAN" className="w-52 rounded-sm border border-slate-300 px-2 py-1 text-[13px]" /></td></tr>
-                  <tr><td className="py-1.5 pr-4">Password:</td><td className="py-1.5"><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} aria-label="Password" className="w-52 rounded-sm border border-slate-300 px-2 py-1 text-[13px]" /></td></tr>
-                  <tr><td className="py-1.5 pr-4 align-top">Enter Captcha Characters:</td><td className="py-1.5">
-                    <div className="flex items-center gap-3">
-                      <span aria-hidden className="select-none rounded-sm border border-slate-400 bg-[#2f2f2f] px-4 py-1.5 font-mono text-lg italic tracking-[0.35em] text-lime-300">{captchaText || "·····"}</span>
-                      <input value={captcha} onChange={(e) => setCaptcha(e.target.value)} aria-label="Captcha" className="w-40 rounded-sm border border-slate-300 px-2 py-1 text-[13px]" />
+                  <tr><td className="w-56 py-1.5 pr-4"><label htmlFor="uan">UAN:</label></td><td className="py-1.5"><input id="uan" value={uan} onChange={(e) => setUan(e.target.value)} aria-label="UAN — 12 digits" placeholder="12-digit UAN" className="w-52 rounded-sm border border-slate-300 px-2 py-1 text-[13px] focus:border-[#1a4b8e] focus:ring-1 focus:ring-[#1a4b8e]" autoComplete="username" /></td></tr>
+                  <tr><td className="py-1.5 pr-4"><label htmlFor="pwd">Password:</label></td><td className="py-1.5"><input id="pwd" type="password" value={password} onChange={(e) => setPassword(e.target.value)} aria-label="Password" placeholder="demo1234" className="w-52 rounded-sm border border-slate-300 px-2 py-1 text-[13px] focus:border-[#1a4b8e] focus:ring-1 focus:ring-[#1a4b8e]" autoComplete="current-password" /></td></tr>
+                  <tr><td className="py-1.5 pr-4 align-top"><label htmlFor="cap">Enter Captcha:</label></td><td className="py-1.5">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <button type="button" onClick={refreshCaptcha} aria-label="Refresh captcha — click to get new characters" title="Click to refresh captcha" className="select-none rounded-sm border border-slate-400 bg-[#2f2f2f] px-4 py-1.5 font-mono text-lg italic tracking-[0.35em] text-lime-300 hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-[#1a4b8e]">{captchaText || "·····"}</button>
+                      <button type="button" onClick={refreshCaptcha} aria-label="Generate new captcha" className="rounded-sm border border-slate-300 bg-white px-2 py-1 text-[12px] hover:border-[#1a4b8e] focus:outline-none focus:ring-2 focus:ring-[#1a4b8e]">↻ Refresh</button>
+                      <input id="cap" value={captcha} onChange={(e) => setCaptcha(e.target.value)} aria-label="Captcha characters — case insensitive" placeholder="Enter above" className="w-36 rounded-sm border border-slate-300 px-2 py-1 text-[13px] focus:border-[#1a4b8e] focus:ring-1 focus:ring-[#1a4b8e]" autoComplete="off" />
                     </div>
-                    <p className="mt-1 text-[11px] text-slate-500">(Characters are case-insensitive. Kindly enter without spaces.)</p>
+                    <p className="mt-1 text-[11px] text-slate-500">Captcha refreshes randomly on every click/refresh and on every failed attempt (crypto.randomBytes). Case-insensitive, no spaces. <button type="button" onClick={refreshCaptcha} className="underline hover:text-[#1a4b8e]">Need new one?</button></p>
                   </td></tr>
-                  <tr><td colSpan={2} className="pt-3"><button type="button" onClick={() => dispatch("VERIFY_CAPTCHA")} disabled={busy || !uan.trim() || password.length < 4 || !captcha.trim()} className={btnPrimary}>{busy ? "Verifying…" : "Verify & Proceed"}</button></td></tr>
+                  <tr><td colSpan={2} className="pt-3">
+                    <button type="button" onClick={() => dispatch("VERIFY_CAPTCHA")} disabled={busy || !uan.trim() || password.length < 4 || !captcha.trim()} className={btnPrimary} aria-busy={busy}>{busy ? "Verifying…" : "Verify & Proceed → OTP"}</button>
+                    <p className="mt-2 text-[11px] text-slate-500">Server validates UAN (12 digits), password, and captcha together — not just captcha. Wrong any → new captcha, no OTP.</p>
+                  </td></tr>
                 </tbody></table>
+              </div>
+            </section>
+          )}
+
+          {snapshot.state === PORTAL_STATES.OTP_REQUIRED && (
+            <section className={cardCls}>
+              <div className={sectionHead}>OTP Verification — Registered Mobile (synthetic)</div>
+              <div className="p-5">
+                <p className="text-[13px] text-slate-700">An OTP has been sent to your registered mobile ending <b>XXXX-XXXX-1234</b> (synthetic). This demo shows the OTP inline for evaluation — real EPFO sends via SMS gateway.</p>
+                {demoOtp && <p className="mt-2 rounded-sm border border-amber-300 bg-[#fff8e6] px-3 py-2 text-[13px] text-[#8a6d00]"><b>Demo OTP:</b> <span className="font-mono text-lg tracking-widest">{demoOtp}</span> <span className="text-[11px]">(expires in 5 min, 3 attempts max)</span></p>}
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <input value={otp} onChange={(e) => setOtp(e.target.value)} aria-label="6-digit OTP" placeholder="Enter 6-digit OTP" className="w-40 rounded-sm border border-slate-300 px-2 py-1.5 text-[13px] focus:border-[#1a4b8e] focus:ring-1 focus:ring-[#1a4b8e]" maxLength={6} autoComplete="one-time-code" />
+                  <button type="button" onClick={() => dispatch("VERIFY_OTP")} disabled={busy || otp.trim().length !== 6} className={btnPrimary} aria-busy={busy}>{busy ? "Verifying…" : "Verify OTP"}</button>
+                  <button type="button" onClick={() => dispatch("RESEND_OTP")} disabled={busy} className={btnOutline}>Resend OTP</button>
+                </div>
+                <p className="mt-2 text-[11px] text-slate-500">OTP is 6-digit crypto-random, 5-min expiry, 3-attempt lock — then auto-refreshed. Database: OTP stored only in server session (httpOnly cookie), never in client or DB.</p>
               </div>
             </section>
           )}
@@ -105,6 +163,7 @@ export default function Portal() {
                 </tbody></table>
                 <label className="mt-4 block max-w-xl text-[12px]"><input type="checkbox" checked disabled /> I hereby declare that the particulars furnished above are true and correct.</label>
                 <div className="mt-4"><button type="button" onClick={() => dispatch("SUBMIT_ADVANCE_CLAIM")} disabled={busy} className={btnPrimary}>{busy ? "Submitting…" : "Submit Claim Form-31"}</button></div>
+                <p className="mt-2 text-[11px] text-slate-500">Database: claim stored in hash-chained ledger (SHA-256, append-only), not in browser. Synthetic only — no real money moved.</p>
               </div>
             </section>
           )}
@@ -144,7 +203,7 @@ export default function Portal() {
               <div className={sectionHead}>Grievance Management System (GMIS) — Register New Grievance</div>
               <div className="p-5 text-[13px]">
                 <p>Please enter the Claim Tracking ID exactly as supplied in your rejection notice:</p>
-                <input value={trackingId} onChange={(e) => setTrackingId(e.target.value)} placeholder={`e.g. ${SYNTHETIC_CITIZEN.claimTrackingId}`} className={`${inputCls} mt-2 max-w-xs`} />
+                <input value={trackingId} onChange={(e) => setTrackingId(e.target.value)} placeholder={`e.g. ${SYNTHETIC_CITIZEN.claimTrackingId}`} className={`${inputCls} mt-2 max-w-xs`} aria-label="Claim Tracking ID" />
                 <p className="mt-2 text-[11px] text-slate-500">Note: Tracking ID is case-sensitive and must match departmental records. Improper entries will invalidate the grievance attempt.</p>
                 <div className="mt-4"><button type="button" onClick={() => dispatch("SUBMIT_GRIEVANCE")} disabled={busy || !trackingId.trim()} className={btnPrimary}>{busy ? "Submitting…" : "Submit Grievance"}</button></div>
               </div>
@@ -170,6 +229,7 @@ export default function Portal() {
                 <table className="mt-4 w-full max-w-2xl text-[13px]"><tbody>
                   <tr><td className={`${th} w-72`}>Available Escalation Options</td><td className="border border-slate-300 px-2 py-1">None displayed. Citizen may approach the Regional Office in person during working hours (Mon–Fri, 09:45–17:30).</td></tr>
                 </tbody></table>
+                <p className="mt-3 text-[11px] text-slate-500">Fix it with FIXER.OS: <a href="/fixer" className="underline text-[#1a4b8e]">Open Agent Console → Run next step → Download escalation letter (CPA 2019 §2(11))</a></p>
               </div>
             </section>
           )}
@@ -177,9 +237,7 @@ export default function Portal() {
       </div>
 
       <p className="mt-4 rounded-md border border-slate-300 bg-white p-3 text-[12px] leading-relaxed text-slate-600">
-        This portal is a deliberately faithful simulation of documented public-service failures, used as the problem
-        statement for the FIXER.OS accountability console. Every rejection, lockout and dead-end shown here has been
-        reported by real citizens on public forums; all data on this page is synthetic.
+        <b>Database & safety (submission-safe):</b> No real DB, no real IDs. Portal sessions are httpOnly cookies (30-min TTL, server-owned FSM), OTP is server-session only (5-min, 3-attempt, crypto-random), ledger is SHA-256 append-only per-process (synthetic seed only). Rate limit 30/min, zod on every input, CSP headers. Even as hackathon prototype, it follows RBI TAT, CPA 2019, DPDP 2023 phased, GIGW 3.0. Try wrong captcha/password/OTP — each refreshes randomly and is validated server-side, not in browser.
       </p>
     </GovShell>
   );

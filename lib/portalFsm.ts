@@ -4,6 +4,7 @@ import { APP_CONFIG } from "./config";
 /** Public states for the mock-portal replay. Kept exported for the agent module in Phase 3. */
 export const PORTAL_STATES = {
   LOGIN_FRICTION: "LOGIN_FRICTION",
+  OTP_REQUIRED: "OTP_REQUIRED",
   CLAIM_FORM: "CLAIM_FORM",
   UNDER_PROCESS: "UNDER_PROCESS",
   REJECTED: "REJECTED",
@@ -13,7 +14,7 @@ export const PORTAL_STATES = {
 } as const;
 
 export type PortalState = (typeof PORTAL_STATES)[keyof typeof PORTAL_STATES];
-export type PortalAction = "VERIFY_CAPTCHA" | "SUBMIT_ADVANCE_CLAIM" | "ADVANCE_DAY" | "OPEN_GRIEVANCE" | "SUBMIT_GRIEVANCE" | "RESET";
+export type PortalAction = "VERIFY_CAPTCHA" | "VERIFY_OTP" | "RESEND_OTP" | "REFRESH_CAPTCHA" | "SUBMIT_ADVANCE_CLAIM" | "ADVANCE_DAY" | "OPEN_GRIEVANCE" | "SUBMIT_GRIEVANCE" | "RESET";
 export interface PortalSnapshot { state: PortalState; simulatedDays: number; message?: string; }
 export const PROCESSING_DAYS = APP_CONFIG.portal.processingDays;
 export const initialPortalSnapshot = (): PortalSnapshot => ({ state: PORTAL_STATES.LOGIN_FRICTION, simulatedDays: 0 });
@@ -22,7 +23,13 @@ export function transitionPortal(snapshot: PortalSnapshot, action: PortalAction)
   if (action === "RESET") return initialPortalSnapshot();
   switch (snapshot.state) {
     case PORTAL_STATES.LOGIN_FRICTION:
-      if (action === "VERIFY_CAPTCHA") return { state: PORTAL_STATES.CLAIM_FORM, simulatedDays: 0 };
+      if (action === "VERIFY_CAPTCHA") return { state: PORTAL_STATES.OTP_REQUIRED, simulatedDays: 0, message: "OTP sent to registered mobile (synthetic)." };
+      if (action === "REFRESH_CAPTCHA") return snapshot;
+      break;
+    case PORTAL_STATES.OTP_REQUIRED:
+      if (action === "VERIFY_OTP") return { state: PORTAL_STATES.CLAIM_FORM, simulatedDays: 0 };
+      if (action === "RESEND_OTP") return { state: PORTAL_STATES.OTP_REQUIRED, simulatedDays: 0, message: "OTP resent (synthetic)." };
+      if (action === "REFRESH_CAPTCHA") return snapshot;
       break;
     case PORTAL_STATES.CLAIM_FORM:
       if (action === "SUBMIT_ADVANCE_CLAIM") return { state: PORTAL_STATES.UNDER_PROCESS, simulatedDays: 0, message: "Your PF advance claim has been submitted." };

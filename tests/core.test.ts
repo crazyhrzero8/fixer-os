@@ -33,7 +33,15 @@ test("prover proves the pension interval deadlock", () => {
 test("portal FSM replays the documented failure sequence", () => {
   let snap = initialPortalSnapshot();
   assert.equal(snap.state, PORTAL_STATES.LOGIN_FRICTION);
+  // Captcha refresh stays in same state with new random challenge (crypto.randomBytes)
+  snap = transitionPortal(snap, "REFRESH_CAPTCHA");
+  assert.equal(snap.state, PORTAL_STATES.LOGIN_FRICTION);
   snap = transitionPortal(snap, "VERIFY_CAPTCHA");
+  assert.equal(snap.state, PORTAL_STATES.OTP_REQUIRED);
+  // OTP resend stays in OTP_REQUIRED
+  snap = transitionPortal(snap, "RESEND_OTP");
+  assert.equal(snap.state, PORTAL_STATES.OTP_REQUIRED);
+  snap = transitionPortal(snap, "VERIFY_OTP");
   assert.equal(snap.state, PORTAL_STATES.CLAIM_FORM);
   snap = transitionPortal(snap, "SUBMIT_ADVANCE_CLAIM");
   assert.equal(snap.state, PORTAL_STATES.UNDER_PROCESS);
