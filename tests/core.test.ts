@@ -8,6 +8,7 @@ const { verifyLedger } = require("../lib/ledger.ts");
 const { provePensionDeadlock } = require("../lib/prover.ts");
 const { initialPortalSnapshot, transitionPortal, PORTAL_STATES, PROCESSING_DAYS } = require("../lib/portalFsm.ts");
 const { traceSummary, escalationLetter } = require("../lib/traceroute.ts");
+const { sanitizeForLLM } = require("../lib/llm.ts");
 
 test("ledger detects tampering at the exact event", () => {
   const seeded = { id: "c1", kind: "epfo-false-rejection", title: "t", status: "OPEN", facts: {}, events: [] };
@@ -68,8 +69,7 @@ test("traceroute computes overdue days and rupee accrual for both cases", () => 
   assert.match(escalationLetter("synthetic-irctc-001"), /RBI/);
 });
 
-test("LLM payload is PII-sanitized before leaving the server", async () => {
-  const { sanitizeForLLM } = await import("../lib/llm.ts");
+test("LLM payload is PII-sanitized before leaving the server", () => {
   const dirty = {
     caseKind: "epfo-false-rejection",
     remainingActions: ["CHECK_SLA"],

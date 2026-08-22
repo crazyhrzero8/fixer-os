@@ -1033,3 +1033,56 @@ Tool attacks the agent-TAX (₹500–5,000/transaction), not workers. Unregister
 > "First citizen-facing UI that shows a machine-checked certificate of an eligibility-rule contradiction (the EPS [9.5,10) pension trap), anchored to a tamper-evident case-evidence chain, with a live statutory-compensation clock."
 
 Adjacent-but-distinct prior art is now cited IN the UI (/fixer honesty card + /demo citations line) per the Honesty judging lens.
+
+---
+
+## TURN 21 — SUBMISSION READINESS AUDIT + BACKEND CONTINUATION GUIDE (22 Aug 2026)
+
+### 21.1 Final readiness vs Builder Brief (verified on prod build `5a903e8+`)
+
+| Brief requirement | Status | Evidence |
+|---|---|---|
+| One clearly defined problem | ✅ | EPFO false rejection = THE problem (labeled in console); IRCTC labeled generality proof |
+| Complete citizen journey start→finish | ✅ | Prod smoke 22 Aug: login(captcha+creds) → OTP → DASHBOARD → passbook/KYC → Form-31 → 7d UNDER_PROCESS → REJECTED → grievance → INVALID_ID → 30d LOCKOUT; agent console 5 steps INTERPRET→DRAFT→FILE→SLA(26d ₹2600)→ESCALATE=RESOLVED |
+| Built with Codex/OpenAI meaningfully | ✅ | CODEX_LOG.md phases 0-3 (Codex) + llm.ts gpt-4o-mini allow-list w/ Groq/Gemini/deterministic fallback |
+| Easier than current | ✅ | Light GovShell, Hindi toggle (content-translating), A⁻/A/A⁺ 85-130%, dashboard one-click passbook |
+| Mobile/slow/limited-digital users | ✅ | Responsive grids, system fonts (Inter+Noto Sans Devanagari), reduced-motion, focus-visible rings |
+| Mock/synthetic everywhere sensitive | ✅ | seed.ts synthetic only; OTP/captcha server-session httpOnly; no live govt touched |
+| Who/what-difficult/what-changed/why-better | ✅ | Landing evidence stats + roadmap honesty row; /demo split-screen before-after |
+| What works vs mocked | ✅ | /fixer honesty card + prior-art distinctions (CITES 2.01, Delhi e-SLA, Catala/CUTECat) |
+| Scales safely later | ✅ documented | §21.3 below |
+| Live link / video / ≤250w summary / partner email | ⚠️ LINK ✅ · VIDEO ❌ not recorded · SUMMARY ❌ not drafted · solo→blank |
+
+**NOT-to-do list:** all clean — no live systems, no reverse-engineering, no scraping, no real IDs, SIMULATION banner, no gov logos-as-endorsement, new project, MIT-licensed deps only.
+
+### 21.2 MATHS & VALUES — all re-verified 22 Aug (node-executed)
+
+| Value | Check | Result |
+|---|---|---|
+| EPFO SLA clock | regional held 41d − deadline 15d = 26d × ₹100 | **₹2,600 PASS** (test asserts exact) |
+| IRCTC TAT demo | debit 10 Aug 2026 → 22 Aug = 12 calendar days elapsed; Annex 4b T+5 → 7d overdue × ₹100 = **₹700** (UI computes dynamically via lib/agent.ts tat block) |
+| RBI rule shape | GI-4: T = calendar date (not working days); Annex 4b merchant-UPI auto-reversal T+5, ₹100/day beyond, suo moto para 5, Ombudsman para 6 | cited verbatim in traceroute.ts |
+| Pension rounding | serviceYears 9.67 → 9y8m → EPS 6-month rule rounds UP to 10y for eligibility; deadlock exists ONLY when engines use raw [9.5,10) — proof text states this precisely (prover.ts step 3) | consistent |
+| EPS formula sanity | (₹15,000 × 25)/70 = **₹5,357/mo** — matches published explainers; we never fabricate pension amounts in-app | ✓ |
+| Hash chain | SHA-256(prevHash\|ts\|actor\|type\|sorted-payload-json); genesis 64×"0"; tamper test breaks at exact evt id | test 1 PASS |
+| OTP entropy | 6-digit from crypto.randomBytes(3) readUIntBE mod 900000 (+100000); 5-min expiry; 3-attempt lock | portalSessions.ts |
+
+### 21.3 IF SOMEONE TAKES THIS FURTHER — backend/database continuation guide
+
+Current state is deliberately demo-grade (per brief: mock backend). Production upgrade path, cheapest-first:
+
+1. **Case store**: `lib/store.ts` Map → **SQLite (better-sqlite3)** for single-node, or **Postgres (Neon/Supabase free tier)** for Vercel. Tables: cases(id, kind, status, facts JSONB), events(case_id, seq, ts, actor, type, payload JSONB, prev_hash, hash) — hash chain survives as-is; add UNIQUE(case_id, seq) + trigger rejecting non-matching prev_hash = DB-enforced append-only.
+2. **Portal sessions**: Map → **Redis/Upstash** (TTL maps 1:1 to existing 30-min sweep) or signed stateless JWT cookie carrying FSM state + HMAC.
+3. **Rate limiting**: in-memory sliding window → Upstash Redis @ Ratelimit (same algorithm, multi-region).
+4. **LLM keys**: move provider resolution to edge env vars; keep PII scrubber (llm.ts sanitizeForLLM) as mandatory middleware — it is the DPDP data-minimisation guarantee.
+5. **Notifications**: mock panel → MSG91/Gupshup SMS or WhatsApp Business API for real OTP/alerts (India DLT registration required).
+6. **Real integration boundary**: replace mock portal FSM adapter with dept-specific adapters (EPFO EPAiGMS API if ever offered officially; RTI/CPGRAMS APIs are public-facing read-only). The ledger/agent/playbook layers need zero changes — that was the architecture point.
+7. **Auth**: demo UAN/password → Aadhaar OTP via DigiLocker OAuth (consent-artifact model already matches our provenance tier design).
+8. **Observability**: add request logging + Sentry before scaling; ledger makes every case replayable so support = read the chain.
+
+Effort estimate: items 1-3 ≈ 1-2 days each for one engineer; the hard part (evidence model, proofs, playbooks, legal citations) is done and portable.
+
+### 21.4 TOP-10 HONEST VERDICT
+Strengths: working full journey (most submissions at 5k-scale die here), genuine novelty with narrowed defensible claim, regulatory citations with primary sources, honesty disclosures exceeding typical entries, agentic AI used safely (allow-list + PII-scrubbed), accessible bilingual light UI.
+Risks: (a) dark-horse entries with prettier visuals; (b) judges may not grasp RuleGuard's math in 20 seconds without the video landing it — VIDEO IS THE MULTIPLIER, record it well; (c) two-vertical breadth could read as unfocus — mitigated by labels shipped today.
+Honest odds: top-250 plausible on working-build+honesty alone; top-10 depends on video quality + judge taste. Nothing structural blocks it.
