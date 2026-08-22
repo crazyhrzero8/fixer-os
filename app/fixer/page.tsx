@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { GovShell, btnOutline, btnPrimary, cardCls } from "../govshell";
+import { useLang, t } from "@/lib/i18n";
 
 type CaseKind = "epfo-false-rejection" | "payment-tat-breach";
 type CaseData = { id: string; kind: CaseKind; title: string; status: string; facts: Record<string, unknown>; events: { id: string; actor: string; type: string; ts: number; hash: string; payload: Record<string, unknown> }[] };
@@ -27,6 +28,7 @@ const factLine = (kind: CaseKind, facts: Record<string, unknown>) => {
 };
 
 export default function Fixer() {
+  const { lang } = useLang();
   const [cases, setCases] = useState<CaseOption[]>([]);
   const [selected, setSelected] = useState("synthetic-epfo-001");
   const [caseData, setCaseData] = useState<CaseData | null>(null);
@@ -111,9 +113,9 @@ export default function Fixer() {
             <div className="mt-4 grid gap-3 sm:grid-cols-3">{factLine(caseData.kind, caseData.facts).map(([label, value]) => <div key={label} className="rounded-sm border border-slate-200 bg-[#f8fafc] p-3"><p className="text-[11px] uppercase tracking-wide text-slate-500">{label}</p><p className="mt-1 text-[13px] font-semibold text-slate-900">{value}</p></div>)}</div>
             <p className="mt-3 text-[12px] font-semibold text-green-800">{caseData.kind === "epfo-false-rejection" ? "Exact name match on record — the rejection is contradicted by independent facts." : "Debit confirmed, service never issued — codified RBI TAT entitlement applies."}</p>
             <div className="mt-4 flex flex-wrap items-center gap-3">
-              <button onClick={runStep} disabled={busy || caseData.status === "RESOLVED"} className={btnPrimary}>{busy ? "Analyzing…" : "Run next agent step"}</button>
-              <button onClick={restart} disabled={busy} className={btnOutline}>Restart case</button>
-              <span className={`text-[12px] font-semibold ${verified ? "text-green-700" : "text-red-700"}`}>{verified ? `✓ Hash chain verified (${caseData.events.length} events)` : "Ledger verification failed"}</span>
+              <button onClick={runStep} disabled={busy || caseData.status === "RESOLVED"} className={btnPrimary}>{busy ? t(lang,"analyzing") : t(lang,"consoleRunStep")}</button>
+              <button onClick={restart} disabled={busy} className={btnOutline}>{t(lang,"consoleRestart")}</button>
+              <span className={`text-[12px] font-semibold ${verified ? "text-green-700" : "text-red-700"}`}>{verified ? `${t(lang,"chainVerified")} (${caseData.events.length})` : "Ledger verification failed"}</span>
             </div>
             <div className="mt-4 flex flex-wrap gap-2" aria-label="Agent progress">
               {["Interpret", "Draft", "File", "SLA", "Escalate"].map((label, idx) => {
@@ -125,45 +127,45 @@ export default function Fixer() {
           </div>
 
           <div className={cardCls + " border-l-4 border-l-green-700 p-5"}>
-            <p className="text-[11px] font-bold uppercase tracking-widest text-green-700">Rejection Wind-Tunnel / pre-flight simulation</p>
-            <h3 className="mt-1 text-[16px] font-bold text-slate-900">Would this claim survive the department&apos;s own checks?</h3>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-green-700">{t(lang,"windTunnelEyebrow")}</p>
+            <h3 className="mt-1 text-[16px] font-bold text-slate-900">{t(lang,"windTunnelHead")}</h3>
             <div className="mt-3 space-y-2">{preflight.map((r) => <div key={r.ruleId} className={`rounded-sm border p-3 text-[13px] ${r.status === "PASS" ? "border-green-200 bg-green-50 text-green-900" : r.status === "WARN" ? "border-amber-200 bg-amber-50 text-amber-900" : "border-red-200 bg-red-50 text-red-900"}`}><b className="mr-2">{r.status}</b>{r.message}{r.fix && <p className="mt-1 text-[12px] opacity-80">Fix: {r.fix}</p>}</div>)}</div>
             <p className="mt-3 text-[11px] text-slate-500">Predicted against the same validation classes that silently reject ~1 in 4 PF claims. Synthetic rules; real pattern. See docs/hackathon-research.md §Turn 19 for citations.</p>
           </div>
 
           <div className={cardCls + " p-5"}>
-            <h3 className="font-bold text-slate-900">Court-ready evidence timeline</h3>
+            <h3 className="font-bold text-slate-900">{t(lang,"timelineHead")}</h3>
             <p className="mt-1 text-[11px] text-slate-500">Append-only SHA-256 chain — each event commits to previous hash. Matches GIGW 3.0 auditability + DPDP Act 2023 data-accuracy traceability.</p>
             <div className="mt-4 space-y-3 border-l-2 border-[#1a4b8e]/20 pl-4">{caseData.events.map((item) => <div key={item.id} className="relative"><span className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full bg-[#1a4b8e] border-2 border-white shadow" /><p className="text-[11px] text-slate-500">{item.actor.toUpperCase()} · {new Date(item.ts).toLocaleString()}</p><p className="text-[13px] font-semibold text-slate-900">{eventLabel(item.type)}</p><p className="mt-1 break-all font-mono text-[10px] text-slate-500">sha256 {item.hash.slice(0,16)}…{item.hash.slice(-8)}</p></div>)}</div>
           </div>
 
           {proof && caseData.kind === "epfo-false-rejection" && <div className={cardCls + " border-l-4 border-l-[#1a4b8e] p-5"}>
-            <p className="text-[11px] font-bold uppercase tracking-widest text-[#1a4b8e]">RuleGuard / mechanically proven — EPS 1995 §10 + EPS 2026 notified 2026 (10-year rule unchanged)</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-[#1a4b8e]">{t(lang,"ruleguardEyebrow")} — EPS 1995 §10 + EPS 2026 (Gazette 2026, 10-yr rule unchanged)</p>
             <h3 className="mt-1 text-[16px] font-bold text-slate-900">No valid outcome exists for {proof.domain}</h3>
             <ol className="mt-3 list-decimal space-y-1 pl-5 text-[13px] leading-relaxed text-slate-700">{proof.proofSteps.map((step) => <li key={step}>{step}</li>)}</ol>
             <p className="mt-3 text-[13px] text-slate-700"><b>Route around:</b> {proof.suggestedRouteAround}</p>
-            <details className="mt-3"><summary className="cursor-pointer text-[12px] font-semibold text-[#1a4b8e]">View developer bug report</summary><pre className="mt-2 whitespace-pre-wrap rounded-sm border border-slate-200 bg-[#f8fafc] p-3 text-[11px] text-slate-700">{proof.bugReport}</pre></details>
+            <details className="mt-3"><summary className="cursor-pointer text-[12px] font-semibold text-[#1a4b8e]">{t(lang,"viewBugReport")}</summary><pre className="mt-2 whitespace-pre-wrap rounded-sm border border-slate-200 bg-[#f8fafc] p-3 text-[11px] text-slate-700">{proof.bugReport}</pre></details>
           </div>}
         </section>
 
         <aside className="space-y-5">
           {trace && <div className={cardCls + " p-5"}>
-            <p className="text-[11px] font-bold uppercase tracking-widest text-[#1a4b8e]">Kaun Zimmedar? / File traceroute — CPGRAMS/EPFO 30-day SLA hierarchy</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-[#1a4b8e]">{t(lang,"tracerouteEyebrow")} — CPGRAMS/EPFO 30-day SLA hierarchy</p>
             <h3 className="mt-1 text-[16px] font-bold text-slate-900">The blocking node is visible.</h3>
             <div className="mt-4 space-y-2">{trace.nodes.map((node, index) => <div key={node.id}><div className={`rounded-sm border p-3 ${node.breached ? "border-red-200 bg-red-50" : "border-slate-200 bg-white"}`}><div className="flex justify-between gap-2"><b className="text-[13px] text-slate-900">{node.office}</b><span className={`text-[11px] font-bold ${node.breached ? "text-red-700" : "text-slate-500"}`}>{node.breached ? "BREACHED" : "ESCALATION TARGET"}</span></div><p className="mt-1 text-[11px] text-slate-600">{node.designation} · held {node.daysHeld}d / deadline {node.statutoryDeadlineDays}d</p><p className="mt-1 text-[11px] text-slate-500">{node.rule}</p></div>{index < trace.nodes.length - 1 && <div className="ml-5 h-3 border-l-2 border-slate-200" />}</div>)}</div>
-            <div className="mt-4 rounded-sm border border-amber-200 bg-[#fff8e6] p-3"><p className="text-[11px] font-bold uppercase tracking-wide text-[#8a6d00]">SLA CLOCK{caseData.kind === "payment-tat-breach" ? " · RBI DPSS.CO.PD No.629/02.01.014/2019-20" : " · synthetic demo"}</p><p className="text-2xl font-bold text-slate-900">₹{trace.tatCompensationAccrued.toLocaleString("en-IN")}</p><p className="text-[11px] text-slate-600">{trace.daysOverdue} overdue days × ₹100/day · {caseData.kind === "payment-tat-breach" ? "RBI TAT harmonisation — suo moto, no complaint needed (para 5), Ombudsman route if denied" : "synthetic demo calculator (para-matched rate)"}</p></div>
-            <details className="mt-3"><summary className="cursor-pointer text-[12px] font-semibold text-[#1a4b8e]">View pre-addressed escalation draft (CPA 2019 §2(11) deficiency)</summary><pre className="mt-2 whitespace-pre-wrap rounded-sm border border-slate-200 bg-[#f8fafc] p-3 text-[11px] leading-relaxed text-slate-700">{trace.escalationLetter}</pre><button type="button" onClick={() => { const blob = new Blob([trace.escalationLetter], { type: "text/plain" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `escalation-${caseData.id}.txt`; a.click(); URL.revokeObjectURL(url); }} className={btnOutline + " mt-2 text-[11px]"}>Download letter (.txt)</button></details>
+            <div className="mt-4 rounded-sm border border-amber-200 bg-[#fff8e6] p-3"><p className="text-[11px] font-bold uppercase tracking-wide text-[#8a6d00]">{t(lang,"slaClock")}{caseData.kind === "payment-tat-breach" ? " · RBI DPSS.CO.PD No.629/02.01.014/2019-20" : ""}</p><p className="text-2xl font-bold text-slate-900">₹{trace.tatCompensationAccrued.toLocaleString("en-IN")}</p><p className="text-[11px] text-slate-600">{trace.daysOverdue} overdue days × ₹100/day · {caseData.kind === "payment-tat-breach" ? "RBI TAT harmonisation — suo moto, no complaint needed (para 5), Ombudsman route if denied" : "synthetic demo calculator (para-matched rate)"}</p></div>
+            <details className="mt-3"><summary className="cursor-pointer text-[12px] font-semibold text-[#1a4b8e]">{t(lang,"viewEscalation")} (CPA 2019 §2(11))</summary><pre className="mt-2 whitespace-pre-wrap rounded-sm border border-slate-200 bg-[#f8fafc] p-3 text-[11px] leading-relaxed text-slate-700">{trace.escalationLetter}</pre><button type="button" onClick={() => { const blob = new Blob([trace.escalationLetter], { type: "text/plain" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `escalation-${caseData.id}.txt`; a.click(); URL.revokeObjectURL(url); }} className={btnOutline + " mt-2 text-[11px]"}>{t(lang,"downloadLetter")}</button></details>
           </div>}
 
           <div className={cardCls + " border-l-4 border-l-[#1a4b8e] p-5"}>
-            <p className="text-[11px] font-bold uppercase tracking-widest text-[#1a4b8e]">Provenance verifier / is this portal genuine?</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-[#1a4b8e]">{t(lang,"provEyebrow")}</p>
             <h3 className="mt-1 text-[15px] font-bold text-slate-900">{provenance ? (provenance.tier === "OFFICIAL" ? "Official manifest match." : provenance.tier === "SANDBOX" ? "Registered sandbox origin." : "Untrusted origin — HTTP not used by any govt service.") : "Checking origin…"}</h3>
             <div className="mt-2 space-y-1 text-[12px] text-slate-700">{provenance && <><p>Origin: <b className="break-all">{provenance.origin}</b></p><p>TLS: <b className={provenance.secure ? "text-green-700" : "text-red-700"}>{provenance.secure ? "HTTPS — required for govt portals (CERT-In)" : "INSECURE — HTTP"}</b></p><p className="text-[11px] text-slate-500">Verdict written to ledger as PROVENANCE_VERIFIED. Method: allow-list over simulated govt manifest (see playbooks/trusted-domains.json).</p><p className="text-[11px] text-slate-500">{provenance.note}</p></>}</div>
             <p className="mt-3 text-[11px] leading-relaxed text-slate-500">Phishing clones are the top monetized attack: 28.15 lakh cybercrime cases in 2025 (+24% YoY), 38% via phishing per CERT-In; ITR portal still lists Chrome 88-90 compat. Verification belongs in-flow, before filing — DPDPA 2023 phased from Nov 2025.</p>
           </div>
 
           <div className={cardCls + " p-5"}>
-            <h3 className="text-[13px] font-bold text-[#1a4b8e]">What is real in this prototype? (Honesty disclosure — judged criterion)</h3>
+            <h3 className="text-[13px] font-bold text-[#1a4b8e]">{t(lang,"realHead")} (Honesty disclosure)</h3>
             <ul className="mt-2 space-y-1.5 text-[12px] leading-relaxed text-slate-700">
               <li>✓ SHA-256 hash-chain — verified per case, tamper evident</li>
               <li>✓ LLM action-selection — strict zod schema, allow-list, deterministic fallback (AGENT_MODE)</li>

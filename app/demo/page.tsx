@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { GovShell, btnOutline, cardCls } from "../govshell";
+import { useLang, t } from "@/lib/i18n";
 
 const alone = ["Captcha accepted", "PF advance submitted", "Under Process · day 7", "Rejected: name mismatch (false)", "Invalid tracking ID", "Next grievance allowed in 30 days", "STUCK — no accountable owner"];
 const fixed = ["Import verified evidence", "Prove names match (ledger vs portal claim)", "Draft rebuttal from hash-chained facts", "Record grievance closure gap (invalid ID)", "Calculate ₹2,600 SLA accrual (pre-breach → breach)", "Trace Regional Office blocker (26d overdue)", "Escalation packet routed — RESOLVED"];
 
 export default function Demo() {
+  const { lang } = useLang();
   const [running, setRunning] = useState(false); const [left, setLeft] = useState(0); const [right, setRight] = useState(0); const [seconds, setSeconds] = useState(0); const timer = useRef<ReturnType<typeof setInterval> | null>(null);
   function stop() { if (timer.current) clearInterval(timer.current); timer.current = null; setRunning(false); }
   function restart() { stop(); setLeft(0); setRight(0); setSeconds(0); setRunning(true); }
@@ -26,8 +28,8 @@ export default function Demo() {
       </div>
 
       <div className={`${cardCls} flex flex-wrap items-center gap-3 p-3`}>
-        <button onClick={restart} className="rounded-sm bg-[#1a4b8e] px-4 py-1.5 text-[13px] font-semibold text-white hover:bg-[#123763]">{running ? "Restart playback" : "Run comparison"}</button>
-        <button onClick={stop} disabled={!running} className={btnOutline + " disabled:opacity-40"}>Pause</button>
+        <button onClick={restart} className="rounded-sm bg-[#1a4b8e] px-4 py-1.5 text-[13px] font-semibold text-white hover:bg-[#123763]">{running ? t(lang,"demoRestartPlayback") : t(lang,"demoRun")}</button>
+        <button onClick={stop} disabled={!running} className={btnOutline + " disabled:opacity-40"}>{t(lang,"demoPause")}</button>
         <span className="font-mono text-[12px] text-slate-600">{String(seconds).padStart(2, "0")}s elapsed</span>
         <span className="text-[11px] text-slate-500">Left: portal owns status. Right: citizen owns evidence.</span>
       </div>
