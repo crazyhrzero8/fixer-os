@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { initialPortalSnapshot, portalCitizen, PORTAL_STATES, PROCESSING_DAYS, type PortalAction, type PortalSnapshot } from "@/lib/portalFsm";
 import { SYNTHETIC_CITIZEN } from "@/data/seed";
 import { GovShell, btnOutline, btnPrimary, cardCls } from "../govshell";
+import { useLang, t } from "@/lib/i18n";
 
 const MARQUEE_ITEMS = [
   "Attention Members: OTP-based authentication is mandatory for availing online services.",
@@ -16,6 +18,7 @@ const sectionHead = "border-b border-slate-300 bg-[#eef3f9] px-4 py-2 text-[15px
 const th = "border border-slate-300 bg-[#eef3f9] px-3 py-1.5 text-left text-[12px] font-bold uppercase tracking-wide";
 
 export default function Portal() {
+  const { lang } = useLang();
   const [snapshot, setSnapshot] = useState<PortalSnapshot>(initialPortalSnapshot);
   const [captchaText, setCaptchaText] = useState("");
   const [captcha, setCaptcha] = useState("");
@@ -24,6 +27,7 @@ export default function Portal() {
   const [otp, setOtp] = useState("");
   const [demoOtp, setDemoOtp] = useState("");
   const [trackingId, setTrackingId] = useState("");
+  const [terms, setTerms] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -112,7 +116,7 @@ export default function Portal() {
 
           {snapshot.state === PORTAL_STATES.LOGIN_FRICTION && (
             <section className={cardCls}>
-              <div className={sectionHead}>Member Login — Universal Account Number (UAN)</div>
+              <div className={sectionHead}>{t(lang, "portalLogin")}</div>
               <div className="p-5">
                 <table className="w-full max-w-xl text-[13px]"><tbody>
                   <tr><td className="w-56 py-1.5 pr-4"><label htmlFor="uan">UAN:</label></td><td className="py-1.5"><input id="uan" value={uan} onChange={(e) => setUan(e.target.value)} aria-label="UAN — 12 digits" placeholder="12-digit UAN" className="w-52 rounded-sm border border-slate-300 px-2 py-1 text-[13px] focus:border-[#1a4b8e] focus:ring-1 focus:ring-[#1a4b8e]" autoComplete="username" /></td></tr>
@@ -136,7 +140,7 @@ export default function Portal() {
 
           {snapshot.state === PORTAL_STATES.OTP_REQUIRED && (
             <section className={cardCls}>
-              <div className={sectionHead}>OTP Verification — Registered Mobile (synthetic)</div>
+              <div className={sectionHead}>{t(lang, "portalOtp")}</div>
               <div className="p-5">
                 <p className="text-[13px] text-slate-700">An OTP has been sent to your registered mobile ending <b>XXXX-XXXX-1234</b> (synthetic). This demo shows the OTP inline for evaluation — real EPFO sends via SMS gateway.</p>
                 {demoOtp && <p className="mt-2 rounded-sm border border-amber-300 bg-[#fff8e6] px-3 py-2 text-[13px] text-[#8a6d00]"><b>Demo OTP:</b> <span className="font-mono text-lg tracking-widest">{demoOtp}</span> <span className="text-[11px]">(expires in 5 min, 3 attempts max)</span></p>}
@@ -152,7 +156,7 @@ export default function Portal() {
 
           {snapshot.state === PORTAL_STATES.CLAIM_FORM && (
             <section className={cardCls}>
-              <div className={sectionHead}>Form-31 : Advance from Provident Fund Account (Member Self-Service)</div>
+              <div className={sectionHead}>{t(lang, "claimForm")}</div>
               <div className="p-5">
                 <table className="w-full max-w-2xl text-[13px]"><tbody>
                   <tr><td className={`${th} w-64`}>Name of Member</td><td className="border border-slate-300 px-2 py-1">{portalCitizen.nameAsPerAadhaar}</td></tr>
@@ -161,9 +165,10 @@ export default function Portal() {
                   <tr><td className={th}>Bank Account (IFSC)</td><td className="border border-slate-300 px-2 py-1">{portalCitizen.bankIfsc}</td></tr>
                   <tr><td className={th}>Amount Required</td><td className="border border-slate-300 px-2 py-1">₹ 50,000/- (Rupees Fifty Thousand only)</td></tr>
                 </tbody></table>
-                <label className="mt-4 block max-w-xl text-[12px]"><input type="checkbox" checked disabled /> I hereby declare that the particulars furnished above are true and correct.</label>
-                <div className="mt-4"><button type="button" onClick={() => dispatch("SUBMIT_ADVANCE_CLAIM")} disabled={busy} className={btnPrimary}>{busy ? "Submitting…" : "Submit Claim Form-31"}</button></div>
-                <p className="mt-2 text-[11px] text-slate-500">Database: claim stored in hash-chained ledger (SHA-256, append-only), not in browser. Synthetic only — no real money moved.</p>
+                <label className="mt-4 flex max-w-xl items-start gap-2 text-[12px] leading-snug"><input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#1a4b8e] focus:ring-[#1a4b8e]" /> <span>I hereby declare that the particulars furnished above are true and correct, and I have read and agree to the <Link href="/terms" target="_blank" className="underline text-[#1a4b8e] focus:outline-none focus:ring-2 focus:ring-[#1a4b8e]">Terms & Conditions (RBI TAT 2019, CPA 2019, DPDP 2023, GIGW 3.0 — latest 22 Aug 2026)</Link>. All data is synthetic.</span></label>
+                {!terms && <p className="mt-2 text-[11px] text-amber-700">Please accept the Terms & Conditions to submit — required for hackathon honesty + DPDP consent.</p>}
+                <div className="mt-4"><button type="button" onClick={() => dispatch("SUBMIT_ADVANCE_CLAIM")} disabled={busy || !terms} className={btnPrimary} aria-disabled={busy || !terms}>{busy ? "Submitting…" : "Submit Claim Form-31"}</button> <Link href="/terms" target="_blank" className={btnOutline + " ml-2"}>Read Terms</Link></div>
+                <p className="mt-2 text-[11px] text-slate-500">Database: claim stored in hash-chained ledger (SHA-256, append-only, per-process synthetic), not in browser. OTP/captcha server-session only. Synthetic only — no real money moved.</p>
               </div>
             </section>
           )}

@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import { GovShell, btnOutline, btnPrimary, cardCls, pageWrap } from "./govshell";
+import { GovShell, btnOutline, btnPrimary, cardCls } from "./govshell";
+import { useLang, t } from "@/lib/i18n";
 
 const ROUTES = [
   {
@@ -26,21 +29,18 @@ const EVIDENCE = [
 ];
 
 export default function Home() {
+  const { lang } = useLang();
   return (
     <GovShell active="/">
       <section className={`${cardCls} mx-auto p-6 sm:p-8`}>
         <p className="text-[11px] font-bold uppercase tracking-widest text-[#1a4b8e]">
-          Everyone built compliance copilots for citizens.
+          {t(lang, "heroEyebrow")}
         </p>
         <h2 className="mt-2 text-3xl font-bold leading-tight text-[#1a4b8e] sm:text-4xl">
-          Nobody audits the state back.
+          {t(lang, "heroTitle")}
         </h2>
         <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-slate-700">
-          The state digitized forms, never accountability. Every public-service portal ends with
-          &ldquo;now track it yourself.&rdquo; FIXER.OS is the missing counterparty: it verifies the
-          government&rsquo;s claims against an independent, tamper-evident case ledger, predicts
-          rejections before they happen, proves rule deadlocks mathematically, and escalates with
-          legally-cited teeth.
+          {t(lang, "heroDesc")}
         </p>
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
           {EVIDENCE.map(([stat, label]) => (
@@ -64,15 +64,21 @@ export default function Home() {
 
       <section className={`${cardCls} mt-6 flex flex-wrap items-center justify-between gap-4 p-5`}>
         <div>
-          <h3 className="font-bold text-slate-900">Evaluate like a judge</h3>
+          <h3 className="font-bold text-slate-900">{t(lang, "evalTitle")}</h3>
           <p className="mt-1 text-[13px] text-slate-600">
-            Login to the simulated portal (UAN <b>100000000000</b> · password <b>demo1234</b>) or go straight to the console.
+            {t(lang, "evalDesc")}
           </p>
         </div>
         <div className="flex gap-3">
-          <Link href="/portal" className={btnPrimary}>Enter portal</Link>
-          <Link href="/fixer" className={btnOutline}>Open console</Link>
+          <Link href="/portal" className={btnPrimary}>{lang === "hi" ? "पोर्टल में प्रवेश" : "Enter portal"}</Link>
+          <Link href="/fixer" className={btnOutline}>{lang === "hi" ? "कंसोल खोलें" : "Open console"}</Link>
+          <Link href="/story" className={btnOutline}>{lang === "hi" ? "कहानी पढ़ें" : "Read story"}</Link>
         </div>
+      </section>
+      <section className={`${cardCls} mt-6 p-5`}>
+        <h3 className="font-bold text-[#1a4b8e]">{lang === "hi" ? "क्यों FIXER.OS? — दोस्त के परिवार की 6 महीने की लड़ाई" : "Why FIXER.OS? — A friend’s family waited 6 months for their own PF"}</h3>
+        <p className="mt-2 text-[13px] leading-relaxed text-slate-600">{lang === "hi" ? "हर कोई फॉर्म भरने में मदद करता है। हमने राज्य के जवाब की जाँच बनाई — नकली अस्वीकृति पकड़ो, सबूत बचाओ, देरी पर ₹100/दिन दिखाओ।" : "Others polish the form. We audit the state’s reply — catch false rejections, preserve evidence, show ₹100/day for delay."} <Link href="/story" className="underline text-[#1a4b8e]">{lang === "hi" ? "पूरी कहानी" : "Full story"}</Link> · <Link href="/terms" className="underline text-[#1a4b8e]">{lang === "hi" ? "नियम" : "Terms"}</Link></p>
+        <p className="mt-2 text-[11px] text-slate-500">{lang === "hi" ? "AI: gpt-4o-mini allow-list + deterministic fallback; मानव-समीक्षित सबूत ही अदालत में चलता है।" : "AI: gpt-4o-mini allow-list + deterministic fallback; human-verified evidence is what holds in court."}</p>
       </section>
     </GovShell>
   );

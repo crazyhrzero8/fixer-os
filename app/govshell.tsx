@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { t, useLang, type Lang } from "@/lib/i18n";
 
 export const NAV = [
   { href: "/", label: "Home" },
@@ -18,19 +18,7 @@ export const cardCls = "rounded-md border border-slate-300 bg-white shadow-sm";
 export const pageWrap = "mx-auto w-full max-w-6xl px-4 sm:px-6";
 
 export function GovShell({ active, children }: { active: string; children: React.ReactNode }) {
-  // ponytail: native font scaling + localStorage, no i18n dep — minimal client state
-  const [lang, setLangState] = useState("en");
-  const [fontReady, setFontReady] = useState(false);
-  useEffect(() => {
-    try {
-      const savedLang = localStorage.getItem("fixer-lang") || "en";
-      const savedFont = localStorage.getItem("fixer-font") || "100";
-      setLangState(savedLang);
-      document.documentElement.style.fontSize = savedFont + "%";
-      setFontReady(true);
-    } catch { setFontReady(true); }
-  }, []);
-  const setLang = (v: string) => { try { localStorage.setItem("fixer-lang", v); setLangState(v); } catch {} };
+  const { lang, setLang } = useLang();
   const setFont = (d: number) => {
     try {
       const cur = parseInt(localStorage.getItem("fixer-font") || "100", 10);
@@ -39,11 +27,18 @@ export function GovShell({ active, children }: { active: string; children: React
       document.documentElement.style.fontSize = nxt + "%";
     } catch {}
   };
+  // Initialize font on mount
+  if (typeof window !== "undefined") {
+    try {
+      const savedFont = localStorage.getItem("fixer-font") || "100";
+      document.documentElement.style.fontSize = savedFont + "%";
+    } catch {}
+  }
   return (
-    <div className="min-h-screen bg-[#f5f7fa] font-sans text-slate-900" lang={lang === "hi" ? "hi" : "en"} suppressHydrationWarning>
+    <div className="min-h-screen bg-[#f5f7fa] font-sans text-slate-900" lang={lang} suppressHydrationWarning>
       <div className="h-1.5 w-full bg-gradient-to-r from-[#FF9933] via-white to-[#138808]" />
       <div className="bg-[#fff8e6] px-4 py-1 text-center text-[11px] text-[#8a6d00]">
-        SIMULATION ONLY — independent hackathon prototype · not affiliated with any Government body · all data synthetic
+        {t(lang, "simOnly")}
       </div>
 
       <header className="border-b-2 border-[#1a4b8e] bg-white">
@@ -55,8 +50,8 @@ export function GovShell({ active, children }: { active: string; children: React
               .OS
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-slate-500">Independent Prototype · Build What Moves India</p>
-              <h1 className="text-lg font-bold text-[#1a4b8e]">FIXER.OS — Public Service Accountability Layer</h1>
+              <p className="text-[10px] uppercase tracking-wider text-slate-500">{t(lang, "headerSub")}</p>
+              <h1 className="text-lg font-bold text-[#1a4b8e]">{t(lang, "headerTitle")}</h1>
             </div>
           </Link>
           <div className="flex items-center gap-2 text-[11px]">
@@ -70,13 +65,21 @@ export function GovShell({ active, children }: { active: string; children: React
         </div>
       </header>
 
-      <nav className="bg-[#1a4b8e] text-white">
+      <nav className="bg-[#1a4b8e] text-white" aria-label="Main navigation">
         <ul className={`${pageWrap} flex flex-wrap px-2 text-[13px]`}>
-          {NAV.map((item) => (
+          {[
+            { href: "/", label: t(lang, "navHome") },
+            { href: "/portal", label: t(lang, "navPortal") },
+            { href: "/fixer", label: t(lang, "navFixer") },
+            { href: "/demo", label: t(lang, "navDemo") },
+            { href: "/story", label: lang === "hi" ? "कहानी" : "Story" },
+            { href: "/terms", label: lang === "hi" ? "नियम" : "Terms" },
+          ].map((item) => (
             <li key={item.href}>
               <Link
                 href={item.href}
-                className={`inline-block px-3 py-2 hover:bg-[#123763] ${active === item.href ? "bg-[#123763] font-bold" : ""}`}
+                className={`inline-block px-3 py-2 hover:bg-[#123763] focus:outline-none focus:ring-2 focus:ring-white ${active === item.href ? "bg-[#123763] font-bold" : ""}`}
+                aria-current={active === item.href ? "page" : undefined}
               >
                 {item.label}
               </Link>
