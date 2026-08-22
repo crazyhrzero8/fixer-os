@@ -60,9 +60,8 @@ export function GovShell({ active, children }: { active: string; children: React
             <button type="button" onClick={() => setLang("hi")} className={lang === "hi" ? "rounded-sm border border-[#1a4b8e] bg-[#1a4b8e] px-2 py-1 font-semibold text-white" : btnOutline} aria-pressed={lang === "hi"}>हिन्दी</button>
             <button type="button" onClick={() => setLang("en")} className={lang === "en" ? "rounded-sm border border-[#1a4b8e] bg-[#1a4b8e] px-2 py-1 font-semibold text-white" : btnOutline} aria-pressed={lang === "en"}>English</button>
             <span className="ml-1 hidden sm:inline" aria-hidden>|</span>
-            <button type="button" onClick={() => setFont(-10)} aria-label="Decrease font size" className="rounded-sm border border-slate-300 bg-white px-1.5 py-1 hover:border-[#1a4b8e]">A⁻</button>
-            <button type="button" onClick={() => setFont(0)} aria-label="Reset font size" className="rounded-sm border border-slate-300 bg-white px-1.5 py-1 hover:border-[#1a4b8e]">A</button>
             <button type="button" onClick={() => setFont(10)} aria-label="Increase font size" className="rounded-sm border border-slate-300 bg-white px-1.5 py-1 hover:border-[#1a4b8e]">A⁺</button>
+            <button type="button" onClick={() => setFont(-10)} aria-label="Decrease font size" className="rounded-sm border border-slate-300 bg-white px-1.5 py-1 hover:border-[#1a4b8e]">A⁻</button>
           </div>
         </div>
       </header>
