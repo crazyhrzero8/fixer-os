@@ -52,8 +52,8 @@ export function GovShell({ active, children }: { active: string; children: React
             <div>
               <p className="text-[10px] uppercase tracking-wider text-slate-500">{t(lang, "headerSub")}</p>
               <h1 className="text-lg font-bold leading-tight text-[#1a4b8e]">{t(lang, "headerTitle")}</h1>
-              {/* CMCHISTN pattern: Tamil name permanently visible alongside English */}
-              <p className="text-[12px] font-semibold text-slate-600" lang="ta">பொது சேவை பொறுப்புணர்வு அடுக்கு · लोक सेवा जवाबदेही परत</p>
+              {/* Hindi subtitle always visible (user: no Tamil) */}
+              <p className="text-[12px] font-semibold text-slate-600" lang="hi">लोक सेवा जवाबदेही परत</p>
             </div>
           </Link>
           <div className="flex items-center gap-2 text-[11px]">
