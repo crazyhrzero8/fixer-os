@@ -93,10 +93,10 @@ export function GovShell({ active, children }: { active: string; children: React
       <footer className="mt-8 border-t-4 border-[#FF9933] bg-white">
         <div className={`${pageWrap} grid grid-cols-2 gap-6 py-6 text-[12px] text-slate-600 sm:grid-cols-4`}>
           {[
-            ["Product", [{ label: "Agent Console", href: "/fixer" }, { label: "Simulated Portal", href: "/portal" }, { label: "Demo Theater", href: "/demo" }]],
-            ["Evidence", [{ label: "Hash-Chained Ledger", href: "/fixer" }, { label: "RuleGuard Proofs", href: "/fixer" }, { label: "Pre-flight Checks", href: "/fixer" }]],
-            ["Legal Basis", [{ label: "RBI TAT Circular 2019", href: "https://www.rbi.org.in/commonman/English/Scripts/Notification.aspx?Id=3074" }, { label: "CPA 2019 Precedents", href: "/fixer" }, { label: "DPDP-Aware Design", href: "/fixer" }]],
-            ["About", [{ label: "Research Dossier", href: "https://github.com/crazyhrzero8/fixer-os/blob/main/docs/hackathon-research.md" }, { label: "Codex Build Log", href: "https://github.com/crazyhrzero8/fixer-os/blob/main/CODEX_LOG.md" }, { label: "Honesty Disclosures", href: "/fixer" }]]
+            [t(lang, "footProduct"), [{ label: t(lang, "fAgentConsole"), href: "/fixer" }, { label: t(lang, "fPortal"), href: "/portal" }, { label: t(lang, "fDemo"), href: "/demo" }]],
+            [t(lang, "footEvidence"), [{ label: t(lang, "fLedger"), href: "/fixer" }, { label: t(lang, "fRuleGuard"), href: "/fixer" }, { label: t(lang, "fPreflight"), href: "/fixer" }]],
+            [t(lang, "footLegal"), [{ label: t(lang, "fRbi"), href: "https://www.rbi.org.in/commonman/English/Scripts/Notification.aspx?Id=3074" }, { label: t(lang, "fCpa"), href: "/terms" }, { label: t(lang, "fDpdp"), href: "/terms" }]],
+            [t(lang, "footAbout"), [{ label: t(lang, "fDossier"), href: "https://github.com/crazyhrzero8/fixer-os/blob/main/docs/hackathon-research.md" }, { label: t(lang, "fCodexLog"), href: "https://github.com/crazyhrzero8/fixer-os/blob/main/CODEX_LOG.md" }, { label: t(lang, "fHonesty"), href: "/terms" }]]
           ].map(([title, items]) => (
             <div key={title as string}>
               <p className="mb-2 font-bold text-[#1a4b8e]">{title as string}</p>

@@ -14,16 +14,16 @@ type Preflight = { ruleId: string; status: "PASS" | "FAIL" | "WARN"; message: st
 type Prov = { origin: string; secure: boolean; tier: "OFFICIAL" | "SANDBOX" | "UNKNOWN"; service: string | null; note: string };
 
 const eventLabel = (value: string) => value.replaceAll("_", " ");
-const factLine = (kind: CaseKind, facts: Record<string, unknown>) => {
+const factLine = (kind: CaseKind, lang: "en"|"hi", facts: Record<string, unknown>) => {
   if (kind === "payment-tat-breach") return [
-    ["TRANSACTION RRN", String(facts.rrn)],
-    ["AMOUNT DEBITED", `₹${(Number(facts.amountPaise) / 100).toLocaleString("en-IN")}`],
-    ["TICKET ISSUED", facts.ticketIssued ? "yes" : "no — service never delivered"]
+    [lang === "hi" ? "लेन-देन RRN" : "TRANSACTION RRN", String(facts.rrn)],
+    [lang === "hi" ? "कटी राशि" : "AMOUNT DEBITED", `₹${(Number(facts.amountPaise) / 100).toLocaleString("en-IN")}`],
+    [lang === "hi" ? "टिकट जारी" : "TICKET ISSUED", facts.ticketIssued ? "yes" : "no — service never delivered"]
   ];
   return [
-    ["REQUESTED MEMBER ID", String(facts.nameAsPerEmployer)],
-    ["PRIMARY UAN", String(facts.nameAsPerAadhaar)],
-    ["BANK IFSC VALID", facts.bankIfscValid ? "yes" : "no"]
+    [lang === "hi" ? "सदस्य आईडी (अनुरोधित)" : "REQUESTED MEMBER ID", String(facts.nameAsPerEmployer)],
+    [lang === "hi" ? "प्राथमिक UAN" : "PRIMARY UAN", String(facts.nameAsPerAadhaar)],
+    [lang === "hi" ? "बैंक IFSC वैध" : "BANK IFSC VALID", facts.bankIfscValid ? "yes" : "no"]
   ];
 };
 
@@ -110,7 +110,7 @@ export default function Fixer() {
             {caseData.kind === "epfo-false-rejection"
               ? <p className="mt-1 text-[11px] font-semibold text-[#8a6d00]">The problem this build solves — one citizen, one false rejection, zero accountability.</p>
               : <p className="mt-1 text-[11px] font-semibold text-[#8a6d00]">Generality proof — the same engine, ledger and escalation path applied to a second vertical.</p>}
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">{factLine(caseData.kind, caseData.facts).map(([label, value]) => <div key={label} className="rounded-sm border border-slate-200 bg-[#f8fafc] p-3"><p className="text-[11px] uppercase tracking-wide text-slate-500">{label}</p><p className="mt-1 text-[13px] font-semibold text-slate-900">{value}</p></div>)}</div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">{factLine(caseData.kind, lang, caseData.facts).map(([label, value]) => <div key={label} className="rounded-sm border border-slate-200 bg-[#f8fafc] p-3"><p className="text-[11px] uppercase tracking-wide text-slate-500">{label}</p><p className="mt-1 text-[13px] font-semibold text-slate-900">{value}</p></div>)}</div>
             <p className="mt-3 text-[12px] font-semibold text-green-800">{caseData.kind === "epfo-false-rejection" ? "Exact name match on record — the rejection is contradicted by independent facts." : "Debit confirmed, service never issued — codified RBI TAT entitlement applies."}</p>
             <div className="mt-4 flex flex-wrap items-center gap-3">
               <button onClick={runStep} disabled={busy || caseData.status === "RESOLVED"} className={btnPrimary}>{busy ? t(lang,"analyzing") : t(lang,"consoleRunStep")}</button>
