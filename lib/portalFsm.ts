@@ -5,6 +5,7 @@ import { APP_CONFIG } from "./config";
 export const PORTAL_STATES = {
   LOGIN_FRICTION: "LOGIN_FRICTION",
   OTP_REQUIRED: "OTP_REQUIRED",
+  DASHBOARD: "DASHBOARD",
   CLAIM_FORM: "CLAIM_FORM",
   UNDER_PROCESS: "UNDER_PROCESS",
   REJECTED: "REJECTED",
@@ -14,7 +15,7 @@ export const PORTAL_STATES = {
 } as const;
 
 export type PortalState = (typeof PORTAL_STATES)[keyof typeof PORTAL_STATES];
-export type PortalAction = "VERIFY_CAPTCHA" | "VERIFY_OTP" | "RESEND_OTP" | "REFRESH_CAPTCHA" | "SUBMIT_ADVANCE_CLAIM" | "ADVANCE_DAY" | "OPEN_GRIEVANCE" | "SUBMIT_GRIEVANCE" | "RESET";
+export type PortalAction = "VERIFY_CAPTCHA" | "VERIFY_OTP" | "RESEND_OTP" | "REFRESH_CAPTCHA" | "OPEN_CLAIM_FORM" | "VIEW_DASHBOARD" | "VIEW_PASSBOOK" | "VIEW_KYC" | "SUBMIT_ADVANCE_CLAIM" | "ADVANCE_DAY" | "OPEN_GRIEVANCE" | "SUBMIT_GRIEVANCE" | "RESET";
 export interface PortalSnapshot { state: PortalState; simulatedDays: number; message?: string; }
 export const PROCESSING_DAYS = APP_CONFIG.portal.processingDays;
 export const initialPortalSnapshot = (): PortalSnapshot => ({ state: PORTAL_STATES.LOGIN_FRICTION, simulatedDays: 0 });
@@ -27,12 +28,18 @@ export function transitionPortal(snapshot: PortalSnapshot, action: PortalAction)
       if (action === "REFRESH_CAPTCHA") return snapshot;
       break;
     case PORTAL_STATES.OTP_REQUIRED:
-      if (action === "VERIFY_OTP") return { state: PORTAL_STATES.CLAIM_FORM, simulatedDays: 0 };
+      if (action === "VERIFY_OTP") return { state: PORTAL_STATES.DASHBOARD, simulatedDays: 0, message: "Login successful — welcome to Member Dashboard (synthetic)." };
       if (action === "RESEND_OTP") return { state: PORTAL_STATES.OTP_REQUIRED, simulatedDays: 0, message: "OTP resent (synthetic)." };
       if (action === "REFRESH_CAPTCHA") return snapshot;
       break;
+    case PORTAL_STATES.DASHBOARD:
+      if (action === "OPEN_CLAIM_FORM") return { state: PORTAL_STATES.CLAIM_FORM, simulatedDays: 0 };
+      if (action === "VIEW_PASSBOOK") return { state: PORTAL_STATES.DASHBOARD, simulatedDays: 0, message: "Passbook: EPF Balance ₹4,36,000 (synthetic) — not real money." };
+      if (action === "VIEW_KYC") return { state: PORTAL_STATES.DASHBOARD, simulatedDays: 0, message: "KYC: Aadhaar, PAN, Bank — all verified (synthetic)." };
+      break;
     case PORTAL_STATES.CLAIM_FORM:
       if (action === "SUBMIT_ADVANCE_CLAIM") return { state: PORTAL_STATES.UNDER_PROCESS, simulatedDays: 0, message: "Your PF advance claim has been submitted." };
+      if (action === "VIEW_DASHBOARD") return { state: PORTAL_STATES.DASHBOARD, simulatedDays: 0 };
       break;
     case PORTAL_STATES.UNDER_PROCESS: {
       if (action === "ADVANCE_DAY") {

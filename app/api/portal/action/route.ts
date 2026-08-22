@@ -6,7 +6,7 @@ import { APP_CONFIG } from "@/lib/config";
 import { clientKey, rateLimit } from "@/lib/ratelimit";
 
 const bodySchema = z.object({
-  action: z.enum(["VERIFY_CAPTCHA", "VERIFY_OTP", "RESEND_OTP", "REFRESH_CAPTCHA", "SUBMIT_ADVANCE_CLAIM", "ADVANCE_DAY", "OPEN_GRIEVANCE", "SUBMIT_GRIEVANCE", "RESET"]),
+  action: z.enum(["VERIFY_CAPTCHA", "VERIFY_OTP", "RESEND_OTP", "REFRESH_CAPTCHA", "OPEN_CLAIM_FORM", "VIEW_DASHBOARD", "VIEW_PASSBOOK", "VIEW_KYC", "SUBMIT_ADVANCE_CLAIM", "ADVANCE_DAY", "OPEN_GRIEVANCE", "SUBMIT_GRIEVANCE", "RESET"]),
   value: z.string().max(256).optional(),
   uan: z.string().max(20).optional(),
   password: z.string().max(64).optional(),
@@ -57,16 +57,18 @@ export async function POST(request: Request) {
 
   const snapshot = applyAction(sid, parsed.data.action, valueForSession);
   if (parsed.data.action === "VERIFY_CAPTCHA" && snapshot.state === "LOGIN_FRICTION") {
-    // Distinguish captcha vs credential failure via fresh captcha — ponytail single message
-    return NextResponse.json({ snapshot, error: "Invalid credentials or captcha. New captcha issued — kindly retry. (Demo: UAN 100000000000 / demo1234)" });
+    return NextResponse.json({ snapshot, error: "Invalid UAN / password / captcha. New captcha issued — kindly retry. (Demo: UAN 100000000000 · demo1234)" });
+  }
+  if (parsed.data.action === "VERIFY_OTP" && snapshot.state === "DASHBOARD") {
+    // Login success → dashboard. Show synthetic OTP once more for evaluation banner.
+    return NextResponse.json({ snapshot, demoOtp: getOtpForTest(sid) });
   }
   if (parsed.data.action === "VERIFY_OTP" && snapshot.state === "OTP_REQUIRED") {
-    return NextResponse.json({ snapshot, error: "Invalid or expired OTP. New OTP sent (synthetic)." });
+    return NextResponse.json({ snapshot, error: "Invalid or expired OTP. A new OTP has been issued (synthetic)." });
   }
   if (parsed.data.action === "VERIFY_CAPTCHA" && snapshot.state === "OTP_REQUIRED") {
-    // Success — expose demo OTP for hackathon evaluation (never in real gov)
-    const demoOtp = getOtpForTest(sid);
-    return NextResponse.json({ snapshot, demoOtp });
+    // Captcha passed → expose demo OTP inline for evaluation (real EPFO sends SMS; never here)
+    return NextResponse.json({ snapshot, demoOtp: getOtpForTest(sid) });
   }
   if (parsed.data.action === "RESEND_OTP") {
     const demoOtp = getOtpForTest(sid);

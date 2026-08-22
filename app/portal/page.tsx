@@ -22,8 +22,8 @@ export default function Portal() {
   const [snapshot, setSnapshot] = useState<PortalSnapshot>(initialPortalSnapshot);
   const [captchaText, setCaptchaText] = useState("");
   const [captcha, setCaptcha] = useState("");
-  const [uan, setUan] = useState<string>(SYNTHETIC_CITIZEN.evaluationUan);
-  const [password, setPassword] = useState<string>(SYNTHETIC_CITIZEN.evaluationPassword);
+  const [uan, setUan] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const [otp, setOtp] = useState("");
   const [demoOtp, setDemoOtp] = useState("");
   const [trackingId, setTrackingId] = useState("");
@@ -119,8 +119,8 @@ export default function Portal() {
               <div className={sectionHead}>{t(lang, "portalLogin")}</div>
               <div className="p-5">
                 <table className="w-full max-w-xl text-[13px]"><tbody>
-                  <tr><td className="w-56 py-1.5 pr-4"><label htmlFor="uan">UAN:</label></td><td className="py-1.5"><input id="uan" value={uan} onChange={(e) => setUan(e.target.value)} aria-label="UAN — 12 digits" placeholder="12-digit UAN" className="w-52 rounded-sm border border-slate-300 px-2 py-1 text-[13px] focus:border-[#1a4b8e] focus:ring-1 focus:ring-[#1a4b8e]" autoComplete="username" /></td></tr>
-                  <tr><td className="py-1.5 pr-4"><label htmlFor="pwd">Password:</label></td><td className="py-1.5"><input id="pwd" type="password" value={password} onChange={(e) => setPassword(e.target.value)} aria-label="Password" placeholder="demo1234" className="w-52 rounded-sm border border-slate-300 px-2 py-1 text-[13px] focus:border-[#1a4b8e] focus:ring-1 focus:ring-[#1a4b8e]" autoComplete="current-password" /></td></tr>
+                  <tr><td className="w-56 py-1.5 pr-4"><label htmlFor="uan">UAN:</label></td><td className="py-1.5"><input id="uan" value={uan} onChange={(e) => setUan(e.target.value)} aria-label="UAN — 12 digits, e.g. 100000000000" placeholder="e.g. 100000000000" className="w-52 rounded-sm border border-slate-300 px-2 py-1 text-[13px] placeholder:text-slate-400 focus:border-[#1a4b8e] focus:ring-1 focus:ring-[#1a4b8e]" autoComplete="username" /></td></tr>
+                  <tr><td className="py-1.5 pr-4"><label htmlFor="pwd">Password:</label></td><td className="py-1.5"><input id="pwd" type="password" value={password} onChange={(e) => setPassword(e.target.value)} aria-label="Password, e.g. demo1234" placeholder="e.g. demo1234" className="w-52 rounded-sm border border-slate-300 px-2 py-1 text-[13px] placeholder:text-slate-400 focus:border-[#1a4b8e] focus:ring-1 focus:ring-[#1a4b8e]" autoComplete="current-password" /></td></tr>
                   <tr><td className="py-1.5 pr-4 align-top"><label htmlFor="cap">Enter Captcha:</label></td><td className="py-1.5">
                     <div className="flex flex-wrap items-center gap-3">
                       <button type="button" onClick={refreshCaptcha} aria-label="Refresh captcha — click to get new characters" title="Click to refresh captcha" className="select-none rounded-sm border border-slate-400 bg-[#2f2f2f] px-4 py-1.5 font-mono text-lg italic tracking-[0.35em] text-lime-300 hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-[#1a4b8e]">{captchaText || "·····"}</button>
@@ -154,10 +154,45 @@ export default function Portal() {
             </section>
           )}
 
+          {snapshot.state === PORTAL_STATES.DASHBOARD && (
+            <section className={cardCls}>
+              <div className={sectionHead}>Member Dashboard — {portalCitizen.displayName} · UAN {SYNTHETIC_CITIZEN.evaluationUan} (synthetic)</div>
+              <div className="p-5">
+                {snapshot.message && <p role="status" className="mb-4 rounded-sm border-l-4 border-green-700 bg-green-50 p-3 text-[13px] text-green-900">{snapshot.message}</p>}
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <button type="button" onClick={() => dispatch("VIEW_PASSBOOK")} disabled={busy} className={`${cardCls} p-4 text-left hover:border-[#1a4b8e] focus:outline-none focus:ring-2 focus:ring-[#1a4b8e]`} aria-label="View passbook">
+                    <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">Passbook</p>
+                    <p className="mt-1 text-lg font-bold text-[#1a4b8e]">₹4,36,000</p>
+                    <p className="mt-1 text-[11px] text-slate-500">EPF balance (synthetic) · interest 8.25%</p>
+                  </button>
+                  <button type="button" onClick={() => dispatch("VIEW_KYC")} disabled={busy} className={`${cardCls} p-4 text-left hover:border-[#1a4b8e] focus:outline-none focus:ring-2 focus:ring-[#1a4b8e]`} aria-label="View KYC status">
+                    <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">KYC Status</p>
+                    <p className="mt-1 text-lg font-bold text-green-700">Verified ✓</p>
+                    <p className="mt-1 text-[11px] text-slate-500">Aadhaar · PAN · Bank (synthetic)</p>
+                  </button>
+                  <button type="button" onClick={() => dispatch("OPEN_CLAIM_FORM")} disabled={busy} className={`${cardCls} p-4 text-left hover:border-[#1a4b8e] focus:outline-none focus:ring-2 focus:ring-[#1a4b8e]`} aria-label="File a PF advance claim — Form 31">
+                    <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">File Claim</p>
+                    <p className="mt-1 text-lg font-bold text-[#FF9933]">Form-31</p>
+                    <p className="mt-1 text-[11px] text-slate-500">PF Advance (Para 68-J medical)</p>
+                  </button>
+                </div>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 text-[12px] text-slate-600">
+                  <p className="rounded-sm bg-[#f8fafc] border border-slate-200 p-3"><b>Service:</b> {portalCitizen.serviceYears} years · <b>IFSC:</b> {portalCitizen.bankIfsc} (valid)</p>
+                  <p className="rounded-sm bg-[#f8fafc] border border-slate-200 p-3"><b>E-nomination:</b> Done ✓ · <b>Tracking ID:</b> {SYNTHETIC_CITIZEN.claimTrackingId}</p>
+                </div>
+                <p className="mt-3 text-[11px] text-slate-500">This dashboard is the “what better looks like” contrast: real EPFO hides balance behind passbook downloads; here it is one click. All data synthetic.</p>
+              </div>
+            </section>
+          )}
+
           {snapshot.state === PORTAL_STATES.CLAIM_FORM && (
             <section className={cardCls}>
               <div className={sectionHead}>{t(lang, "claimForm")}</div>
               <div className="p-5">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-[12px] text-slate-500">Member: <b>{portalCitizen.nameAsPerAadhaar}</b></p>
+                  <button type="button" onClick={() => dispatch("VIEW_DASHBOARD")} disabled={busy} className={btnOutline + " text-[11px]"}>← Back to Dashboard</button>
+                </div>
                 <table className="w-full max-w-2xl text-[13px]"><tbody>
                   <tr><td className={`${th} w-64`}>Name of Member</td><td className="border border-slate-300 px-2 py-1">{portalCitizen.nameAsPerAadhaar}</td></tr>
                   <tr><td className={th}>Service (as per records)</td><td className="border border-slate-300 px-2 py-1">{portalCitizen.serviceYears} years</td></tr>
@@ -176,6 +211,7 @@ export default function Portal() {
           {snapshot.state === PORTAL_STATES.UNDER_PROCESS && (
             <section className={cardCls}>
               <div className={sectionHead}>Online Claim Status — Tracking ID: {SYNTHETIC_CITIZEN.claimTrackingId}</div>
+              {snapshot.message && <p role="status" className="mx-5 mt-4 rounded-sm border-l-4 border-green-700 bg-green-50 p-3 text-[13px] text-green-900">{snapshot.message}</p>}
               <div className="p-5">
                 <table className="w-full max-w-2xl text-[13px]"><thead><tr><th className={th}>Date</th><th className={th}>Event</th><th className={th}>Remarks</th></tr></thead><tbody>
                   <tr><td className="border border-slate-300 px-2 py-1">Day 1</td><td className="border border-slate-300 px-2 py-1">Claim Received</td><td className="border border-slate-300 px-2 py-1">Under Process at Field Office</td></tr>

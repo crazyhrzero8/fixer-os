@@ -42,6 +42,10 @@ test("portal FSM replays the documented failure sequence", () => {
   snap = transitionPortal(snap, "RESEND_OTP");
   assert.equal(snap.state, PORTAL_STATES.OTP_REQUIRED);
   snap = transitionPortal(snap, "VERIFY_OTP");
+  assert.equal(snap.state, PORTAL_STATES.DASHBOARD);
+  snap = transitionPortal(snap, "VIEW_PASSBOOK");
+  assert.equal(snap.state, PORTAL_STATES.DASHBOARD);
+  snap = transitionPortal(snap, "OPEN_CLAIM_FORM");
   assert.equal(snap.state, PORTAL_STATES.CLAIM_FORM);
   snap = transitionPortal(snap, "SUBMIT_ADVANCE_CLAIM");
   assert.equal(snap.state, PORTAL_STATES.UNDER_PROCESS);
@@ -62,4 +66,24 @@ test("traceroute computes overdue days and rupee accrual for both cases", () => 
   assert.equal(epfo.daysOverdue, 26);
   assert.equal(epfo.tatCompensationAccrued, 2600);
   assert.match(escalationLetter("synthetic-irctc-001"), /RBI/);
+});
+
+test("LLM payload is PII-sanitized before leaving the server", async () => {
+  const { sanitizeForLLM } = await import("../lib/llm.ts");
+  const dirty = {
+    caseKind: "epfo-false-rejection",
+    remainingActions: ["CHECK_SLA"],
+    caseStatus: "OPEN",
+    recentLedgerEvents: [
+      { actor: "citizen", type: "FACTS_VERIFIED", payload: { nameAsPerAadhaar: "Arjun Kumar", uan: "100000000000", bankIfsc: "SBIN0000001", hash: "a".repeat(64) } },
+      { actor: "portal", type: "CLAIM_REJECTED", payload: { reason: "name mismatch for 100000000000" } }
+    ]
+  };
+  const clean = sanitizeForLLM(dirty);
+  const s = JSON.stringify(clean);
+  assert.equal(s.includes("Arjun"), false, "person name leaked");
+  assert.equal(s.includes("100000000000"), false, "UAN leaked");
+  assert.equal(s.includes("SBIN0000001"), false, "IFSC leaked");
+  assert.equal(s.includes("a".repeat(64)), false, "hash leaked");
+  assert.ok(s.includes("[REDACTED]") || s.includes("UAN_REDACTED") || s.includes("IFSC_REDACTED"), "redaction markers present");
 });
