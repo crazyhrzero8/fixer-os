@@ -1001,3 +1001,35 @@ RBI commonman PDF DPSS.CO.PD No.629/02.01.014/2019-20 (rbi.org.in) · SBI Paymen
 
 *This Turn appended 22 Aug 2026 by opencode (ox-alpha). No hardware tooling used. Ponytail applied: reuse GovShell, reuse existing zod/rbi table, zero new deps.*
 
+
+---
+
+## TURN 20 — AGENT-DRIVEN NOVELTY AUDIT (22 Aug 2026, zero human intervention)
+
+Four parallel research agents swept UMANG/CPGRAMS/DigiLocker/EPFO/IT portals, India's private PF/grievance-assistance market, global civic tech, and academic prior art. Full tables in session; condensed verdicts:
+
+### 20.1 Government platforms (6 features × 6 platforms)
+- Hash-chained citizen case evidence vs rejection replay: **NOBODY**. NIC certificatechain.nic.in chains issued certificates only.
+- Blocking-office traceroute + deadline countdown: **NOBODY** citizen-facing (CPGRAMS shows status, EPFiGMS shows officer; clocks are back-office).
+- Live SLA rupee clock: **NOBODY** (RBI ₹100/day credited silently inside bank cores; RBI CMS shows complaint status, never accruing rupees).
+- Pre-flight rejection prediction: **EPFO CITES 2.01 (live 8 Jul 2026)** flags deficiencies upfront + shows eligible amounts; **ITR portal** runs published validation rules pre-upload ("zero-error" gate). Both validate *inside their own portal at submission time*.
+- Mechanical deadlock proof to citizen: **NOBODY** (EPS pension calculator estimates; no proof artifact).
+- In-flow provenance check: partials only (DigiLocker verifies documents; ITD authenticates notices via DIN).
+
+### 20.2 India private market
+Kustodian.life = forensic EPF data audit (diagnosis, no independent evidence dossier vs portal claim). EPF Buddy = human root-cause consulting (>₹10L cases). FinRight = filing + eligibility. RTI apps (RTIwala etc.) = drafting/tracking, no hash evidence, no SLA math. **No Indian player combines independent evidence ledger + false-rejection proof + SLA clock.**
+
+### 20.3 Academic prior art (must-cite)
+- **Catala + CUTECat (Inria; CNAF adopted Jun 2026):** machine-checks French benefit-law conflicts in production — kills "first formal verification of gov rules". Back-office; never hands proof to citizens.
+- **Delhi e-SLA (2011, 567 services, production):** auto-computes delay compensation, citizen-visible — kills "first visible SLA penalty". Services-specific; the RBI banking regime has no such clock.
+- **Escher & Banovic CSCW 2020:** formalized PA benefits rules to audit a screener — research audit, not citizen tool.
+- **18F Eligibility APIs:** citizen pre-screener showing decision logic — yes/no output, prototype only.
+- **Blockchain grievance papers (2022-26, prototypes):** tamper-evident complaint records — kill "first hash-chained grievance record"; none replay evidence against rejection reasons.
+
+### 20.4 Job-displacement verdict
+Tool attacks the agent-TAX (₹500–5,000/transaction), not workers. Unregistered touts lose; ~5.4 lakh CSC VLEs gain an escalation weapon (portals stay hostile, <10% speak English); PF consultants reposition to forensics; IRCTC precedent formalized agents instead of killing them; UPI precedent shifted bank support staff 50%→26% while professional roles rose. Net headcount flat-to-positive.
+
+### 20.5 THE NARROWED NOVELTY CLAIM (use verbatim in video minute-2 and summary)
+> "First citizen-facing UI that shows a machine-checked certificate of an eligibility-rule contradiction (the EPS [9.5,10) pension trap), anchored to a tamper-evident case-evidence chain, with a live statutory-compensation clock."
+
+Adjacent-but-distinct prior art is now cited IN the UI (/fixer honesty card + /demo citations line) per the Honesty judging lens.

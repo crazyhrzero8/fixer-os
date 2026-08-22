@@ -40,7 +40,7 @@ export default function Demo() {
       <div className={`${cardCls} mt-5 border-l-4 border-l-[#1a4b8e] p-4`}>
         <p className="text-[11px] font-bold uppercase tracking-widest text-[#1a4b8e]">The novelty is the direction of verification</p>
         <p className="mt-1 text-[13px] leading-relaxed text-slate-700">Most assistants check whether a <em>citizen</em> fits a rule. FIXER.OS checks whether the <em>state&apos;s decision</em> fits independently verified facts — then preserves the contradiction in a hash chain and names the overdue owner. That inversion is absent from Bhashini/UMANG/CPGRAMS dashboards as of Aug 22 2026.</p>
-        <p className="mt-2 text-[11px] text-slate-500">Citations: RBI TAT DPSS.CO.PD No.629/2019-20 (₹100/day suo moto) · EPS 1995 §10 / EPS 2026 (10-yr rule, Gazette Jul 2026) · CPA 2019 §2(11) deficiency (EPFO held liable: Kangra Commission 20 Jul 2026, LiveLaw) · DPDP Act 2023 / Rules 13 Nov 2025 phased · GIGW 3.0 Dec 2023 (STQC/CERT-In) · Factly audit 31/957 compliant (3.3%).</p>
+        <p className="mt-2 text-[11px] text-slate-500">Citations: RBI TAT DPSS.CO.PD No.629/2019-20 (₹100/day suo moto) · EPS 1995 §10 / EPS 2026 (10-yr rule, Gazette Jul 2026) · CPA 2019 §2(11) deficiency (Kangra Commission, 20 Jul 2026) · DPDP Act 2023 / Rules 13 Nov 2025 phased · GIGW 3.0 Dec 2023 · Prior art honestly cited: EPFO CITES 2.01 pre-validation (Jul 2026), Delhi e-SLA auto-compensation (2011), Catala/CUTECat rule-checking (France) — none hand the proof to the citizen.</p>
       </div>
 
       <div className={`${cardCls} mt-5 p-4`}>
