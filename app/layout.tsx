@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "FIXER.OS — the accountability layer",
+  title: "FIXER.OS — Public Service Accountability Layer",
   description:
     "An independent prototype that audits government portal decisions against a tamper-evident citizen case ledger. Hackathon build; synthetic data only.",
   openGraph: {

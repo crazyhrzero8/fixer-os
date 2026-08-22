@@ -1,63 +1,79 @@
 import Link from "next/link";
+import { GovShell, btnOutline, btnPrimary, cardCls, pageWrap } from "./govshell";
 
-const routes = [
+const ROUTES = [
   {
     href: "/portal",
-    title: "/portal — The Villain",
-    body: "A mock EPFO-style portal that faithfully replays documented real-world failures: false rejections, invalid grievance IDs, lockouts."
+    title: "Simulated Portal — the problem, faithfully rebuilt",
+    body: "A mock EPFO-style member portal that replays documented real-world failures: false rejections, invalid grievance IDs, 30-day lockouts."
   },
   {
     href: "/fixer",
-    title: "/fixer — The Agent",
-    body: "The case-owner console: hash-chained evidence ledger, false-rejection detection, appeal drafting, SLA clock ticking in rupees."
+    title: "Agent Console — the accountability layer",
+    body: "Hash-chained evidence ledger, false-rejection audits, pre-flight rejection prediction, SLA clock accruing ₹100/day under RBI's TAT framework."
   },
   {
     href: "/demo",
-    title: "/demo — The Theater",
-    body: "Split screen. Left: a citizen alone, stuck forever. Right: the same citizen with FIXER.OS. Watch resolution happen."
+    title: "Demo Theater — two outcomes, one citizen",
+    body: "Split screen. Left: a citizen alone, stuck forever. Right: the same citizen with FIXER.OS. Watch resolution happen step by step."
   }
+];
+
+const EVIDENCE = [
+  ["763 Mn/day", "UPI transactions — India's payment rails already work at world scale"],
+  ["₹100/day", "RBI-mandated compensation for failed transactions that citizens almost never claim"],
+  ["31 / 957", "government portals that passed their own GIGW usability audit"]
 ];
 
 export default function Home() {
   return (
-    <main className="mx-auto max-w-4xl px-6 py-20">
-      <p className="mb-3 text-sm font-medium tracking-widest text-amber-400 uppercase">
-        Build What Moves India — independent prototype · synthetic data only
-      </p>
-      <h1 className="text-4xl font-bold leading-tight sm:text-5xl">
-        Everyone built compliance copilots for citizens.
-        <span className="block text-amber-400">Nobody audits the state back.</span>
-      </h1>
-      <p className="mt-6 max-w-2xl text-lg text-gray-400">
-        The state digitized forms, never accountability. Every government system ends with
-        &ldquo;now track it yourself.&rdquo; FIXER.OS is the missing counterparty: it verifies the
-        state&rsquo;s claims against an independent, tamper-evident case ledger, proves rule
-        deadlocks mathematically, and escalates with teeth.
-      </p>
-      <div className="mt-8 grid max-w-2xl grid-cols-1 gap-2 text-[13px] sm:grid-cols-3">
-        {[["763 Mn/day", "UPI transactions — India's rails already work"], ["₹100/day", "RBI-mandated compensation citizens never claim"], ["31 / 957", "govt portals that passed their own GIGW audit"]].map(([stat, label]) => (
-          <div key={stat} className="rounded-lg border border-gray-800 bg-gray-900/60 px-3 py-2">
-            <p className="font-bold text-amber-400">{stat}</p>
-            <p className="text-xs leading-snug text-gray-400">{label}</p>
-          </div>
-        ))}
-      </div>
-      <div className="mt-12 grid gap-6 sm:grid-cols-3">
-        {routes.map((r) => (
-          <Link
-            key={r.href}
-            href={r.href}
-            className="group rounded-xl border border-gray-800 bg-gray-900/40 p-6 transition hover:border-amber-500/60 hover:bg-gray-900"
-          >
-            <h2 className="font-semibold text-gray-100 group-hover:text-amber-400">{r.title}</h2>
-            <p className="mt-3 text-sm text-gray-400">{r.body}</p>
+    <GovShell active="/">
+      <section className={`${cardCls} mx-auto p-6 sm:p-8`}>
+        <p className="text-[11px] font-bold uppercase tracking-widest text-[#FF9933]">
+          Everyone built compliance copilots for citizens.
+        </p>
+        <h2 className="mt-2 text-3xl font-bold leading-tight text-[#1a4b8e] sm:text-4xl">
+          Nobody audits the state back.
+        </h2>
+        <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-slate-700">
+          The state digitized forms, never accountability. Every public-service portal ends with
+          &ldquo;now track it yourself.&rdquo; FIXER.OS is the missing counterparty: it verifies the
+          government&rsquo;s claims against an independent, tamper-evident case ledger, predicts
+          rejections before they happen, proves rule deadlocks mathematically, and escalates with
+          legally-cited teeth.
+        </p>
+        <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          {EVIDENCE.map(([stat, label]) => (
+            <div key={stat} className="rounded-md border border-slate-200 bg-[#f8fafc] px-4 py-3">
+              <p className="text-lg font-bold text-[#1a4b8e]">{stat}</p>
+              <p className="mt-0.5 text-xs leading-snug text-slate-600">{label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <div className="mt-6 grid gap-5 md:grid-cols-3">
+        {ROUTES.map((r) => (
+          <Link key={r.href} href={r.href} className={`${cardCls} block p-5 transition hover:border-[#1a4b8e] hover:shadow-md`}>
+            <h3 className="font-bold text-[#1a4b8e]">{r.title}</h3>
+            <p className="mt-2 text-[13px] leading-relaxed text-slate-600">{r.body}</p>
+            <p className="mt-3 text-[12px] font-semibold text-[#1a4b8e] underline">Open section »</p>
           </Link>
         ))}
       </div>
-      <footer className="mt-16 border-t border-gray-800 pt-6 text-xs text-gray-500">
-        Not affiliated with EPFO or any government body. No live systems touched. No real personal
-        data used. Built for the Build What Moves India hackathon.
-      </footer>
-    </main>
+
+      <section className={`${cardCls} mt-6 flex flex-wrap items-center justify-between gap-4 p-5`}>
+        <div>
+          <h3 className="font-bold text-slate-900">Evaluate like a judge</h3>
+          <p className="mt-1 text-[13px] text-slate-600">
+            Login to the simulated portal (UAN <b>100000000000</b> · password <b>demo1234</b>) or go straight to the console.
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <Link href="/portal" className={btnPrimary}>Enter portal</Link>
+          <Link href="/fixer" className={btnOutline}>Open console</Link>
+        </div>
+      </section>
+    </GovShell>
   );
 }

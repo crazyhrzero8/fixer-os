@@ -11,7 +11,7 @@ const { traceSummary, escalationLetter } = require("../lib/traceroute.ts");
 
 test("ledger detects tampering at the exact event", () => {
   const seeded = { id: "c1", kind: "epfo-false-rejection", title: "t", status: "OPEN", facts: {}, events: [] };
-  const mk = (n, prev) => ({ id: `evt-${n}`, caseId: "c1", ts: n, actor: "portal", type: `T${n}`, payload: { n }, prevHash: prev, hash: "" });
+  const mk = (n: number, prev: string) => ({ id: `evt-${n}`, caseId: "c1", ts: n, actor: "portal", type: `T${n}`, payload: { n }, prevHash: prev, hash: "" });
   const e1 = { ...mk(1, "0".repeat(64)), hash: "" };
   e1.hash = createHash("sha256").update(`${e1.prevHash}|${e1.ts}|${e1.actor}|${e1.type}|${JSON.stringify(e1.payload)}`).digest("hex");
   const e2 = { ...mk(2, e1.hash), hash: "" };

@@ -11,9 +11,9 @@ const EPFO_TRACE: TraceNode[] = [
 ];
 
 const TAT_TRACE: TraceNode[] = [
-  { id: "gateway", office: "Payment Gateway", designation: "Settlement ops (simulated)", statutoryDeadlineDays: 5, daysHeld: 11, rule: "RBI TAT: auto-reverse failed debit within T+5 working days", breached: true },
-  { id: "irctc-refunds", office: "IRCTC Refunds (CCM)", designation: "Chief Commercial Manager (Refunds)", statutoryDeadlineDays: 7, daysHeld: 11, rule: "Refund Rules 2015 — failed-transaction reversal", breached: true },
-  { id: "bank-nodal", office: "Bank Nodal Officer", designation: "Principal Nodal Officer", statutoryDeadlineDays: 30, daysHeld: 0, rule: "RBI Banking Ombudsman escalation destination", breached: false }
+  { id: "gateway", office: "Payment Gateway", designation: "Settlement ops (simulated)", statutoryDeadlineDays: 5, daysHeld: 11, rule: "RBI TAT (DPSS.CO.PD No.629/02.01.014/2019-20, 20 Sep 2019, Annex 4b): auto-reverse failed UPI merchant debit within T+5 calendar days (T=calendar date, GI-4)", breached: true },
+  { id: "irctc-refunds", office: "IRCTC Refunds (CCM)", designation: "Chief Commercial Manager (Refunds)", statutoryDeadlineDays: 7, daysHeld: 11, rule: "Railway Refund Rules 2015 — failed-transaction reversal (parallel to RBI TAT)", breached: true },
+  { id: "bank-nodal", office: "Bank Nodal Officer", designation: "Principal Nodal Officer", statutoryDeadlineDays: 30, daysHeld: 0, rule: "RBI Integrated Ombudsman Scheme 2021 — escalation if TAT compensation not paid suo moto (circular para 6)", breached: false }
 ];
 
 export const SLA_COMPENSATION_PER_DAY = APP_CONFIG.sla.perDayRupees;
@@ -30,7 +30,7 @@ export function escalationLetter(caseId: string): string {
   const { blocker, daysOverdue, tatCompensationAccrued } = traceSummary(caseId);
   const isTat = caseId === CASE_IDS.irctc;
   const legalLine = isTat
-    ? "RBI circular DPSS.CO.PD No.629/02.01.014/2019-20 (effective 15 Oct 2019) mandates suo-moto auto-reversal of this failed debit within T+5 days and ₹100/day compensation thereafter — no claim form is required, and para 5 obliges the bank to credit it without waiting for a complaint."
-    : "The Chandigarh Consumer Commission (March 2026) held that software glitches do not excuse unexplained delays by EPFO — deficiency in service under CPA 2019.";
-  return `To: ${blocker.designation}, ${blocker.office}\n\nSubject: Escalation — synthetic case ${caseId}\n\nThe independent case ledger records the failure and every subsequent inaction. The case has remained at ${blocker.office} for ${blocker.daysHeld} days against a ${blocker.statutoryDeadlineDays}-day handling window — ${daysOverdue} days overdue.\n\n${legalLine}\n\nThe demo SLA clock records ₹${tatCompensationAccrued.toLocaleString("en-IN")} for the overdue period. Please issue a written disposition and restore the citizen's grievance path.\n\nThis is a synthetic demonstration draft; verify applicable rules before use.`;
+    ? "RBI circular DPSS.CO.PD No.629/02.01.014/2019-20 (20 Sep 2019, Annex 4b, T+5 calendar days, para 5 suo moto) mandates auto-reversal of this failed UPI merchant debit within T+5 calendar days and ₹100/day compensation thereafter — no claim form is required; para 5 obliges the bank to credit it suo moto, and para 6 routes denial to the RBI Integrated Ombudsman Scheme 2021."
+    : "EPFO has been held to be a service provider for CPA 2019 §2(11) deficiency — most recently Kangra Consumer Commission CC/297/2025 (Abhinay Katoch vs EPFO, 20 Jul 2026) awarding shortfall + 9% interest + ₹1,000 harassment + ₹2,500 costs for arbitrarily rounding down service period (LiveLaw). The Chandigarh line on software glitches not excusing delay applies in parallel.";
+  return `To: ${blocker.designation}, ${blocker.office}\n\nSubject: Escalation — synthetic case ${caseId}\n\nThe independent case ledger records the failure and every subsequent inaction. The case has remained at ${blocker.office} for ${blocker.daysHeld} days against a ${blocker.statutoryDeadlineDays}-day handling window — ${daysOverdue} days overdue (calendar days per RBI GI-4).\n\n${legalLine}\n\nThe demo SLA clock records ₹${tatCompensationAccrued.toLocaleString("en-IN")} for the overdue period (₹100/day). Please issue a written disposition and restore the citizen's grievance path.\n\nThis is a synthetic demonstration draft; verify applicable rules before use. Pecuniary jurisdiction per CP Jurisdiction Rules 2021: District ≤₹50L, State ₹50L–₹2Cr. eDaakhil: edaakhil.nic.in`;
 }

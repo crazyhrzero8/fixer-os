@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { GovShell, btnOutline, cardCls } from "../govshell";
 
-const alone = ["Captcha accepted", "PF advance submitted", "Under Process · day 7", "Rejected: name mismatch", "Invalid tracking ID", "Next grievance allowed in 30 days", "STUCK — no accountable owner"];
-const fixed = ["Import verified evidence", "Prove names match", "Draft rebuttal from ledger", "Record grievance closure gap", "Calculate ₹2,600 SLA accrual", "Trace Regional Office blocker", "Escalation packet routed", "RESOLVED"];
+const alone = ["Captcha accepted", "PF advance submitted", "Under Process · day 7", "Rejected: name mismatch (false)", "Invalid tracking ID", "Next grievance allowed in 30 days", "STUCK — no accountable owner"];
+const fixed = ["Import verified evidence", "Prove names match (ledger vs portal claim)", "Draft rebuttal from hash-chained facts", "Record grievance closure gap (invalid ID)", "Calculate ₹2,600 SLA accrual (pre-breach → breach)", "Trace Regional Office blocker (26d overdue)", "Escalation packet routed — RESOLVED"];
 
 export default function Demo() {
   const [running, setRunning] = useState(false); const [left, setLeft] = useState(0); const [right, setRight] = useState(0); const [seconds, setSeconds] = useState(0); const timer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -13,14 +14,64 @@ export default function Demo() {
   useEffect(() => { if (!running) return; timer.current = setInterval(() => { setSeconds((value) => value + 1); setLeft((value) => Math.min(value + 1, alone.length)); setRight((value) => Math.min(value + 1, fixed.length)); }, 900); return stop; }, [running]);
   useEffect(() => { if (right >= fixed.length) stop(); }, [right]);
   useEffect(() => () => stop(), []);
-  return <main className="min-h-screen bg-[#0a0a0f] px-4 py-8 text-slate-100 sm:px-8"><div className="mx-auto max-w-6xl">
-    <header className="flex flex-wrap justify-between gap-4 border-b border-slate-800 pb-6"><div><p className="text-xs font-bold tracking-[0.24em] text-cyan-400 uppercase">FIXER.OS / Demo theater</p><h1 className="mt-2 text-3xl font-bold sm:text-4xl">Same citizen. Two outcomes.</h1><p className="mt-2 text-sm text-slate-400">A deterministic, synthetic playback of a hostile portal versus an evidence-owning counterparty.</p></div><Link href="/fixer" className="h-fit rounded border border-slate-700 px-3 py-2 text-sm hover:border-cyan-400">Open the console</Link></header>
-    <div className="mt-6 flex flex-wrap items-center gap-4"><button onClick={restart} className="rounded bg-cyan-400 px-4 py-2 text-sm font-bold text-slate-950">{running ? "Restart playback" : "Run comparison"}</button><button onClick={stop} disabled={!running} className="rounded border border-slate-700 px-4 py-2 text-sm disabled:opacity-40">Pause</button><span className="font-mono text-sm text-slate-400">{String(seconds).padStart(2, "0")}s</span></div>
-    <div className="mt-7 grid gap-6 lg:grid-cols-2"><Panel title="Citizen alone" subtitle="Portal owns the status, the evidence, and the clock." tone="red" steps={alone} active={left} final="STUCK"/><Panel title="Citizen + FIXER.OS" subtitle="Independent evidence turns failure into an accountable route." tone="cyan" steps={fixed} active={right} final="RESOLVED"/></div>
-    <div className="mt-7 rounded-xl border border-fuchsia-500/30 bg-fuchsia-500/5 p-5 text-sm text-slate-300"><b className="text-fuchsia-300">The novelty is the direction of verification:</b> most assistants check whether a citizen fits a rule. FIXER.OS checks whether the state&apos;s decision fits independently verified facts — then preserves the contradiction and names the overdue owner.</div>
-  </div></main>;
+  return (
+    <GovShell active="/demo">
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-[#FF9933]">FIXER.OS / Demo theater — deterministic synthetic playback</p>
+          <h2 className="mt-1 text-2xl font-bold text-[#1a4b8e] sm:text-3xl">Same citizen. Two outcomes.</h2>
+          <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-slate-600">A synthetic EPFO failure replayed twice: left as the portal leaves citizens, right as an evidence-owning counterparty resolves it. System font, light layout, reduced-motion safe.</p>
+        </div>
+        <Link href="/fixer" className={btnOutline}>Open the console</Link>
+      </div>
+
+      <div className={`${cardCls} flex flex-wrap items-center gap-3 p-3`}>
+        <button onClick={restart} className="rounded-sm bg-[#1a4b8e] px-4 py-1.5 text-[13px] font-semibold text-white hover:bg-[#123763]">{running ? "Restart playback" : "Run comparison"}</button>
+        <button onClick={stop} disabled={!running} className={btnOutline + " disabled:opacity-40"}>Pause</button>
+        <span className="font-mono text-[12px] text-slate-600">{String(seconds).padStart(2, "0")}s elapsed</span>
+        <span className="text-[11px] text-slate-500">Left: portal owns status. Right: citizen owns evidence.</span>
+      </div>
+
+      <div className="mt-5 grid gap-5 lg:grid-cols-2">
+        <Panel title="Citizen alone" subtitle="Portal owns the status, the evidence, and the clock — citizen tracks alone." tone="red" steps={alone} active={left} final="STUCK — grievance theater, no owner" />
+        <Panel title="Citizen + FIXER.OS" subtitle="Independent evidence turns a false rejection into an accountable, named route." tone="blue" steps={fixed} active={right} final="RESOLVED — packet ready for RPFC/CPC" />
+      </div>
+
+      <div className={`${cardCls} mt-5 border-l-4 border-l-[#1a4b8e] p-4`}>
+        <p className="text-[11px] font-bold uppercase tracking-widest text-[#1a4b8e]">The novelty is the direction of verification</p>
+        <p className="mt-1 text-[13px] leading-relaxed text-slate-700">Most assistants check whether a <em>citizen</em> fits a rule. FIXER.OS checks whether the <em>state&apos;s decision</em> fits independently verified facts — then preserves the contradiction in a hash chain and names the overdue owner. That inversion is absent from Bhashini/UMANG/CPGRAMS dashboards as of Aug 22 2026.</p>
+        <p className="mt-2 text-[11px] text-slate-500">Citations: RBI TAT DPSS.CO.PD No.629/2019-20 (₹100/day suo moto) · EPS 1995 §10 / EPS 2026 (10-yr rule, Gazette Jul 2026) · CPA 2019 §2(11) deficiency (EPFO held liable: Kangra Commission 20 Jul 2026, LiveLaw) · DPDP Act 2023 / Rules 13 Nov 2025 phased · GIGW 3.0 Dec 2023 (STQC/CERT-In) · Factly audit 31/957 compliant (3.3%).</p>
+      </div>
+
+      <div className={`${cardCls} mt-5 p-4`}>
+        <h3 className="text-[13px] font-bold text-[#1a4b8e]">What judges test in 2 minutes — and where to click</h3>
+        <ol className="mt-2 list-decimal space-y-1 pl-5 text-[12px] leading-relaxed text-slate-700">
+          <li><b>Minute 1 (citizen):</b> Press <i>Run comparison</i> — watch left stall at &ldquo;Next grievance in 30 days&rdquo; (documented EPFO lockout) while right chains 5 agent actions to RESOLVED.</li>
+          <li><b>Minute 2 (builder):</b> Open <Link href="/fixer" className="underline text-[#1a4b8e]">Agent Console</Link> → pick <i>synthetic-irctc-001</i> for RBI TAT payment case (RRN + T+5 + ₹100/day) → run steps → download escalation letter.</li>
+          <li>Trial credentials: UAN <b>100000000000</b> / <b>demo1234</b> on <Link href="/portal" className="underline text-[#1a4b8e]">Simulated Portal</Link>. No real data, no live govt system.</li>
+        </ol>
+      </div>
+    </GovShell>
+  );
 }
-function Panel({ title, subtitle, tone, steps, active, final }: { title: string; subtitle: string; tone: "red" | "cyan"; steps: string[]; active: number; final: string }) {
-  const completed = active >= steps.length; const color = tone === "red" ? "border-red-500/40 bg-red-500/5 text-red-300" : "border-cyan-400/40 bg-cyan-400/5 text-cyan-200";
-  return <section className={`rounded-xl border p-5 ${color}`}><p className="text-xs font-bold tracking-widest uppercase">{title}</p><h2 className="mt-2 text-2xl font-bold text-white">{completed ? final : active ? "Working…" : "Ready"}</h2><p className="mt-2 min-h-10 text-sm text-slate-400">{subtitle}</p><div className="mt-5 space-y-3">{steps.map((step, index) => <div key={step} className={`flex gap-3 rounded p-3 text-sm ${index < active ? "bg-slate-950/70 text-slate-100" : "bg-slate-950/20 text-slate-600"}`}><span className={`mt-0.5 grid h-5 w-5 place-items-center rounded-full text-xs ${index < active ? tone === "red" ? "bg-red-500 text-white" : "bg-cyan-400 text-slate-950" : "border border-slate-700"}`}>{index < active ? "✓" : index + 1}</span><span>{step}</span></div>)}</div></section>;
+function Panel({ title, subtitle, tone, steps, active, final }: { title: string; subtitle: string; tone: "red" | "blue"; steps: string[]; active: number; final: string }) {
+  const completed = active >= steps.length;
+  const frame = tone === "red" ? "border-red-200 bg-red-50/40" : "border-[#1a4b8e]/20 bg-[#eef3f9]";
+  const dotActive = tone === "red" ? "bg-red-700 text-white" : "bg-[#1a4b8e] text-white";
+  const heading = tone === "red" ? "text-red-800" : "text-[#1a4b8e]";
+  return (
+    <section className={`${cardCls} p-5 ${frame}`}>
+      <p className={`text-[11px] font-bold uppercase tracking-widest ${heading}`}>{title}</p>
+      <h3 className={`mt-1 text-[16px] font-bold ${completed ? heading : "text-slate-900"}`}>{completed ? final : active ? "Working…" : "Ready"}</h3>
+      <p className="mt-1 min-h-10 text-[12px] leading-relaxed text-slate-600">{subtitle}</p>
+      <div className="mt-4 space-y-2">
+        {steps.map((step, index) => (
+          <div key={step} className={`flex gap-3 rounded-sm border p-3 text-[12px] leading-relaxed ${index < active ? "border-slate-300 bg-white text-slate-900" : "border-slate-200 bg-white/60 text-slate-500"}`}>
+            <span className={`mt-0 grid h-5 w-5 place-items-center rounded-full text-[11px] font-bold ${index < active ? dotActive : "border border-slate-300 text-slate-400"}`}>{index < active ? "✓" : index + 1}</span>
+            <span>{step}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
 }
