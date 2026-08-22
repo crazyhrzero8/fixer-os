@@ -29,7 +29,7 @@ export default function Home() {
   return (
     <GovShell active="/">
       <section className={`${cardCls} mx-auto p-6 sm:p-8`}>
-        <p className="text-[11px] font-bold uppercase tracking-widest text-[#FF9933]">
+        <p className="text-[11px] font-bold uppercase tracking-widest text-[#1a4b8e]">
           Everyone built compliance copilots for citizens.
         </p>
         <h2 className="mt-2 text-3xl font-bold leading-tight text-[#1a4b8e] sm:text-4xl">

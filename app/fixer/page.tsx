@@ -84,7 +84,7 @@ export default function Fixer() {
     <GovShell active="/fixer">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-[#FF9933]">FIXER.OS / Accountability console — independent prototype</p>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-[#1a4b8e]">FIXER.OS / Accountability console — independent prototype</p>
           <h2 className="mt-1 text-2xl font-bold text-[#1a4b8e] sm:text-3xl">Audit the decision, not the citizen.</h2>
           <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-slate-600">Synthetic demonstration. The portal is untrusted; verified facts and every agent action are chained into independent evidence. System font, light govt palette, GIGW 3.0 friendly.</p>
         </div>

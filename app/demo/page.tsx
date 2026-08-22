@@ -18,7 +18,7 @@ export default function Demo() {
     <GovShell active="/demo">
       <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-[#FF9933]">FIXER.OS / Demo theater — deterministic synthetic playback</p>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-[#1a4b8e]">FIXER.OS / Demo theater — deterministic synthetic playback</p>
           <h2 className="mt-1 text-2xl font-bold text-[#1a4b8e] sm:text-3xl">Same citizen. Two outcomes.</h2>
           <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-slate-600">A synthetic EPFO failure replayed twice: left as the portal leaves citizens, right as an evidence-owning counterparty resolves it. System font, light layout, reduced-motion safe.</p>
         </div>
