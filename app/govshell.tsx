@@ -14,7 +14,7 @@ export const btnPrimary =
   "inline-block cursor-pointer rounded-sm bg-[#1a4b8e] px-4 py-1.5 text-[13px] font-semibold text-white hover:bg-[#123763] disabled:cursor-not-allowed disabled:opacity-50";
 export const btnOutline =
   "inline-block cursor-pointer rounded-sm border border-[#1a4b8e] px-4 py-1.5 text-[13px] font-semibold text-[#1a4b8e] hover:bg-[#eef3f9] disabled:cursor-not-allowed disabled:opacity-50";
-export const cardCls = "rounded-md border border-slate-300 bg-white shadow-sm";
+export const cardCls = "rounded-md border border-slate-200 bg-white shadow-sm";
 export const pageWrap = "mx-auto w-full max-w-6xl px-4 sm:px-6";
 
 export function GovShell({ active, children }: { active: string; children: React.ReactNode }) {
@@ -38,7 +38,7 @@ export function GovShell({ active, children }: { active: string; children: React
     <div className="min-h-screen bg-[#f5f7fa] font-sans text-slate-900" lang={lang} suppressHydrationWarning>
       <div className="h-1.5 w-full bg-gradient-to-r from-[#FF9933] via-white to-[#138808]" />
       <div className="bg-[#fff8e6] px-4 py-1 text-center text-[11px] text-[#8a6d00]">
-        {t(lang, "simOnly")}
+        {t(lang, "simOnly")} · <span aria-hidden>☎</span> Helpline (synthetic): <b>1800-425-0000</b> · <a href="mailto:tnhealthinsurance@example.com" className="underline">fixer-os@example.com</a>
       </div>
 
       <header className="border-b-2 border-[#1a4b8e] bg-white">
@@ -51,7 +51,9 @@ export function GovShell({ active, children }: { active: string; children: React
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-wider text-slate-500">{t(lang, "headerSub")}</p>
-              <h1 className="text-lg font-bold text-[#1a4b8e]">{t(lang, "headerTitle")}</h1>
+              <h1 className="text-lg font-bold leading-tight text-[#1a4b8e]">{t(lang, "headerTitle")}</h1>
+              {/* CMCHISTN pattern: Tamil name permanently visible alongside English */}
+              <p className="text-[12px] font-semibold text-slate-600" lang="ta">பொது சேவை பொறுப்புணர்வு அடுக்கு · लोक सेवा जवाबदेही परत</p>
             </div>
           </Link>
           <div className="flex items-center gap-2 text-[11px]">
