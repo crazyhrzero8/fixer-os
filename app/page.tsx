@@ -72,13 +72,8 @@ export default function Home() {
         <div className="flex gap-3">
           <Link href="/portal" className={btnPrimary}>{lang === "hi" ? "पोर्टल में प्रवेश" : "Enter portal"}</Link>
           <Link href="/fixer" className={btnOutline}>{lang === "hi" ? "कंसोल खोलें" : "Open console"}</Link>
-          <Link href="/story" className={btnOutline}>{lang === "hi" ? "कहानी पढ़ें" : "Read story"}</Link>
+          <Link href="/terms" className={btnOutline}>{lang === "hi" ? "नियम देखें" : "View terms"}</Link>
         </div>
-      </section>
-      <section className={`${cardCls} mt-6 p-5`}>
-        <h3 className="font-bold text-[#1a4b8e]">{lang === "hi" ? "क्यों FIXER.OS? — दोस्त के परिवार की 6 महीने की लड़ाई" : "Why FIXER.OS? — A friend’s family waited 6 months for their own PF"}</h3>
-        <p className="mt-2 text-[13px] leading-relaxed text-slate-600">{lang === "hi" ? "हर कोई फॉर्म भरने में मदद करता है। हमने राज्य के जवाब की जाँच बनाई — नकली अस्वीकृति पकड़ो, सबूत बचाओ, देरी पर ₹100/दिन दिखाओ।" : "Others polish the form. We audit the state’s reply — catch false rejections, preserve evidence, show ₹100/day for delay."} <Link href="/story" className="underline text-[#1a4b8e]">{lang === "hi" ? "पूरी कहानी" : "Full story"}</Link> · <Link href="/terms" className="underline text-[#1a4b8e]">{lang === "hi" ? "नियम" : "Terms"}</Link></p>
-        <p className="mt-2 text-[11px] text-slate-500">{lang === "hi" ? "AI: gpt-4o-mini allow-list + deterministic fallback; मानव-समीक्षित सबूत ही अदालत में चलता है।" : "AI: gpt-4o-mini allow-list + deterministic fallback; human-verified evidence is what holds in court."}</p>
       </section>
     </GovShell>
   );

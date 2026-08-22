@@ -72,7 +72,6 @@ export function GovShell({ active, children }: { active: string; children: React
             { href: "/portal", label: t(lang, "navPortal") },
             { href: "/fixer", label: t(lang, "navFixer") },
             { href: "/demo", label: t(lang, "navDemo") },
-            { href: "/story", label: lang === "hi" ? "कहानी" : "Story" },
             { href: "/terms", label: lang === "hi" ? "नियम" : "Terms" },
           ].map((item) => (
             <li key={item.href}>
