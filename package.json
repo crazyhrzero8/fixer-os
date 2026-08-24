@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "tsx --test tests/core.test.ts tests/i18n.test.ts tests/ai.test.ts"
+    "test": "tsx --test tests/core.test.ts tests/i18n.test.ts tests/ai.test.ts",
+    "smoke": "tsx scripts/smoke.ts"
   },
   "dependencies": {
     "next": "^15.1.6",

@@ -130,3 +130,10 @@ what, phase by phase.
 - **Known state:** `.env.local` ships with an empty `OPENAI_API_KEY`; without a key the app
   runs fully deterministic by design — paste any free Groq/Gemini/OpenAI key to enable
   LLM action selection.
+- **Smoke harness:** `scripts/smoke.ts` (`npm run smoke`, stdlib fetch only, zero new
+  deps) boots against a production server and asserts 31 checks: all 5 pages + security
+  headers, the full documented villain journey (captcha→OTP→claim→7d→false rejection→
+  invalid tracking→30-day lockout), the 5-step agent loop to RESOLVED with hash-chain
+  verification, EPFO ₹2,600/26d clock, dynamic IRCTC TAT accrual, RuleGuard proof,
+  wind-tunnel WARN, provenance OFFICIAL-vs-phishing tiers chained into the ledger, and
+  docs-vs-code consistency (README routes, log freshness, test-suite wiring).
