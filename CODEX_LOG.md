@@ -103,3 +103,30 @@ what, phase by phase.
   aistudio.google.com). Provider used is recorded inside every LLM_DECISION ledger event.
 - With zero keys configured the console still completes every journey deterministically —
   the submission never depends on a live model.
+
+## Phase 9 — Full-site Hindi, maths unification, PII wire-proof (Aug 24, 2026)
+
+- Implemented by: opencode assistant (ox-alpha). Verification: 12/12 tests, `tsc --noEmit`
+  clean, production build green.
+- **i18n completion:** Hindi now covers every tab — portal chrome (GMIS screens, status
+  tables, captcha/OTP helper notes, error strings, safety disclosure), demo judge-guide
+  steps (the existing hi keys `j1a–j3c` were defined but never rendered), fixer console
+  chrome (headings, case cards, progress chips, wind-tunnel/timeline/RuleGuard/traceroute/
+  provenance/honesty cards), and the GovShell footer. Fixed two broken English strings that
+  rendered literal `{pi.dashNote}` / `{pi.simNote}` placeholders, plus a Devanagari typo
+  (`अंकीY` → `अंकीय`). A new parity test (`tests/i18n.test.ts`) enforces en↔hi key-set
+  equality so future keys cannot ship half-translated.
+- **Maths:** IRCTC SLA clock was static (`11d held`) while agent events computed dynamically;
+  unified in `lib/traceroute.ts::traceSummary(caseId, now?)` — gateway daysHeld derives from
+  `SYNTHETIC_TXN.debitedAt` per RBI GI-4 calendar-day rule. Accountability names the deepest
+  breached office; the rupee clock follows RBI T+5 from the debit date (both pinned by
+  injected-clock tests). EPFO ₹2,600 (41−15=26 × ₹100) unchanged and test-pinned.
+- **Privacy (DPDP data-minimisation proof):** new wire-level test stubs fetch and inspects
+  the exact outbound LLM request body. It caught a real leak — the synthetic claim tracking
+  ID (`PF/2026/A/0091847`) passed through free text because it was only blocked as an object
+  key. `sanitizeForLLM` now redacts tracking-ID shapes (`[TRACKING_REDACTED]`). Additional
+  test proves model output outside the allow-list enum is rejected by zod (no arbitrary
+  execution).
+- **Known state:** `.env.local` ships with an empty `OPENAI_API_KEY`; without a key the app
+  runs fully deterministic by design — paste any free Groq/Gemini/OpenAI key to enable
+  LLM action selection.

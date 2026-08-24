@@ -40,7 +40,8 @@ const PII_PATTERNS: [RegExp, string][] = [
   [/\b[A-Z]{5}\d{4}[A-Z]\b/g, "[PAN_REDACTED]"],          // PAN format
   [/\b[A-Z]{4}0[A-Z0-9]{6}\b/g, "[IFSC_REDACTED]"],       // IFSC format
   [/\b\d{16}\b/g, "[ACCOUNT_REDACTED]"],                   // 16-digit card/account
-  [/\b[a-f0-9]{64}\b/gi, "[HASH_REDACTED]"]               // SHA-256 hex
+  [/\b[a-f0-9]{64}\b/gi, "[HASH_REDACTED]"],               // SHA-256 hex
+  [/\b[A-Z]{2,4}\/\d{4}\/[A-Z](?:\/\d{4,10})?\b/g, "[TRACKING_REDACTED]"] // claim tracking ID (e.g. PF/2026/A/0091847)
 ];
 
 const PII_NAME_PATTERN = /\b(Arjun|Kumar)\b/g;

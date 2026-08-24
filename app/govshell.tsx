@@ -109,8 +109,7 @@ export function GovShell({ active, children }: { active: string; children: React
           ))}
         </div>
         <div className={`${pageWrap} border-t border-slate-200 py-3 text-center text-[11px] text-slate-500`}>
-          FIXER.OS · Independent prototype for the Build What Moves India hackathon · Not affiliated with EPFO, IRCTC or any
-          Government body · No live systems touched · Synthetic data only
+          {t(lang, "footBottom")}
         </div>
       </footer>
     </div>

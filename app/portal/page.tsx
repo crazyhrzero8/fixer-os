@@ -7,18 +7,129 @@ import { SYNTHETIC_CITIZEN } from "@/data/seed";
 import { GovShell, btnOutline, btnPrimary, cardCls } from "../govshell";
 import { useLang, t } from "@/lib/i18n";
 
-const MARQUEE_ITEMS = [
-  "Attention Members: OTP-based authentication is mandatory for availing online services.",
-  "Kindly keep your UAN, password and captcha characters ready before beginning.",
-  "This demonstration portal replays documented real-world failure sequences."
-];
+/* marquee text now served from PI[lang].marquee */
 
 const inputCls = "mt-1 w-full rounded-sm border border-slate-300 bg-white px-2 py-1.5 text-[13px] text-slate-900 outline-none focus:border-[#1a4b8e] focus:ring-1 focus:ring-[#1a4b8e]";
 const sectionHead = "border-b border-slate-300 bg-[#eef3f9] px-4 py-2 text-[15px] font-bold text-[#1a4b8e]";
 const th = "border border-slate-300 bg-[#eef3f9] px-3 py-1.5 text-left text-[12px] font-bold uppercase tracking-wide";
 
+
+const PI = {
+  en: {
+    marquee: [
+      "Attention Members: OTP-based authentication is mandatory for availing online services.",
+      "Kindly keep your UAN, password and captcha characters ready before beginning.",
+      "This demonstration portal replays documented real-world failure sequences."
+    ],
+    breadcrumb: ["Home", "Members", "Online Claim Status"],
+    session: "Session:",
+    otpIntro: "An OTP has been sent to your registered mobile ending",
+    otpDbNote: "OTP is 6-digit crypto-random, 5-min expiry, 3-attempt lock — stored only in server session (httpOnly cookie), never in client.",
+    capNote: "Server validates UAN, password and captcha together — wrong any → new captcha, no OTP.",
+    dashNote: "This dashboard is the \u201cwhat better looks like\u201d contrast: real EPFO hides the balance behind passbook downloads; here it is one click. All data synthetic.",
+    svcYears: "years",
+    kycSub: "Aadhaar · PAN · Bank (synthetic)",
+    passSub: "EPF balance (synthetic) · interest 8.25%",
+    claimSub: "PF Advance (Para 68-J medical)",
+    memberIs: "Member:",
+    ifscValid: "(valid)",
+    nomDone: "E-nomination: Done ✓",
+    trackLabel: "Tracking ID:",
+    purposeVal: "Medical Treatment — Illness of family member (Para 68-J)",
+    amountVal: "₹ 50,000/-",
+    synthetic: "All data synthetic.",
+    claimDb: "Database: claim stored in hash-chained ledger (SHA-256 append-only, per-process), not in browser. No real money moved.",
+    day1: "Day 1", evReceived: "Claim Received", evRemark: "Under Process at Field Office",
+    evCheck: "Status Check", evPending: "Your request is under process. Please do not submit another claim.",
+    simDay: "Simulated day",
+    of: "of",
+    noExpl: "No further explanation is available on the portal. For grievances, kindly approach the concerned office.",
+    rejReason: "Reason: Name on requested Member ID and Primary UAN does not match. Kindly contact your employer for KYC updation.",
+    particulars: "Particulars", officeRecord: "As per Office Record",
+    nameEmployer: "Requested Member ID Name", nameUan: "Primary UAN Name",
+    identical: "IDENTICAL — the stated rejection reason is contradicted by the portal's own displayed record.",
+    simNote: "(This comparison table is rendered by the simulation to expose the contradiction. The real portal displays nothing.)",
+    enterTrack: "Please enter the Claim Tracking ID exactly as supplied in your rejection notice:",
+    trackCase: "Note: Tracking ID is case-sensitive and must match departmental records. Improper entries will invalidate the grievance attempt.",
+    noReg: "No grievance has been registered. One grievance attempt has been recorded against this claim.",
+    idErr1: "The tracking ID cannot be verified against departmental records. Please try again later.",
+    lockBody: "Next grievance allowed in 30 days. A grievance attempt has already been recorded for this claim.",
+    escNone: "None displayed. Citizen may approach the Regional Office in person during working hours (Mon–Fri, 09:45–17:30).",
+    otpAfterCaptcha: "— (shown here after the captcha step)",
+    otpExpires: "(expires in 5 min · 3 attempts max)",
+    capCryptoNote: "Captcha rotates crypto-randomly on every refresh click and every failed attempt.",
+    needNew: "Need a new one?",
+    serverValidateNote: "Server validates UAN (12 digits), password and captcha together — wrong any → new captcha, no OTP.",
+    errPortal: "Portal unavailable. Kindly retry.",
+    errCaptchaSvc: "Captcha service unavailable. Kindly refresh the page.",
+    errCaptchaRefresh: "Could not refresh captcha.",
+    thDate: "Date", thEvent: "Event", thRemarks: "Remarks",
+    dayPrefix: "Day",
+    cmpLabel: "Comparison",
+    gmisHead: "Grievance Management System (GMIS)",
+    safetyHead: "Database & safety (submission-safe):",
+    safetyBody: "No real database, no real IDs. Portal sessions live in httpOnly cookies (30-min TTL, server-owned FSM); OTP lives server-side only (5-min, 3-attempt, crypto-random); the ledger is SHA-256 append-only per process (synthetic seed only). Rate limit 30/min, zod on every input, CSP headers. Follows RBI TAT, CPA 2019, DPDP 2023 (phased), GIGW 3.0."
+  },
+  hi: {
+    marquee: [
+      "सदस्यों का ध्यान दें: ऑनलाइन सेवाओं हेतु OTP-आधारित प्रमाणीकरण अनिवार्य है।",
+      "कृपया शुरू करने से पहले अपना UAN, पासवर्ड और कैप्चा अक्षर तैयार रखें।",
+      "यह प्रदर्शी पोर्टल दर्ज वास्तविक विफलता-क्रम दोहराता है।"
+    ],
+    breadcrumb: ["मुखपृष्ठ", "सदस्य", "ऑनलाइन दावा स्थिति"],
+    session: "सेशन:",
+    otpIntro: "आपके पंजीकृत मोबाइल पर OTP भेजा गया है, जो समाप्त होता है",
+    otpDbNote: "OTP 6-अंकीय क्रिप्टो-यादृच्छिक है, 5-मिनट वैध, 3-प्रयास ताला — केवल सर्वर-सेशन (httpOnly कुकी) में सुरक्षित, क्लाइंट में कभी नहीं।",
+    capNote: "सर्वर UAN, पासवर्ड और कैप्चा तीनों एक साथ जाँचता है — कोई भी ग़लत → नया कैप्चा, OTP नहीं।",
+    dashNote: "यह डैशबोर्ड “बेहतर कैसा दिखता है” का विरोधाभास है: असली EPFO बैलेंस पासबुक-डाउनलोड के नीचे छुपाता है; यहाँ एक क्लिक है। सारा डेटा कृत्रिम।",
+    svcYears: "वर्ष",
+    kycSub: "आधार · पैन · बैंक (कृत्रिम)",
+    passSub: "EPF शेष (कृत्रिम) · ब्याज 8.25%",
+    claimSub: "पीएफ अग्रिम (पैरा 68-J चिकित्सा)",
+    memberIs: "सदस्य:",
+    ifscValid: "(वैध)",
+    nomDone: "ई-नॉमिनेशन: हो गया ✓",
+    trackLabel: "ट्रैकिंग आईडी:",
+    purposeVal: "चिकित्सा उपचार — परिवार के सदस्य की बीमारी (पैरा 68-J)",
+    amountVal: "₹ 50,000/-",
+    synthetic: "सारा डेटा कृत्रिम।",
+    claimDb: "डेटाबेस: दावा हैश-शृंखलित बहीखाते (SHA-256, केवल-जोड़, प्रक्रिया-आधारित) में सुरक्षित, ब्राउज़र में नहीं। असली पैसा संलग्न नहीं।",
+    day1: "दिन 1", evReceived: "दावा प्राप्त", evRemark: "फील्ड कार्यालय में प्रक्रियाधीन",
+    evCheck: "स्थिति जाँच", evPending: "आपका अनुरोध प्रक्रियाधीन है। कृपया दूसरा दावा जमा न करें।",
+    simDay: "अनुकरित दिन",
+    of: "/",
+    noExpl: "पोर्टल पर आगे कोई स्पष्टीकरण उपलब्ध नहीं। शिकायत हेतु कृपया संबंधित कार्यालय के पास जाएँ।",
+    rejReason: "कारण: अनुरोधित सदस्य-आईडी और प्राथमिक UAN का नाम मेल नहीं खाता। KYC अद्यतन हेतु नियोक्ता से संपर्क करें।",
+    particulars: "विवरण", officeRecord: "कार्यालय-अभिलेखानुसार",
+    nameEmployer: "अनुरोधित सदस्य-आईडी नाम", nameUan: "प्राथमिक UAN नाम",
+    identical: "समरूप — बताया गया अस्वीकरण-कारण पोर्टल के अपने प्रदर्शित अभिलेख से विरोधाभासी है।",
+    simNote: "(यह तुलना-तालिका सिमुलेशन द्वारा विरोधाभास उजागर करने हेतु है। असली पोर्टल कुछ नहीं दिखाता।)",
+    enterTrack: "कृपया अस्वीकृति-सूचना में दी गई दावा-ट्रैकिंग आईडी ठीक वैसे ही दर्ज करें:",
+    trackCase: "ध्यान दें: ट्रैकिंग आईडी अक्षर-संवेदनशील है और विभागीय अभिलेख से मेल खानी चाहिए। ग़लत प्रविष्टि शिकायत-प्रयास अवैध कर देगी।",
+    noReg: "कोई शिकायत दर्ज नहीं हुई। इस दावे के विरुद्ध एक शिकायत-प्रयास अभिलिखित हुआ है।",
+    idErr1: "ट्रैकिंग आईडी विभागीय अभिलेखों से सत्यापित नहीं हो पा रही। कृपया बाद में पुनः प्रयास करें।",
+    lockBody: "अगली शिकायत 30 दिनों में संभव। इस दावे हेतु शिकायत-प्रयास पहले ही अभिलिखित हो चुका है।",
+    escNone: "कोई विकल्प प्रदर्शित नहीं। नागरिक कार्य-समय में क्षेत्रीय कार्यालय जा सकते हैं (सोम–शुक्र, 09:45–17:30)।",
+    otpAfterCaptcha: "— (कैप्चा चरण के बाद यहीं दिखेगा)",
+    otpExpires: "(5 मिनट में समाप्त · अधिकतम 3 प्रयास)",
+    capCryptoNote: "कैप्चा हर रिफ्रेश-क्लिक और हर असफल प्रयास पर क्रिप्टो-यादृच्छिक बदलता है।",
+    needNew: "नया चाहिए?",
+    serverValidateNote: "सर्वर UAN (12 अंक), पासवर्ड और कैप्चा तीनों एक साथ जाँचता है — कोई भी ग़लत → नया कैप्चा, OTP नहीं।",
+    errPortal: "पोर्टल उपलब्ध नहीं। कृपया पुनः प्रयास करें।",
+    errCaptchaSvc: "कैप्चा सेवा उपलब्ध नहीं। कृपया पेज रिफ्रेश करें।",
+    errCaptchaRefresh: "कैप्चा रिफ्रेश नहीं हो सका।",
+    thDate: "दिनांक", thEvent: "घटना", thRemarks: "टिप्पणी",
+    dayPrefix: "दिन",
+    cmpLabel: "तुलना",
+    gmisHead: "शिकायत प्रबंधन प्रणाली (GMIS)",
+    safetyHead: "डेटाबेस व सुरक्षा:",
+    safetyBody: "कोई असली डेटाबेस नहीं, कोई असली ID नहीं। पोर्टल-सेशन httpOnly कुकी में (30-मिनट TTL, सर्वर-स्वामित्व FSM); OTP केवल सर्वर-सेशन में (5-मिनट, 3-प्रयास, क्रिप्टो-यादृच्छिक); बहीखाता SHA-256 केवल-जोड़ प्रति-प्रक्रिया (कृत्रिम सीड)। दर-सीमा 30/मिनट, हर इनपुट पर zod, CSP हेडर। RBI TAT, CPA 2019, DPDP 2023 (चरणबद्ध), GIGW 3.0 के अनुसार।"
+  }
+} as const;
+
 export default function Portal() {
   const { lang } = useLang();
+  const pi = PI[lang === "hi" ? "hi" : "en"];
   const [snapshot, setSnapshot] = useState<PortalSnapshot>(initialPortalSnapshot);
   const [captchaText, setCaptchaText] = useState("");
   const [captcha, setCaptcha] = useState("");
@@ -37,7 +148,7 @@ export default function Portal() {
       const p = await r.json();
       if (p.spaced) setCaptchaText(p.spaced as string);
       if (p.captcha) setCaptchaText(p.captcha.split("").join(" "));
-    } catch { setError("Captcha service unavailable. Kindly refresh the page."); }
+    } catch { setError(pi.errCaptchaSvc); }
   }
 
   useEffect(() => { void loadCaptcha(); }, []);
@@ -64,7 +175,7 @@ export default function Portal() {
           if (result.error) setError(result.error);
           return;
         }
-        throw new Error(result.error ?? "Portal unavailable.");
+        throw new Error(result.error ?? pi.errPortal);
       }
       setSnapshot(result.snapshot);
       if (result.error) setError(result.error);
@@ -79,7 +190,7 @@ export default function Portal() {
         if (action === "VERIFY_CAPTCHA") setCaptcha("");
         if (action === "VERIFY_OTP" && result.error) setOtp("");
       }
-    } catch (caught) { setError(caught instanceof Error ? caught.message : "Portal unavailable."); }
+    } catch (caught) { setError(caught instanceof Error ? caught.message : pi.errPortal); }
     finally { setBusy(false); }
   }
 
@@ -91,27 +202,27 @@ export default function Portal() {
       if (p.spaced) setCaptchaText(p.spaced as string);
       else if (p.captcha) setCaptchaText((p.captcha as string).split("").join(" "));
       setCaptcha("");
-    } catch { setError("Could not refresh captcha."); }
+    } catch { setError(pi.errCaptchaRefresh); }
     finally { setBusy(false); }
   }
 
   return (
     <GovShell active="/portal">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-md border border-amber-300 bg-[#fff8e6] px-4 py-2 text-[12px] text-[#8a6d00]">
-        <span>{t(lang,"evalLogin")} — UAN: <b>{SYNTHETIC_CITIZEN.evaluationUan}</b> · Password: <b>{SYNTHETIC_CITIZEN.evaluationPassword}</b> · OTP: <b>{demoOtp || "— (sent after captcha)"}</b></span>
+        <span>{t(lang,"evalLogin")} — UAN: <b>{SYNTHETIC_CITIZEN.evaluationUan}</b> · Password: <b>{SYNTHETIC_CITIZEN.evaluationPassword}</b> · OTP: <b>{demoOtp || pi.otpAfterCaptcha}</b></span>
         <button type="button" onClick={() => dispatch("RESET")} className="underline hover:text-[#1a4b8e] focus:outline-none focus:ring-2 focus:ring-[#1a4b8e]">{t(lang,"restartSession")}</button>
       </div>
 
       <div className="overflow-hidden rounded-md border border-slate-300 bg-white shadow-sm" aria-label="Simulated government portal marquee">
         <div className="border-b border-slate-200 bg-[#fdf6e3] py-1 text-[12px] text-[#8a6d00]" aria-hidden>
           <div className="whitespace-nowrap will-change-transform" style={{ animation: "govmarquee 28s linear infinite" }}>
-            {MARQUEE_ITEMS.map((m) => <span key={m} className="mr-16">&nbsp;&nbsp;◆&nbsp;&nbsp;{m}</span>)}
+            {pi.marquee.map((m) => <span key={m} className="mr-16">&nbsp;&nbsp;◆&nbsp;&nbsp;{m}</span>)}
           </div>
           <style jsx>{`@keyframes govmarquee { from { transform: translateX(100vw); } to { transform: translateX(-200vw); } } @media (prefers-reduced-motion: reduce) { div[style*="govmarquee"] { animation: none; } }`}</style>
         </div>
 
         <section className="p-5 sm:p-6">
-          <p className="text-[12px] text-slate-500">Home » Members » <u>Online Claim Status</u> · Session: {snapshot.state.replaceAll("_", " ")}</p>
+          <p className="text-[12px] text-slate-500">{pi.breadcrumb[0]} » {pi.breadcrumb[1]} » <u>{pi.breadcrumb[2]}</u> · {pi.session}: {snapshot.state.replaceAll("_", " ")}</p>
           {error && <p role="alert" className="mb-4 mt-3 rounded-sm border-l-4 border-red-700 bg-red-50 p-3 text-[13px] text-red-900">{error}</p>}
 
           {snapshot.state === PORTAL_STATES.LOGIN_FRICTION && (
@@ -127,7 +238,7 @@ export default function Portal() {
                       <button type="button" onClick={refreshCaptcha} aria-label="Generate new captcha" className="rounded-sm border border-slate-300 bg-white px-2 py-1 text-[12px] hover:border-[#1a4b8e] focus:outline-none focus:ring-2 focus:ring-[#1a4b8e]">↻ Refresh</button>
                       <input id="cap" value={captcha} onChange={(e) => setCaptcha(e.target.value)} aria-label="Captcha characters — case insensitive" placeholder="Enter above" className="w-36 rounded-sm border border-slate-300 px-2 py-1 text-[13px] focus:border-[#1a4b8e] focus:ring-1 focus:ring-[#1a4b8e]" autoComplete="off" />
                     </div>
-                    <p className="mt-1 text-[11px] text-slate-500">Captcha refreshes randomly on every click/refresh and on every failed attempt (crypto.randomBytes). {t(lang,"capHint")} <button type="button" onClick={refreshCaptcha} className="underline hover:text-[#1a4b8e]">Need new one?</button></p>
+                    <p className="mt-1 text-[11px] text-slate-500">{pi.capCryptoNote} {t(lang,"capHint")} <button type="button" onClick={refreshCaptcha} className="underline hover:text-[#1a4b8e]">{pi.needNew}</button></p>
                   </td></tr>
                   <tr><td colSpan={2} className="pt-3">
                     <button type="button" onClick={() => dispatch("VERIFY_CAPTCHA")} disabled={busy || !uan.trim() || password.length < 4 || !captcha.trim()} className={btnPrimary} aria-busy={busy}>{busy ? t(lang,"verifying") : t(lang,"verifyBtn")}</button>
@@ -142,14 +253,14 @@ export default function Portal() {
             <section className={cardCls}>
               <div className={sectionHead}>{t(lang, "portalOtp")}</div>
               <div className="p-5">
-                <p className="text-[13px] text-slate-700">An OTP has been sent to your registered mobile {t(lang,"otpSentTo")} <b lang="hi">XXXX-XXXX-1234</b>. {t(lang,"otpHint")}</p>
-                {demoOtp && <p className="mt-2 rounded-sm border border-amber-300 bg-[#fff8e6] px-3 py-2 text-[13px] text-[#8a6d00]">{t(lang,"demoOtpLabel")} <span className="font-mono text-lg tracking-widest">{demoOtp}</span> <span className="text-[11px]">(expires in 5 min, 3 attempts max)</span></p>}
+                <p className="text-[13px] text-slate-700">{pi.otpIntro} <b>XXXX-XXXX-1234</b>. {t(lang,"otpHint")}</p>
+                {demoOtp && <p className="mt-2 rounded-sm border border-amber-300 bg-[#fff8e6] px-3 py-2 text-[13px] text-[#8a6d00]">{t(lang,"demoOtpLabel")} <span className="font-mono text-lg tracking-widest">{demoOtp}</span> <span className="text-[11px]">{pi.otpExpires}</span></p>}
                 <div className="mt-4 flex flex-wrap items-center gap-3">
                   <input value={otp} onChange={(e) => setOtp(e.target.value)} aria-label="6-digit OTP" placeholder={t(lang,"enterOtp")} className="w-40 rounded-sm border border-slate-300 px-2 py-1.5 text-[13px] focus:border-[#1a4b8e] focus:ring-1 focus:ring-[#1a4b8e]" maxLength={6} autoComplete="one-time-code" />
                   <button type="button" onClick={() => dispatch("VERIFY_OTP")} disabled={busy || otp.trim().length !== 6} className={btnPrimary} aria-busy={busy}>{busy ? t(lang,"verifying") : t(lang,"verifyOtpBtn")}</button>
                   <button type="button" onClick={() => dispatch("RESEND_OTP")} disabled={busy} className={btnOutline}>{t(lang,"resendOtp")}</button>
                 </div>
-                <p className="mt-2 text-[11px] text-slate-500">OTP is 6-digit crypto-random, 5-min expiry, 3-attempt lock — then auto-refreshed. Database: OTP stored only in server session (httpOnly cookie), never in client or DB.</p>
+                <p className="mt-2 text-[11px] text-slate-500">{pi.otpDbNote}</p>
               </div>
             </section>
           )}
@@ -163,24 +274,24 @@ export default function Portal() {
                   <button type="button" onClick={() => dispatch("VIEW_PASSBOOK")} disabled={busy} className={`${cardCls} p-4 text-left hover:border-[#1a4b8e] focus:outline-none focus:ring-2 focus:ring-[#1a4b8e]`} aria-label="View passbook">
                     <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">{t(lang,"passbookCard")}</p>
                     <p className="mt-1 text-lg font-bold text-[#1a4b8e]">₹4,36,000</p>
-                    <p className="mt-1 text-[11px] text-slate-500">EPF balance (synthetic) · interest 8.25%</p>
+                    <p className="mt-1 text-[11px] text-slate-500">{pi.passSub}</p>
                   </button>
                   <button type="button" onClick={() => dispatch("VIEW_KYC")} disabled={busy} className={`${cardCls} p-4 text-left hover:border-[#1a4b8e] focus:outline-none focus:ring-2 focus:ring-[#1a4b8e]`} aria-label="View KYC status">
                     <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">{t(lang,"kycCard")}</p>
                     <p className="mt-1 text-lg font-bold text-green-700">Verified ✓</p>
-                    <p className="mt-1 text-[11px] text-slate-500">Aadhaar · PAN · Bank (synthetic)</p>
+                    <p className="mt-1 text-[11px] text-slate-500">{pi.kycSub}</p>
                   </button>
                   <button type="button" onClick={() => dispatch("OPEN_CLAIM_FORM")} disabled={busy} className={`${cardCls} p-4 text-left hover:border-[#1a4b8e] focus:outline-none focus:ring-2 focus:ring-[#1a4b8e]`} aria-label="File a PF advance claim — Form 31">
                     <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">{t(lang,"fileClaimCard")}</p>
                     <p className="mt-1 text-lg font-bold text-[#FF9933]">Form-31</p>
-                    <p className="mt-1 text-[11px] text-slate-500">PF Advance (Para 68-J medical)</p>
+                    <p className="mt-1 text-[11px] text-slate-500">{pi.claimSub}</p>
                   </button>
                 </div>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2 text-[12px] text-slate-600">
-                  <p className="rounded-sm bg-[#f8fafc] border border-slate-200 p-3"><b>Service:</b> {portalCitizen.serviceYears} years · <b>IFSC:</b> {portalCitizen.bankIfsc} (valid)</p>
-                  <p className="rounded-sm bg-[#f8fafc] border border-slate-200 p-3"><b>E-nomination:</b> Done ✓ · <b>Tracking ID:</b> {SYNTHETIC_CITIZEN.claimTrackingId}</p>
+                  <p className="rounded-sm bg-[#f8fafc] border border-slate-200 p-3"><b>{t(lang,"serviceRecord")}:</b> {portalCitizen.serviceYears} {pi.svcYears} · <b>{t(lang,"bankIfsc")}:</b> {portalCitizen.bankIfsc} {pi.ifscValid}</p>
+                  <p className="rounded-sm bg-[#f8fafc] border border-slate-200 p-3"><b>{pi.nomDone}</b> · <b>{pi.trackLabel}</b> {SYNTHETIC_CITIZEN.claimTrackingId}</p>
                 </div>
-                <p className="mt-3 text-[11px] text-slate-500">This dashboard is the “what better looks like” contrast: real EPFO hides balance behind passbook downloads; here it is one click. All data synthetic.</p>
+                <p className="mt-3 text-[11px] text-slate-500">{pi.dashNote}</p>
               </div>
             </section>
           )}
@@ -196,14 +307,14 @@ export default function Portal() {
                 <table className="w-full max-w-2xl text-[13px]"><tbody>
                   <tr><td className={`${th} w-64`}>{t(lang,"memberName")}</td><td className="border border-slate-300 px-2 py-1">{portalCitizen.nameAsPerAadhaar}</td></tr>
                   <tr><td className={th}>{t(lang,"serviceRecord")}</td><td className="border border-slate-300 px-2 py-1">{portalCitizen.serviceYears} years</td></tr>
-                  <tr><td className={th}>{t(lang,"purpose")}</td><td className="border border-slate-300 px-2 py-1">Medical Treatment — Illness of family member (Para 68-J)</td></tr>
+                  <tr><td className={th}>{t(lang,"purpose")}</td><td className="border border-slate-300 px-2 py-1">{pi.purposeVal}</td></tr>
                   <tr><td className={th}>{t(lang,"bankIfsc")}</td><td className="border border-slate-300 px-2 py-1">{portalCitizen.bankIfsc}</td></tr>
-                  <tr><td className={th}>{t(lang,"amountReq")}</td><td className="border border-slate-300 px-2 py-1">₹ 50,000/- (Rupees Fifty Thousand only)</td></tr>
+                  <tr><td className={th}>{t(lang,"amountReq")}</td><td className="border border-slate-300 px-2 py-1">{pi.amountVal}</td></tr>
                 </tbody></table>
-                <label className="mt-4 flex max-w-xl items-start gap-2 text-[12px] leading-snug"><input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#1a4b8e] focus:ring-[#1a4b8e]" /> <span>{t(lang,"declareAgree")} <Link href="/terms" target="_blank" className="underline text-[#1a4b8e] focus:outline-none focus:ring-2 focus:ring-[#1a4b8e]">{t(lang,"termsLink")} (RBI TAT 2019, CPA 2019, DPDP 2023, GIGW 3.0 — latest 22 Aug 2026)</Link>. All data is synthetic.</span></label>
+                <label className="mt-4 flex max-w-xl items-start gap-2 text-[12px] leading-snug"><input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#1a4b8e] focus:ring-[#1a4b8e]" /> <span>{t(lang,"declareAgree")} <Link href="/terms" target="_blank" className="underline text-[#1a4b8e] focus:outline-none focus:ring-2 focus:ring-[#1a4b8e]">{t(lang,"termsLink")} (RBI TAT 2019, CPA 2019, DPDP 2023, GIGW 3.0 — latest 22 Aug 2026)</Link>. {pi.synthetic}</span></label>
                 {!terms && <p className="mt-2 text-[11px] text-amber-700">Please accept the Terms & Conditions to submit — required for hackathon honesty + DPDP consent.</p>}
                 <div className="mt-4"><button type="button" onClick={() => dispatch("SUBMIT_ADVANCE_CLAIM")} disabled={busy || !terms} className={btnPrimary} aria-disabled={busy || !terms}>{busy ? t(lang,"submitting") : t(lang,"submitClaimBtn")}</button> <Link href="/terms" target="_blank" className={btnOutline + " ml-2"}>{t(lang, "readTerms")}</Link></div>
-                <p className="mt-2 text-[11px] text-slate-500">Database: claim stored in hash-chained ledger (SHA-256, append-only, per-process synthetic), not in browser. OTP/captcha server-session only. Synthetic only — no real money moved.</p>
+                <p className="mt-2 text-[11px] text-slate-500">{pi.claimDb}</p>
               </div>
             </section>
           )}
@@ -213,11 +324,11 @@ export default function Portal() {
               <div className={sectionHead}>{t(lang,"statusHead")} {SYNTHETIC_CITIZEN.claimTrackingId}</div>
               {snapshot.message && <p role="status" className="mx-5 mt-4 rounded-sm border-l-4 border-green-700 bg-green-50 p-3 text-[13px] text-green-900">{snapshot.message}</p>}
               <div className="p-5">
-                <table className="w-full max-w-2xl text-[13px]"><thead><tr><th className={th}>Date</th><th className={th}>Event</th><th className={th}>Remarks</th></tr></thead><tbody>
-                  <tr><td className="border border-slate-300 px-2 py-1">Day 1</td><td className="border border-slate-300 px-2 py-1">Claim Received</td><td className="border border-slate-300 px-2 py-1">Under Process at Field Office</td></tr>
-                  <tr><td className="border border-slate-300 px-2 py-1">Day {snapshot.simulatedDays}</td><td className="border border-slate-300 px-2 py-1">Status Check</td><td className="border border-slate-300 px-2 py-1">Your request is under process. Please do not submit another claim.</td></tr>
+                <table className="w-full max-w-2xl text-[13px]"><thead><tr><th className={th}>{pi.thDate}</th><th className={th}>{pi.thEvent}</th><th className={th}>{pi.thRemarks}</th></tr></thead><tbody>
+                  <tr><td className="border border-slate-300 px-2 py-1">{pi.day1}</td><td className="border border-slate-300 px-2 py-1">{pi.evReceived}</td><td className="border border-slate-300 px-2 py-1">{pi.evRemark}</td></tr>
+                  <tr><td className="border border-slate-300 px-2 py-1">{pi.dayPrefix} {snapshot.simulatedDays}</td><td className="border border-slate-300 px-2 py-1">{pi.evCheck}</td><td className="border border-slate-300 px-2 py-1">{pi.evPending}</td></tr>
                 </tbody></table>
-                <p className="mt-3 text-[12px] text-slate-500">Simulated day {snapshot.simulatedDays} of {PROCESSING_DAYS}. No further explanation is available on the portal. For grievances, kindly approach the concerned office.</p>
+                <p className="mt-3 text-[12px] text-slate-500">{pi.simDay} {snapshot.simulatedDays} {pi.of} {PROCESSING_DAYS}. {pi.noExpl}</p>
                 <div className="mt-4"><button type="button" onClick={() => dispatch("ADVANCE_DAY")} disabled={busy} className={btnOutline}>{busy ? t(lang,"loading") : t(lang,"advanceDayBtn")}</button></div>
               </div>
             </section>
@@ -227,13 +338,13 @@ export default function Portal() {
             <section className={cardCls}>
               <div className={sectionHead}>{t(lang,"statusHead")} {SYNTHETIC_CITIZEN.claimTrackingId}</div>
               <div className="p-5">
-                <div className="max-w-2xl border-l-4 border-red-700 bg-red-50 p-3 text-[13px]"><b>{t(lang,"rejectedTitle")}</b><br />Reason: Name on requested Member ID and Primary UAN does not match. Kindly contact your employer for KYC updation.</div>
-                <table className="mt-4 w-full max-w-2xl text-[13px]"><thead><tr><th className={th}>Particulars</th><th className={th}>As per Office Record</th></tr></thead><tbody>
-                  <tr><td className="border border-slate-300 px-2 py-1">Requested Member ID Name</td><td className="border border-slate-300 px-2 py-1">{portalCitizen.nameAsPerEmployer}</td></tr>
-                  <tr><td className="border border-slate-300 px-2 py-1">Primary UAN Name</td><td className="border border-slate-300 px-2 py-1">{portalCitizen.nameAsPerAadhaar}</td></tr>
-                  <tr><td className="border border-slate-300 px-2 py-1">Comparison</td><td className="border border-slate-300 px-2 py-1 font-bold text-green-800">IDENTICAL — the stated rejection reason is contradicted by the portal's own displayed record.</td></tr>
+                <div className="max-w-2xl border-l-4 border-red-700 bg-red-50 p-3 text-[13px]"><b>{t(lang,"rejectedTitle")}</b><br />{pi.rejReason}</div>
+                <table className="mt-4 w-full max-w-2xl text-[13px]"><thead><tr><th className={th}>{pi.particulars}</th><th className={th}>{pi.officeRecord}</th></tr></thead><tbody>
+                  <tr><td className="border border-slate-300 px-2 py-1">{pi.nameEmployer}</td><td className="border border-slate-300 px-2 py-1">{portalCitizen.nameAsPerEmployer}</td></tr>
+                  <tr><td className="border border-slate-300 px-2 py-1">{pi.nameUan}</td><td className="border border-slate-300 px-2 py-1">{portalCitizen.nameAsPerAadhaar}</td></tr>
+                  <tr><td className="border border-slate-300 px-2 py-1">{pi.cmpLabel}</td><td className="border border-slate-300 px-2 py-1 font-bold text-green-800">{pi.identical}</td></tr>
                 </tbody></table>
-                <p className="mt-2 text-[11px] text-slate-500">(This comparison table is rendered by the simulation to expose the contradiction. The real portal displays nothing.)</p>
+                <p className="mt-2 text-[11px] text-slate-500">{pi.simNote}</p>
                 <div className="mt-4"><button type="button" onClick={() => dispatch("OPEN_GRIEVANCE")} disabled={busy} className={btnPrimary}>{busy ? t(lang,"loading") : t(lang,"fileGrievanceBtn")}</button></div>
               </div>
             </section>
@@ -245,7 +356,7 @@ export default function Portal() {
               <div className="p-5 text-[13px]">
                 <p>{t(lang,"trackingPrompt")}</p>
                 <input value={trackingId} onChange={(e) => setTrackingId(e.target.value)} placeholder={`e.g. ${SYNTHETIC_CITIZEN.claimTrackingId}`} className={`${inputCls} mt-2 max-w-xs`} aria-label={t(lang,"trackingIdLabel")} />
-                <p className="mt-2 text-[11px] text-slate-500">Note: Tracking ID is case-sensitive and must match departmental records. Improper entries will invalidate the grievance attempt.</p>
+                <p className="mt-2 text-[11px] text-slate-500">{pi.trackCase}</p>
                 <div className="mt-4"><button type="button" onClick={() => dispatch("SUBMIT_GRIEVANCE")} disabled={busy || !trackingId.trim()} className={btnPrimary}>{busy ? t(lang,"submitting") : t(lang,"submitGrievanceBtn")}</button></div>
               </div>
             </section>
@@ -253,10 +364,10 @@ export default function Portal() {
 
           {snapshot.state === PORTAL_STATES.GRIEVANCE_INVALID_TRACKING && (
             <section className={cardCls}>
-              <div className={sectionHead}>Grievance Management System (GMIS)</div>
+              <div className={sectionHead}>{pi.gmisHead}</div>
               <div className="p-5 text-[13px]">
-                <div className="max-w-2xl border-l-4 border-red-700 bg-red-50 p-3"><b>{t(lang,"invalidIdTitle")}</b><br />The tracking ID cannot be verified against departmental records. Please try again later.</div>
-                <p className="mt-3 text-[12px] text-slate-500">No grievance has been registered. One grievance attempt has been recorded against this claim.</p>
+                <div className="max-w-2xl border-l-4 border-red-700 bg-red-50 p-3"><b>{t(lang,"invalidIdTitle")}</b><br />{pi.idErr1}</div>
+                <p className="mt-3 text-[12px] text-slate-500">{pi.noReg}</p>
                 <div className="mt-4"><button type="button" onClick={() => dispatch("OPEN_GRIEVANCE")} disabled={busy} className={btnOutline}>{busy ? t(lang,"loading") : t(lang,"attemptAgainBtn")}</button></div>
               </div>
             </section>
@@ -264,11 +375,11 @@ export default function Portal() {
 
           {snapshot.state === PORTAL_STATES.GRIEVANCE_LOCKED_OUT && (
             <section className={cardCls}>
-              <div className={sectionHead}>Grievance Management System (GMIS)</div>
+              <div className={sectionHead}>{pi.gmisHead}</div>
               <div className="p-5 text-[13px]">
-                <div className="max-w-2xl border-l-4 border-red-700 bg-red-50 p-3"><b>{t(lang,"lockedTitle")}</b><br />Next grievance allowed in 30 days. A grievance attempt has already been recorded for this claim.</div>
+                <div className="max-w-2xl border-l-4 border-red-700 bg-red-50 p-3"><b>{t(lang,"lockedTitle")}</b><br />{pi.lockBody}</div>
                 <table className="mt-4 w-full max-w-2xl text-[13px]"><tbody>
-                  <tr><td className={`${th} w-72`}>{t(lang,"escOptions")}</td><td className="border border-slate-300 px-2 py-1">None displayed. Citizen may approach the Regional Office in person during working hours (Mon–Fri, 09:45–17:30).</td></tr>
+                  <tr><td className={`${th} w-72`}>{t(lang,"escOptions")}</td><td className="border border-slate-300 px-2 py-1">{pi.escNone}</td></tr>
                 </tbody></table>
                 <p className="mt-3 text-[11px] text-slate-500">{t(lang,"fixWithFixer")} <a href="/fixer" className="underline text-[#1a4b8e]">{t(lang,"openConsole")} (CPA 2019 §2(11))</a></p>
               </div>
@@ -278,7 +389,7 @@ export default function Portal() {
       </div>
 
       <p className="mt-4 rounded-md border border-slate-300 bg-white p-3 text-[12px] leading-relaxed text-slate-600">
-        <b>Database & safety (submission-safe):</b> No real DB, no real IDs. Portal sessions are httpOnly cookies (30-min TTL, server-owned FSM), OTP is server-session only (5-min, 3-attempt, crypto-random), ledger is SHA-256 append-only per-process (synthetic seed only). Rate limit 30/min, zod on every input, CSP headers. Even as hackathon prototype, it follows RBI TAT, CPA 2019, DPDP 2023 phased, GIGW 3.0. Try wrong captcha/password/OTP — each refreshes randomly and is validated server-side, not in browser.
+        <b>{pi.safetyHead}</b> {pi.safetyBody}
       </p>
     </GovShell>
   );

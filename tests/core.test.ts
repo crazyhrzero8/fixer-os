@@ -69,6 +69,20 @@ test("traceroute computes overdue days and rupee accrual for both cases", () => 
   assert.match(escalationLetter("synthetic-irctc-001"), /RBI/);
 });
 
+test("IRCTC TAT clock ticks dynamically per RBI calendar-day rule (T+5, ₹100/day beyond)", () => {
+  const debit = "2026-08-10T10:04:00+05:30";
+  const atDay5 = traceSummary("synthetic-irctc-001", Date.parse("2026-08-15T10:04:00+05:30"));
+  assert.equal(atDay5.daysOverdue, 0, "T+5 not yet breached on day 5 (GI-4: T = calendar date)");
+  assert.equal(atDay5.tatCompensationAccrued, 0);
+  const atDay10 = traceSummary("synthetic-irctc-001", new Date(new Date(debit).getTime() + 10 * 86_400_000).getTime());
+  const gateway = atDay10.nodes.find((n: { id: string }) => n.id === "gateway");
+  assert.equal(gateway?.daysHeld, 10);
+  assert.equal(gateway?.breached, true);
+  assert.equal(atDay10.blocker.id, "irctc-refunds", "accountability names the deepest breached office");
+  assert.equal(atDay10.daysOverdue, 5, "rupee clock follows RBI T+5 from debit date");
+  assert.equal(atDay10.tatCompensationAccrued, 500);
+});
+
 test("LLM payload is PII-sanitized before leaving the server", () => {
   const dirty = {
     caseKind: "epfo-false-rejection",

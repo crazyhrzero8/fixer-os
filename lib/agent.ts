@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
 import path from "path";
 import { appendEvent, CASE_IDS, getCase, setCaseStatus, type CaseRecord } from "@/lib/ledger";
-import { escalationLetter, SLA_COMPENSATION_PER_DAY, traceSummary } from "@/lib/traceroute";
+import { calendarDaysSince, escalationLetter, SLA_COMPENSATION_PER_DAY, traceSummary } from "@/lib/traceroute";
 import { AGENT_MODE, decideNextAction } from "@/lib/llm";
 import { playbookSchema, renderDeep, type Playbook, type PlaybookStep } from "@/lib/playbooks";
 
@@ -16,10 +16,6 @@ for (const file of ["epfo-false-rejection.json", "payment-tat-breach.json"]) {
   byCaseId.set(parsed.caseId, parsed);
 }
 
-function calendarDaysSince(isoTimestamp: string): number {
-  return Math.max(0, Math.floor((Date.now() - new Date(isoTimestamp).getTime()) / 86_400_000));
-}
-
 function buildContext(record: CaseRecord): Record<string, unknown> {
   const trace = traceSummary(record.id);
   const base: Record<string, unknown> = {
@@ -30,7 +26,7 @@ function buildContext(record: CaseRecord): Record<string, unknown> {
   };
   if (record.kind === "payment-tat-breach") {
     const elapsed = calendarDaysSince(String(record.facts.debitedAt));
-    const overdue = Math.max(0, elapsed - Number(record.facts.bankReverseDeadlineDays));
+    const overdue = trace.daysOverdue;
     const paise = overdue * Number(record.facts.tatCompensationPerDayPaise);
     base.tat = { daysElapsed: elapsed, daysOverdue: overdue, compensationPaise: paise, compensationRupees: (paise / 100).toLocaleString("en-IN") };
   }

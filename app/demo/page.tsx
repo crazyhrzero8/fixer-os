@@ -19,7 +19,9 @@ const CONTENT = {
     j1a: "Minute 1 (citizen): Press ", j1b: "Run comparison", j1c: " — watch left stall at “Next grievance in 30 days” while right chains 5 agent actions to RESOLVED.",
     j2a: "Minute 2 (builder): Open ", j2b: "Agent Console", j2c: " → pick synthetic-irctc-001 for the RBI TAT payment case (RRN + T+5 + ₹100/day) → run steps → download escalation letter.",
     j3a: "Trial credentials: UAN ", j3b: " / ", j3c: " on Simulated Portal. No real data, no live govt system.",
-    ready: "Ready", working: "Working…"
+    ready: "Ready", working: "Working…",
+    lrNote: "Left: portal owns status. Right: citizen owns evidence.",
+    secU: "elapsed"
   },
   hi: {
     alone: ["कैप्चा स्वीकृत", "पीएफ अग्रिम जमा", "प्रक्रिया में · दिन 7", "अस्वीकृत: नाम मेल नहीं खाता (झूठा)", "अमान्य ट्रैकिंग आईडी", "अगली शिकायत 30 दिन में", "अटक गया — कोई ज़िम्मेदार नहीं"],
@@ -34,7 +36,9 @@ const CONTENT = {
     j1a: "मिनट 1 (नागरिक): ", j1b: "तुलना चलाएँ", j1c: " दबाएँ — बाईं ओर “अगली शिकायत 30 दिन में” पर अटकते देखें, दाईं ओर 5 एजेंट-कदम हल तक।",
     j2a: "मिनट 2 (निर्माता): ", j2b: "एजेंट कंसोल", j2c: " खोलें → RBI TAT भुगतान केस के लिए synthetic-irctc-001 चुनें (RRN + T+5 + ₹100/दिन) → कदम चलाएँ → पत्र डाउनलोड करें।",
     j3a: "परीक्षण लॉगिन: UAN ", j3b: " / ", j3c: " नकली पोर्टल पर। असली डेटा नहीं, लाइव सरकारी सिस्टम नहीं।",
-    ready: "तैयार", working: "चल रहा है…"
+    ready: "तैयार", working: "चल रहा है…",
+    lrNote: "बाएँ: पोर्टल के पास स्थिति। दाएँ: नागरिक के पास साक्ष्य।",
+    secU: "बीते"
   }
 };
 
@@ -61,8 +65,8 @@ export default function Demo() {
       <div className={`${cardCls} flex flex-wrap items-center gap-3 p-3`}>
         <button onClick={restart} className="rounded-sm bg-[#1a4b8e] px-4 py-1.5 text-[13px] font-semibold text-white hover:bg-[#123763]">{running ? t(lang,"demoRestartPlayback") : t(lang,"demoRun")}</button>
         <button onClick={stop} disabled={!running} className={btnOutline + " disabled:opacity-40"}>{t(lang,"demoPause")}</button>
-        <span className="font-mono text-[12px] text-slate-600">{String(seconds).padStart(2, "0")}s elapsed</span>
-        <span className="text-[11px] text-slate-500">Left: portal owns status. Right: citizen owns evidence.</span>
+        <span className="font-mono text-[12px] text-slate-600">{String(seconds).padStart(2, "0")}s {c.secU}</span>
+        <span className="text-[11px] text-slate-500">{c.lrNote}</span>
       </div>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-2">
@@ -79,9 +83,9 @@ export default function Demo() {
       <div className={`${cardCls} mt-5 p-4`}>
         <h3 className="text-[13px] font-bold text-[#1a4b8e]">{c.judgeHead}</h3>
         <ol className="mt-2 list-decimal space-y-1 pl-5 text-[12px] leading-relaxed text-slate-700">
-          <li><b>Minute 1 (citizen):</b> Press <i>Run comparison</i> — watch left stall at &ldquo;Next grievance in 30 days&rdquo; (documented EPFO lockout) while right chains 5 agent actions to RESOLVED.</li>
-          <li><b>Minute 2 (builder):</b> Open <Link href="/fixer" className="underline text-[#1a4b8e]">Agent Console</Link> → pick <i>synthetic-irctc-001</i> for RBI TAT payment case (RRN + T+5 + ₹100/day) → run steps → download escalation letter.</li>
-          <li>Trial credentials: UAN <b>100000000000</b> / <b>demo1234</b> on <Link href="/portal" className="underline text-[#1a4b8e]">Simulated Portal</Link>. No real data, no live govt system.</li>
+          <li>{c.j1a}<i>{c.j1b}</i>{c.j1c}</li>
+          <li>{c.j2a}<Link href="/fixer" className="underline text-[#1a4b8e]">{c.j2b}</Link>{c.j2c}</li>
+          <li>{c.j3a}<b>100000000000</b>{c.j3b}<b>demo1234</b>{c.j3c}</li>
         </ol>
       </div>
     </GovShell>

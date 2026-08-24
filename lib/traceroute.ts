@@ -1,7 +1,12 @@
 import { APP_CONFIG } from "./config";
 import { CASE_IDS } from "./ledger";
+import { SYNTHETIC_TXN } from "../data/seed";
 
 export interface TraceNode { id: string; office: string; designation: string; statutoryDeadlineDays: number; daysHeld: number; rule: string; breached: boolean; }
+
+export function calendarDaysSince(isoTimestamp: string, now: number = Date.now()): number {
+  return Math.max(0, Math.floor((now - new Date(isoTimestamp).getTime()) / 86_400_000));
+}
 
 const EPFO_TRACE: TraceNode[] = [
   { id: "portal", office: "Member Portal", designation: "Automated eligibility engine", statutoryDeadlineDays: 1, daysHeld: 7, rule: "Claim intake and automated validation", breached: true },
@@ -10,19 +15,25 @@ const EPFO_TRACE: TraceNode[] = [
   { id: "cpc", office: "Central Processing Centre", designation: "Zonal Additional CPFC", statutoryDeadlineDays: 30, daysHeld: 0, rule: "Escalation destination", breached: false }
 ];
 
-const TAT_TRACE: TraceNode[] = [
-  { id: "gateway", office: "Payment Gateway", designation: "Settlement ops (simulated)", statutoryDeadlineDays: 5, daysHeld: 11, rule: "RBI TAT (DPSS.CO.PD No.629/02.01.014/2019-20, 20 Sep 2019, Annex 4b): auto-reverse failed UPI merchant debit within T+5 calendar days (T=calendar date, GI-4)", breached: true },
-  { id: "irctc-refunds", office: "IRCTC Refunds (CCM)", designation: "Chief Commercial Manager (Refunds)", statutoryDeadlineDays: 7, daysHeld: 11, rule: "Railway Refund Rules 2015 — failed-transaction reversal (parallel to RBI TAT)", breached: true },
-  { id: "bank-nodal", office: "Bank Nodal Officer", designation: "Principal Nodal Officer", statutoryDeadlineDays: 30, daysHeld: 0, rule: "RBI Integrated Ombudsman Scheme 2021 — escalation if TAT compensation not paid suo moto (circular para 6)", breached: false }
-];
+function tatNodes(now: number): TraceNode[] {
+  const elapsed = calendarDaysSince(SYNTHETIC_TXN.debitedAt, now);
+  return [
+    { id: "gateway", office: "Payment Gateway", designation: "Settlement ops (simulated)", statutoryDeadlineDays: 5, daysHeld: elapsed, rule: "RBI TAT (DPSS.CO.PD No.629/02.01.014/2019-20, 20 Sep 2019, Annex 4b): auto-reverse failed UPI merchant debit within T+5 calendar days (T=calendar date, GI-4)", breached: elapsed > 5 },
+    { id: "irctc-refunds", office: "IRCTC Refunds (CCM)", designation: "Chief Commercial Manager (Refunds)", statutoryDeadlineDays: 7, daysHeld: elapsed, rule: "Railway Refund Rules 2015 — failed-transaction reversal (parallel to RBI TAT)", breached: elapsed > 7 },
+    { id: "bank-nodal", office: "Bank Nodal Officer", designation: "Principal Nodal Officer", statutoryDeadlineDays: 30, daysHeld: 0, rule: "RBI Integrated Ombudsman Scheme 2021 — escalation if TAT compensation not paid suo moto (circular para 6)", breached: false }
+  ];
+}
 
 export const SLA_COMPENSATION_PER_DAY = APP_CONFIG.sla.perDayRupees;
-const TRACES: Record<string, TraceNode[]> = { [CASE_IDS.epfo]: EPFO_TRACE, [CASE_IDS.irctc]: TAT_TRACE };
+const TRACES: Record<string, TraceNode[]> = { [CASE_IDS.epfo]: EPFO_TRACE };
 
-export function traceSummary(caseId: string) {
-  const nodes = TRACES[caseId] ?? EPFO_TRACE;
+export function traceSummary(caseId: string, now: number = Date.now()) {
+  const isTat = caseId === CASE_IDS.irctc;
+  const nodes = isTat ? tatNodes(now) : (TRACES[caseId] ?? EPFO_TRACE);
   const blocker = [...nodes].reverse().find((node) => node.breached) ?? nodes[0];
-  const daysOverdue = Math.max(0, blocker.daysHeld - blocker.statutoryDeadlineDays);
+  const daysOverdue = isTat
+    ? Math.max(0, calendarDaysSince(SYNTHETIC_TXN.debitedAt, now) - 5)
+    : Math.max(0, blocker.daysHeld - blocker.statutoryDeadlineDays);
   return { nodes, blocker, daysOverdue, tatCompensationAccrued: daysOverdue * SLA_COMPENSATION_PER_DAY };
 }
 
