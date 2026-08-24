@@ -41,8 +41,14 @@ and an in-flow provenance verifier (phishing-clone detection).
    is clean (names, UAN/Aadhaar, PAN, IFSC, 16-digit accounts, 64-hex hashes, tracking IDs).
 6. **Type-level regression caught early:** array-valued i18n keys widened `t()`'s return
    type and broke call sites — fixed with an explicit string contract.
-7. **Captcha rotation on failed verify** — confirmed by smoke as working-as-designed
-   security behavior (the test now tracks the rotated challenge).
+8. **OTP stale-display + missing cooldown** (found by hand-testing the demo): after 3 wrong
+   OTP attempts the server silently rotated the code but never told the page — the demo OTP
+   on screen was stale, so every retry failed. Fixed the root cause (failure responses now
+   always carry the current demo OTP) and added the missing real-world behavior: UIDAI/
+   EPFO-style **2-minute OTP lockout** after 3 failures, with attempts counter, red
+   countdown banner, disabled buttons, "cooldown over — press Resend" recovery, resend
+   blocked during lock — bilingual, unit-tested, smoke-tested (34/34). Config centralized
+   in `APP_CONFIG.otp`.
 
 ## Part 3 — The proof wall (all machine-verified)
 

@@ -55,6 +55,11 @@ const PI = {
     idErr1: "The tracking ID cannot be verified against departmental records. Please try again later.",
     lockBody: "Next grievance allowed in 30 days. A grievance attempt has already been recorded for this claim.",
     escNone: "None displayed. Citizen may approach the Regional Office in person during working hours (Mon–Fri, 09:45–17:30).",
+    otpAttemptsLeft: "{left} of {max} OTP attempts remaining",
+    otpLockTitle: "OTP temporarily blocked — too many failed attempts",
+    otpLockBody: "A new OTP will be available after the 2-minute cooldown. This mirrors UIDAI/EPFO-style daily-attempt lockouts.",
+    retryIn: "Resend available in {t}",
+    cooldownOver: "Cooldown over. Press \"Resend OTP\" for a fresh code.",
     otpAfterCaptcha: "— (shown here after the captcha step)",
     otpExpires: "(expires in 5 min · 3 attempts max)",
     capCryptoNote: "Captcha rotates crypto-randomly on every refresh click and every failed attempt.",
@@ -110,6 +115,11 @@ const PI = {
     idErr1: "ट्रैकिंग आईडी विभागीय अभिलेखों से सत्यापित नहीं हो पा रही। कृपया बाद में पुनः प्रयास करें।",
     lockBody: "अगली शिकायत 30 दिनों में संभव। इस दावे हेतु शिकायत-प्रयास पहले ही अभिलिखित हो चुका है।",
     escNone: "कोई विकल्प प्रदर्शित नहीं। नागरिक कार्य-समय में क्षेत्रीय कार्यालय जा सकते हैं (सोम–शुक्र, 09:45–17:30)।",
+    otpAttemptsLeft: "OTP के {max} में से {left} प्रयास शेष",
+    otpLockTitle: "OTP अस्थायी रूप से अवरुद्ध — अधिक असफल प्रयास",
+    otpLockBody: "2-मिनट की देरी के बाद नया OTP उपलब्ध होगा। यह UIDAI/EPFO-शैली प्रयास-ताला जैसा है।",
+    retryIn: "रिसेंड उपलब्ध: {t} बाद",
+    cooldownOver: "देरी समाप्त। नए OTP हेतु “OTP फिर भेजें” दबाएँ।",
     otpAfterCaptcha: "— (कैप्चा चरण के बाद यहीं दिखेगा)",
     otpExpires: "(5 मिनट में समाप्त · अधिकतम 3 प्रयास)",
     capCryptoNote: "कैप्चा हर रिफ्रेश-क्लिक और हर असफल प्रयास पर क्रिप्टो-यादृच्छिक बदलता है।",
@@ -139,8 +149,17 @@ export default function Portal() {
   const [demoOtp, setDemoOtp] = useState("");
   const [trackingId, setTrackingId] = useState("");
   const [terms, setTerms] = useState(false);
+  const [otpInfo, setOtpInfo] = useState<{ attemptsLeft: number; lockedSeconds: number } | null>(null);
+  const [lockSeen, setLockSeen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const id = setInterval(() => setOtpInfo((s) => (s && s.lockedSeconds > 0 ? { ...s, lockedSeconds: s.lockedSeconds - 1 } : s)), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const otpFmt = (sec: number) => `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`;
 
   async function loadCaptcha() {
     try {
@@ -165,7 +184,7 @@ export default function Portal() {
       }
       if (action === "VERIFY_OTP") body.otp = otp.trim();
       const response = await fetch("/api/portal/action", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      const result = (await response.json()) as { snapshot?: PortalSnapshot; error?: string; demoOtp?: string; captcha?: string; spaced?: string };
+      const result = (await response.json()) as { snapshot?: PortalSnapshot; error?: string; demoOtp?: string; captcha?: string; spaced?: string; otp?: { attemptsLeft: number; lockedSeconds: number } };
       if (!response.ok || !result.snapshot) {
         // Handle REFRESH_CAPTCHA which returns captcha directly
         if (result.captcha || result.spaced) {
@@ -180,7 +199,11 @@ export default function Portal() {
       setSnapshot(result.snapshot);
       if (result.error) setError(result.error);
       else setError("");
-      if (result.demoOtp) setDemoOtp(result.demoOtp as string);
+      if (result.otp) {
+        setOtpInfo(result.otp);
+        if (result.otp.lockedSeconds > 0) { setLockSeen(true); setDemoOtp(""); }
+        else if (result.demoOtp) setDemoOtp(result.demoOtp as string);
+      } else if (result.demoOtp) setDemoOtp(result.demoOtp as string);
       // Refresh captcha text after any state that stays in LOGIN_FRICTION
       if (action === "VERIFY_CAPTCHA" || action === "REFRESH_CAPTCHA" || action === "VERIFY_OTP") {
         // Always fetch fresh spaced captcha for next attempt — native random per click
@@ -255,10 +278,20 @@ export default function Portal() {
               <div className="p-5">
                 <p className="text-[13px] text-slate-700">{pi.otpIntro} <b>XXXX-XXXX-1234</b>. {t(lang,"otpHint")}</p>
                 {demoOtp && <p className="mt-2 rounded-sm border border-amber-300 bg-[#fff8e6] px-3 py-2 text-[13px] text-[#8a6d00]">{t(lang,"demoOtpLabel")} <span className="font-mono text-lg tracking-widest">{demoOtp}</span> <span className="text-[11px]">{pi.otpExpires}</span></p>}
+                {otpInfo && <p className="mt-2 text-[11px] text-slate-600">{pi.otpAttemptsLeft.replace("{left}", String(otpInfo.attemptsLeft)).replace("{max}", "3")}</p>}
+                {otpInfo && otpInfo.lockedSeconds > 0 && (
+                  <div role="alert" className="mt-3 rounded-sm border-l-4 border-red-700 bg-red-50 p-3 text-[13px] text-red-900">
+                    <b>{pi.otpLockTitle}</b><br />{pi.otpLockBody}
+                    <span className="mt-1 inline-block font-mono text-[14px] font-bold">{pi.retryIn.replace("{t}", otpFmt(otpInfo.lockedSeconds))}</span>
+                  </div>
+                )}
+                {lockSeen && otpInfo && otpInfo.lockedSeconds <= 0 && (
+                  <p role="status" className="mt-3 rounded-sm border-l-4 border-green-700 bg-green-50 p-2.5 text-[13px] text-green-900">{pi.cooldownOver}</p>
+                )}
                 <div className="mt-4 flex flex-wrap items-center gap-3">
-                  <input value={otp} onChange={(e) => setOtp(e.target.value)} aria-label="6-digit OTP" placeholder={t(lang,"enterOtp")} className="w-40 rounded-sm border border-slate-300 px-2 py-1.5 text-[13px] focus:border-[#1a4b8e] focus:ring-1 focus:ring-[#1a4b8e]" maxLength={6} autoComplete="one-time-code" />
-                  <button type="button" onClick={() => dispatch("VERIFY_OTP")} disabled={busy || otp.trim().length !== 6} className={btnPrimary} aria-busy={busy}>{busy ? t(lang,"verifying") : t(lang,"verifyOtpBtn")}</button>
-                  <button type="button" onClick={() => dispatch("RESEND_OTP")} disabled={busy} className={btnOutline}>{t(lang,"resendOtp")}</button>
+                  <input value={otp} onChange={(e) => setOtp(e.target.value)} aria-label="6-digit OTP" placeholder={t(lang,"enterOtp")} className="w-40 rounded-sm border border-slate-300 px-2 py-1.5 text-[13px] focus:border-[#1a4b8e] focus:ring-1 focus:ring-[#1a4b8e]" maxLength={6} autoComplete="one-time-code" disabled={(otpInfo?.lockedSeconds ?? 0) > 0} />
+                  <button type="button" onClick={() => dispatch("VERIFY_OTP")} disabled={busy || otp.trim().length !== 6 || (otpInfo?.lockedSeconds ?? 0) > 0} className={btnPrimary} aria-busy={busy}>{busy ? t(lang,"verifying") : t(lang,"verifyOtpBtn")}</button>
+                  <button type="button" onClick={() => dispatch("RESEND_OTP")} disabled={busy || (otpInfo?.lockedSeconds ?? 0) > 0} className={btnOutline}>{t(lang,"resendOtp")}</button>
                 </div>
                 <p className="mt-2 text-[11px] text-slate-500">{pi.otpDbNote}</p>
               </div>

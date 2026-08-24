@@ -106,6 +106,12 @@ what, phase by phase.
 
 ## Phase 9 — Full-site Hindi, maths unification, PII wire-proof (Aug 24, 2026)
 
+- **OTP realism (post-review fix):** hand-testing exposed that 3 wrong OTP attempts rotated
+  the code server-side without telling the page (stale demo OTP ⇒ unavoidable failure).
+  Failure responses now always carry the current demo OTP; 3 wrong attempts trigger a
+  UIDAI/EPFO-style **2-minute cooldown lockout** with attempts counter, countdown banner and
+  blocked verify/resend (bilingual). Verified by unit test + smoke (34/34).
+
 - Implemented by: opencode assistant (ox-alpha). Verification: 12/12 tests, `tsc --noEmit`
   clean, production build green.
 - **i18n completion:** Hindi now covers every tab — portal chrome (GMIS screens, status

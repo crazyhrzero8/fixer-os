@@ -2,7 +2,7 @@ import { randomBytes } from "crypto";
 import { initialPortalSnapshot, transitionPortal, type PortalAction, type PortalSnapshot } from "@/lib/portalFsm";
 import { APP_CONFIG } from "./config";
 
-interface PortalSession { snapshot: PortalSnapshot; captcha: string; otp: string; otpExpiry: number; lastSeen: number; captchaAttempts: number; otpAttempts: number; }
+interface PortalSession { snapshot: PortalSnapshot; captcha: string; otp: string; otpExpiry: number; otpLockedUntil: number; lastSeen: number; captchaAttempts: number; otpAttempts: number; }
 const sessions = new Map<string, PortalSession>();
 
 function sweep() {
@@ -22,7 +22,7 @@ function newOtp(): string {
 }
 
 function createSession(): PortalSession {
-  return { snapshot: initialPortalSnapshot(), captcha: newCaptcha(), otp: newOtp(), otpExpiry: Date.now() + 5 * 60_000, lastSeen: Date.now(), captchaAttempts: 0, otpAttempts: 0 };
+  return { snapshot: initialPortalSnapshot(), captcha: newCaptcha(), otp: newOtp(), otpExpiry: Date.now() + APP_CONFIG.otp.ttlMs, otpLockedUntil: 0, lastSeen: Date.now(), captchaAttempts: 0, otpAttempts: 0 };
 }
 
 export function getOrCreateSession(sid: string): PortalSession {
@@ -57,10 +57,21 @@ export function refreshCaptcha(sid: string): string {
 export function refreshOtp(sid: string): string {
   const s = getOrCreateSession(sid);
   s.otp = newOtp();
-  s.otpExpiry = Date.now() + 5 * 60_000;
+  s.otpExpiry = Date.now() + APP_CONFIG.otp.ttlMs;
   s.otpAttempts = 0;
   s.lastSeen = Date.now();
   return s.otp;
+}
+
+export interface OtpStatus { attemptsLeft: number; lockedSeconds: number; expiresInSeconds: number; }
+export function otpStatus(sid: string): OtpStatus {
+  const session = getOrCreateSession(sid);
+  const now = Date.now();
+  return {
+    attemptsLeft: Math.max(0, APP_CONFIG.otp.maxAttempts - session.otpAttempts),
+    lockedSeconds: Math.max(0, Math.ceil((session.otpLockedUntil - now) / 1000)),
+    expiresInSeconds: Math.max(0, Math.ceil((session.otpExpiry - now) / 1000))
+  };
 }
 
 export function applyAction(sid: string, action: PortalAction, value?: string): PortalSnapshot {
@@ -73,8 +84,9 @@ export function applyAction(sid: string, action: PortalAction, value?: string): 
     return session.snapshot;
   }
   if (action === "RESEND_OTP") {
+    if (Date.now() < session.otpLockedUntil) return session.snapshot;
     session.otp = newOtp();
-    session.otpExpiry = Date.now() + 5 * 60_000;
+    session.otpExpiry = Date.now() + APP_CONFIG.otp.ttlMs;
     session.otpAttempts = 0;
     // keep snapshot in OTP_REQUIRED but refresh message
     session.snapshot = transitionPortal(session.snapshot, action);
@@ -111,25 +123,28 @@ export function applyAction(sid: string, action: PortalAction, value?: string): 
     }
     // success: issue new OTP and transition
     session.otp = newOtp();
-    session.otpExpiry = Date.now() + 5 * 60_000;
+    session.otpExpiry = Date.now() + APP_CONFIG.otp.ttlMs;
     session.otpAttempts = 0;
+    session.otpLockedUntil = 0;
     session.snapshot = transitionPortal(session.snapshot, action);
     return session.snapshot;
   }
   if (action === "VERIFY_OTP") {
+    if (Date.now() < session.otpLockedUntil) return session.snapshot;
     const otpVal = (value ?? "").trim();
     if (Date.now() > session.otpExpiry) {
       session.otp = newOtp();
-      session.otpExpiry = Date.now() + 5 * 60_000;
+      session.otpExpiry = Date.now() + APP_CONFIG.otp.ttlMs;
+      session.otpAttempts = 0;
       return session.snapshot;
     }
     if (otpVal !== session.otp) {
       session.otpAttempts++;
-      if (session.otpAttempts >= 3) {
-        // too many attempts — refresh OTP for safety
+      if (session.otpAttempts >= APP_CONFIG.otp.maxAttempts) {
         session.otp = newOtp();
-        session.otpExpiry = Date.now() + 5 * 60_000;
+        session.otpExpiry = Date.now() + APP_CONFIG.otp.ttlMs;
         session.otpAttempts = 0;
+        session.otpLockedUntil = Date.now() + APP_CONFIG.otp.lockMs;
       }
       return session.snapshot;
     }

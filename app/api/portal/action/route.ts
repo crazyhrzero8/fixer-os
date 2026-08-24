@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { applyAction, getCaptcha, getOtpForTest, getOrCreateSession, refreshCaptcha } from "@/lib/portalSessions";
+import { applyAction, getCaptcha, getOtpForTest, getOrCreateSession, otpStatus, refreshCaptcha } from "@/lib/portalSessions";
 import { APP_CONFIG } from "@/lib/config";
 import { clientKey, rateLimit } from "@/lib/ratelimit";
 
@@ -61,18 +61,30 @@ export async function POST(request: Request) {
   }
   if (parsed.data.action === "VERIFY_OTP" && snapshot.state === "DASHBOARD") {
     // Login success → dashboard. Show synthetic OTP once more for evaluation banner.
-    return NextResponse.json({ snapshot, demoOtp: getOtpForTest(sid) });
+    return NextResponse.json({ snapshot, demoOtp: getOtpForTest(sid), otp: otpStatus(sid) });
   }
   if (parsed.data.action === "VERIFY_OTP" && snapshot.state === "OTP_REQUIRED") {
-    return NextResponse.json({ snapshot, error: "Invalid or expired OTP. A new OTP has been issued (synthetic)." });
+    const otp = otpStatus(sid);
+    return NextResponse.json({
+      snapshot,
+      // Demo surface always shows the CURRENT code — the old screenshot/code is stale after rotation
+      demoOtp: otp.lockedSeconds > 0 ? undefined : getOtpForTest(sid),
+      otp,
+      error: otp.lockedSeconds > 0
+        ? "Too many failed attempts. OTP blocked for 2 minutes (synthetic cooldown)."
+        : "Invalid or expired OTP. A new OTP has been issued (synthetic)."
+    });
   }
   if (parsed.data.action === "VERIFY_CAPTCHA" && snapshot.state === "OTP_REQUIRED") {
     // Captcha passed → expose demo OTP inline for evaluation (real EPFO sends SMS; never here)
-    return NextResponse.json({ snapshot, demoOtp: getOtpForTest(sid) });
+    return NextResponse.json({ snapshot, demoOtp: getOtpForTest(sid), otp: otpStatus(sid) });
   }
   if (parsed.data.action === "RESEND_OTP") {
-    const demoOtp = getOtpForTest(sid);
-    return NextResponse.json({ snapshot, demoOtp });
+    const otp = otpStatus(sid);
+    if (otp.lockedSeconds > 0) {
+      return NextResponse.json({ snapshot, otp, error: "Resend unavailable during the 2-minute cooldown (synthetic)." });
+    }
+    return NextResponse.json({ snapshot, demoOtp: getOtpForTest(sid), otp });
   }
   return NextResponse.json({ snapshot });
 }

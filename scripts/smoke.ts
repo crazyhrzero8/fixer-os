@@ -54,6 +54,19 @@ async function portalJourney() {
   await post("/api/portal/action", { action: "RESET" }, cookie);
 }
 
+async function otpLockoutJourney() {
+  console.log("OTP LOCKOUT (3 wrong → 2-min cooldown)");
+  const cap = await j("/api/portal/action");
+  const cookie = cap.headers.getSetCookie()[0].split(";")[0];
+  await post("/api/portal/action", { action: "VERIFY_CAPTCHA", uan: "100000000000", password: "demo1234", captcha: cap.body.captcha }, cookie);
+  let last: any;
+  for (let i = 0; i < 3; i++) last = await post("/api/portal/action", { action: "VERIFY_OTP", otp: "999999" }, cookie);
+  ok("3 wrong attempts → lockout surfaced", last.body.otp?.lockedSeconds > 100);
+  ok("stale demo OTP hidden during cooldown", last.body.demoOtp === undefined);
+  const resend = await post("/api/portal/action", { action: "RESEND_OTP" }, cookie);
+  ok("resend blocked during cooldown", Boolean(resend.body.error));
+}
+
 async function agentJourney() {
   console.log("AGENT JOURNEY (accountability loop)");
   await fetch(`${BASE}/api/case/synthetic-epfo-001`, { method: "POST" });
@@ -100,6 +113,6 @@ async function docs() {
 }
 
 (async () => {
-  for (const suite of [pages, portalJourney, agentJourney, modules, docs]) await suite();
+  for (const suite of [pages, portalJourney, otpLockoutJourney, agentJourney, modules, docs]) await suite();
   console.log(`\nSMOKE: ${passed}/${passed} PASS`);
 })().catch((e) => { console.error(`\nSMOKE FAILED: ${e.message}`); process.exit(1); });

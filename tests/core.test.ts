@@ -101,3 +101,21 @@ test("LLM payload is PII-sanitized before leaving the server", () => {
   assert.equal(s.includes("a".repeat(64)), false, "hash leaked");
   assert.ok(s.includes("[REDACTED]") || s.includes("UAN_REDACTED") || s.includes("IFSC_REDACTED"), "redaction markers present");
 });
+
+test("OTP lockout: 3 wrong attempts trigger 2-minute cooldown; verify+resend blocked during lock", () => {
+  const { applyAction, getCaptcha, otpStatus } = require("../lib/portalSessions.ts");
+  const sid = `otp-lock-${Date.now()}`;
+  const captcha = getCaptcha(sid);
+  const afterCaptcha = applyAction(sid, "VERIFY_CAPTCHA", JSON.stringify({ captcha, uan: "100000000000", password: "demo1234" }));
+  assert.equal(afterCaptcha.state, "OTP_REQUIRED");
+  assert.equal(otpStatus(sid).attemptsLeft, 3);
+  for (let i = 0; i < 3; i++) applyAction(sid, "VERIFY_OTP", "000000x");
+  const locked = otpStatus(sid);
+  assert.ok(locked.lockedSeconds > 100 && locked.lockedSeconds <= 120, `locked ${locked.lockedSeconds}s`);
+  assert.equal(locked.attemptsLeft, 3, "attempt counter resets with fresh OTP");
+  applyAction(sid, "VERIFY_OTP", "111111");
+  applyAction(sid, "RESEND_OTP");
+  const still = otpStatus(sid);
+  assert.ok(still.lockedSeconds > 0, "lock persists — no immediate retry");
+  assert.ok(still.expiresInSeconds <= locked.expiresInSeconds + 1, "no new OTP minted during cooldown");
+});
