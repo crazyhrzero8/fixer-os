@@ -145,6 +145,7 @@ const dict = {
     diffLead: "First citizen-facing UI that shows a machine-checked certificate of an eligibility-rule contradiction, anchored to a tamper-evident case-evidence chain, with a live statutory-compensation clock.",
     diffItems: [
       "**EPFO CITES 2.01 (Jul 2026)** validates deficiencies at submission inside their portal — ours runs validation classes against an independent ledger before you file, with fixes.",
+      "**Kustodian.Life EPF Health Check (2026)** scans your own EPFO data for claim-blockers — a single-domain pre-check; we anchor an evidence ledger and replay the state's contradiction on screen.",
       "**Delhi e-SLA (2011, 567 services)** auto-computes delay compensation for its own services — the RBI ₹100/day regime has no citizen-facing clock anywhere; we render it live.",
       "**Catala/CUTECat (France, in production)** machine-checks benefit-law conflicts for legislators and developers — no system hands the proof artifact to the affected citizen.",
       "NIC certificatechain.nic.in chains issued certificates — not a contested case record replayed against a rejection reason."
@@ -296,6 +297,7 @@ const dict = {
     diffLead: "पहला नागरिक-मुखी UI जो पात्रता-नियम विरोधाभास का मशीन-सत्यापित प्रमाण-पत्र दिखाता है — छेड़छाड़-रहित केस-साक्ष्य शृंखला से बंधा, जीवंत वैधानिक-मुआवज़ा घड़ी सहित।",
     diffItems: [
       "**EPFO CITES 2.01 (जुलाई 2026)** जमा के समय अपने पोर्टल के भीतर कमियाँ जाँचता है — हमारा सिस्टम दाख़िल से पहले स्वतंत्र बहीखाते पर वही जाँच-वर्ग चलाता है, सुधार सहित।",
+      "**Kustodian.Life EPF Health Check (2026)** आपके अपने EPFO डेटा पर दावा-अवरोधक खोजता है — एकल-डोमेन पूर्व-जाँच; हम साक्ष्य-बहीखाता बाँधकर राज्य का विरोधाभास स्क्रीन पर दोहराते हैं।",
       "**Delhi e-SLA (2011, 567 सेवाएँ)** अपनी सेवाओं हेतु विलंब-मुआवज़ा स्वतः गणना करता है — RBI ₹100/दिन नियम की कोई नागरिक-मुखी घड़ी कहीं नहीं; हम उसे जीवंत दिखाते हैं।",
       "**Catala/CUTECat (फ़्रांस, उत्पादन में)** लाभ-कानून विरोधाभास मशीन-जाँचता है — कोई सिस्टम प्रमाण प्रभावित नागरिक को नहीं देता।",
       "NIC certificatechain.nic.in जारी प्रमाणपत्र शृंखलित करता है — अस्वीकृति-कारण के विरुद्ध विवादित केस-रिकॉर्ड का रीप्ले नहीं।"

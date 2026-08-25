@@ -1086,3 +1086,34 @@ Effort estimate: items 1-3 ≈ 1-2 days each for one engineer; the hard part (ev
 Strengths: working full journey (most submissions at 5k-scale die here), genuine novelty with narrowed defensible claim, regulatory citations with primary sources, honesty disclosures exceeding typical entries, agentic AI used safely (allow-list + PII-scrubbed), accessible bilingual light UI.
 Risks: (a) dark-horse entries with prettier visuals; (b) judges may not grasp RuleGuard's math in 20 seconds without the video landing it — VIDEO IS THE MULTIPLIER, record it well; (c) two-vertical breadth could read as unfocus — mitigated by labels shipped today.
 Honest odds: top-250 plausible on working-build+honesty alone; top-10 depends on video quality + judge taste. Nothing structural blocks it.
+
+---
+
+## TURN 22 — FRESHNESS AUDIT (25 Aug 2026, three-agent sweep)
+
+### Method
+Three parallel research agents + direct public-API pulls (HN Algolia, GitHub REST). Lane 1: frustration pulse (r/epfoindia indices, X, guide sites). Lane 2: shipped products (India + global civic tech). Lane 3: government-side movement + hackathon entrant visibility. DuckDuckGo captcha-blocked mid-sweep; Bing fallback used. Silence = stated as absence of indexed evidence, not proof of nonexistence.
+
+### Verdicts vs our six claims (docs Turn 20)
+- A. False-rejection audit vs citizen-owned hash-chained ledger: **STILL-UNIQUE** (closest: Nyaya-Sahayak hobby repo — AI check, no ledger; Nyaykar — letter drafting only).
+- B. Blocking-office traceroute + statutory countdown: **STILL-UNIQUE** (Nyaykar routes to regulators on a fixed 21-day timeout; no per-office countdown).
+- C. Mechanical eligibility-deadlock proof to citizen: **STILL-UNIQUE.**
+- D. Pre-flight rejection prediction: **AT-RISK / partial overlap** — Kustodian.Life "EPF Health Check" (2026) scans the citizen's own EPFO data for claim blockers; single-domain, no evidence ledger, audits citizen data not the state's decision. Distinction now cited in the UI honesty/diff card (both languages).
+- E. Live ₹100/day RBI TAT citizen clock: **STILL-UNIQUE** (no calculator/tracker anywhere; only RBI rule pages).
+- F. In-flow provenance/phishing check integrated in claim flow: **STILL-UNIQUE.**
+
+### Fresh pain evidence (the week of submission)
+- X, 24 Aug 2026: "False resolution alert. @socialepfo has closed my grievance (STRAM/E/2026/07574) without solving" — the exact "grievance theater" class FIXER.OS replays, live yesterday.
+- IRCTC payment-deducted-no-ticket guides refreshed Aug 5 2026 (findmytrain.in); EPFO unified portal outage reports live on 25 Aug 2026 (notopening.com tracker).
+- ComplyKraft 30 Jul 2026 + FinRight Mar 2026: KYC cross-database mismatch remains the dominant silent-rejection driver.
+
+### Hackathon field
+buildwhatmovesindia.com FAQ re-confirmed live 25 Aug: deadline **28 Aug 2026 8:00 PM IST**, finale Sep 12, mock-only, Codex required. Zero public entrant showcases in the accountability/audit category found — first collision risk is the Sep 12 finale, not pre-judging.
+
+### LinkedIn-signal note (user-supplied thread)
+Commenters converge on: (1) adoption — "getting someone inside the department that owns the live system" is the hard part (matches docs Turn 9 adoption ladder), (2) citizen-side rebuild as the strongest constraint (matches our thesis), (3) "useful beats flashy" (matches our lean UI). No competitive product referenced anywhere in the thread.
+
+### Action taken
+diff card + i18n dict updated (Kustodian cited, both languages); narrowed novelty claim unchanged: *first citizen-facing machine-checked eligibility-contradiction certificate anchored to a tamper-evident case-evidence chain with a live statutory-compensation clock.*
+
+*Appended 25 Aug 2026 by opencode (ox-alpha).*
