@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   if (!parsed.success) return NextResponse.json({ error: "Invalid body." }, { status: 400 });
 
   try {
-    return NextResponse.json({ verdict: verifyOrigin(parsed.data.caseId, parsed.data.origin) });
+    return NextResponse.json({ verdict: await verifyOrigin(parsed.data.caseId, parsed.data.origin) });
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : "Verification failed" }, { status: 400 });
   }

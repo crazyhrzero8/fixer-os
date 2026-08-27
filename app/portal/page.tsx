@@ -73,7 +73,8 @@ const PI = {
     cmpLabel: "Comparison",
     gmisHead: "Grievance Management System (GMIS)",
     safetyHead: "Database & safety (submission-safe):",
-    safetyBody: "No real database, no real IDs. Portal sessions live in httpOnly cookies (30-min TTL, server-owned FSM); OTP lives server-side only (5-min, 3-attempt, crypto-random); the ledger is SHA-256 append-only per process (synthetic seed only). Rate limit 30/min, zod on every input, CSP headers. Follows RBI TAT, CPA 2019, DPDP 2023 (phased), GIGW 3.0."
+    safetyBody: "No real database, no real IDs. Portal sessions live in httpOnly cookies (30-min TTL, server-owned FSM); OTP lives server-side only (5-min, 3-attempt, crypto-random); the ledger is SHA-256 append-only per process (synthetic seed only). Rate limit 30/min, zod on every input, CSP headers. Follows RBI TAT, CPA 2019, DPDP 2023 (phased), GIGW 3.0.",
+    acceptTermsNote: "Please accept the Terms & Conditions to submit — required for hackathon honesty + DPDP consent."
   },
   hi: {
     marquee: [
@@ -133,7 +134,8 @@ const PI = {
     cmpLabel: "तुलना",
     gmisHead: "शिकायत प्रबंधन प्रणाली (GMIS)",
     safetyHead: "डेटाबेस व सुरक्षा:",
-    safetyBody: "कोई असली डेटाबेस नहीं, कोई असली ID नहीं। पोर्टल-सेशन httpOnly कुकी में (30-मिनट TTL, सर्वर-स्वामित्व FSM); OTP केवल सर्वर-सेशन में (5-मिनट, 3-प्रयास, क्रिप्टो-यादृच्छिक); बहीखाता SHA-256 केवल-जोड़ प्रति-प्रक्रिया (कृत्रिम सीड)। दर-सीमा 30/मिनट, हर इनपुट पर zod, CSP हेडर। RBI TAT, CPA 2019, DPDP 2023 (चरणबद्ध), GIGW 3.0 के अनुसार।"
+    safetyBody: "कोई असली डेटाबेस नहीं, कोई असली ID नहीं। पोर्टल-सेशन httpOnly कुकी में (30-मिनट TTL, सर्वर-स्वामित्व FSM); OTP केवल सर्वर-सेशन में (5-मिनट, 3-प्रयास, क्रिप्टो-यादृच्छिक); बहीखाता SHA-256 केवल-जोड़ प्रति-प्रक्रिया (कृत्रिम सीड)। दर-सीमा 30/मिनट, हर इनपुट पर zod, CSP हेडर। RBI TAT, CPA 2019, DPDP 2023 (चरणबद्ध), GIGW 3.0 के अनुसार।",
+    acceptTermsNote: "जमा करने हेतु नियम व शर्तें स्वीकार करें — हैकाथॉन ईमानदारी + DPDP सहमति हेतु अनिवार्य।"
   }
 } as const;
 
@@ -153,6 +155,48 @@ export default function Portal() {
   const [lockSeen, setLockSeen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+
+  const [showNotification, setShowNotification] = useState(false);
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [resolvedCaseDetails, setResolvedCaseDetails] = useState<{ id: string; title: string; compensation: number; amount: number } | null>(null);
+
+  // Poll active case status periodically
+  useEffect(() => {
+    if (snapshot.state === PORTAL_STATES.LOGIN_FRICTION || snapshot.state === PORTAL_STATES.OTP_REQUIRED) {
+      setShowNotification(false);
+      return;
+    }
+
+    const checkResolution = async () => {
+      try {
+        const currentUan = uan || sessionStorage.getItem("portal_uan") || "100000000000";
+        const caseId = currentUan === "100000000002" ? "ramu-epfo-001" : currentUan === "100000000003" ? "radhika-irctc-001" : "synthetic-epfo-001";
+        
+        const r = await fetch(`/api/case/${caseId}`);
+        if (r.ok) {
+          const payload = await r.json();
+          if (payload.case && payload.case.status === "RESOLVED") {
+            const s = await fetch(`/api/traceroute?case=${caseId}`);
+            const sData = await s.json();
+            
+            setResolvedCaseDetails({
+              id: caseId,
+              title: payload.case.title,
+              compensation: sData.tatCompensationAccrued || 2600,
+              amount: caseId.includes("irctc") ? 2850 : 50000
+            });
+            setShowNotification(true);
+          }
+        }
+      } catch (err) {
+        console.error("Resolution check error:", err);
+      }
+    };
+
+    void checkResolution();
+    const interval = setInterval(checkResolution, 5000);
+    return () => clearInterval(interval);
+  }, [snapshot.state, uan]);
 
   useEffect(() => {
     const id = setInterval(() => setOtpInfo((s) => (s && s.lockedSeconds > 0 ? { ...s, lockedSeconds: s.lockedSeconds - 1 } : s)), 1000);
@@ -197,6 +241,15 @@ export default function Portal() {
         throw new Error(result.error ?? pi.errPortal);
       }
       setSnapshot(result.snapshot);
+      if (action === "VERIFY_OTP" && result.snapshot.state === "DASHBOARD") {
+        sessionStorage.setItem("portal_uan", uan.trim());
+      }
+      if (action === "RESET") {
+        sessionStorage.removeItem("portal_uan");
+        setShowNotification(false);
+        setShowStatusModal(false);
+        setResolvedCaseDetails(null);
+      }
       if (result.error) setError(result.error);
       else setError("");
       if (result.otp) {
@@ -231,6 +284,91 @@ export default function Portal() {
 
   return (
     <GovShell active="/portal">
+      <div className="mb-4 text-center text-[12px] font-bold text-red-700 bg-red-50 border border-red-300 rounded-md p-3 shadow-sm">
+        {t(lang, "bannerPortal")}
+      </div>
+
+      {showNotification && resolvedCaseDetails && (
+        <div className="mb-4 bg-emerald-50 border border-emerald-300 rounded-md p-4 shadow flex justify-between items-center animate-pulse">
+          <div className="flex items-center gap-3">
+            <span className="text-xl">🔔</span>
+            <div className="text-[13px] text-emerald-800 font-medium">
+              <b>{lang === "hi" ? "दावा कार्रवाई सूचना:" : "Claim Resolution Notification:"}</b>{" "}
+              {lang === "hi" 
+                ? "आपके दावे पर कार्रवाई कर दी गई है! विवरण देखने के लिए यहाँ क्लिक करें।"
+                : "Action on your claim has been taken! Click here to view updated status & details."}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowStatusModal(true)}
+            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-bold transition"
+          >
+            {lang === "hi" ? "विवरण देखें" : "View Details"}
+          </button>
+        </div>
+      )}
+
+      {showStatusModal && resolvedCaseDetails && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className={`${cardCls} max-w-md w-full p-6 space-y-4 shadow-2xl border-t-4 border-t-emerald-600`}>
+            <div className="text-center border-b border-slate-100 pb-3">
+              <span className="text-3xl">✅</span>
+              <h3 className="text-lg font-bold text-slate-800 mt-2">
+                {lang === "hi" ? "दावा निपटान सूचना" : "Claim Settlement Notice"}
+              </h3>
+              <p className="text-[11px] text-slate-400 font-mono mt-0.5">{resolvedCaseDetails.id}</p>
+            </div>
+
+            <div className="space-y-3 text-[13px] text-slate-600">
+              <div className="flex justify-between items-baseline py-1 border-b border-slate-100">
+                <span className="font-semibold text-slate-500">{lang === "hi" ? "मामला:" : "Case Title:"}</span>
+                <span className="text-slate-800 font-medium text-right">{resolvedCaseDetails.title}</span>
+              </div>
+              <div className="flex justify-between items-baseline py-1 border-b border-slate-100">
+                <span className="font-semibold text-slate-500">{lang === "hi" ? "स्थिति:" : "Status:"}</span>
+                <span className="text-emerald-700 font-bold uppercase">{lang === "hi" ? "स्वीकृत" : "APPROVED"}</span>
+              </div>
+              <div className="flex justify-between items-baseline py-1 border-b border-slate-100">
+                <span className="font-semibold text-slate-500">{lang === "hi" ? "दावा राशि:" : "Claim Disbursed:"}</span>
+                <span className="text-slate-800 font-bold">₹ {resolvedCaseDetails.id.includes("irctc") ? "2,850" : "50,000"}</span>
+              </div>
+              <div className="flex justify-between items-baseline py-1 border-b border-slate-100">
+                <span className="font-semibold text-slate-500">{lang === "hi" ? "विलंब मुआवजा संवितरण:" : "Delay Compensation Settled:"}</span>
+                <span className="text-emerald-600 font-bold">₹ {resolvedCaseDetails.compensation.toLocaleString("en-IN")}</span>
+              </div>
+
+              <div className="pt-2">
+                <span className="font-bold text-[11px] text-slate-400 uppercase tracking-wider block mb-1">
+                  {lang === "hi" ? "अगले कदम (Next Steps):" : "Next Steps for Member:"}
+                </span>
+                <div className="bg-slate-50 border border-slate-200 rounded p-3 text-[12px] leading-relaxed text-slate-700">
+                  {resolvedCaseDetails.id.includes("irctc") ? (
+                    lang === "hi" 
+                      ? "लगेगा कि विफल बुकिंग राशि का पुनर्भुगतान किया गया है। निपटान आदेश के तहत आपके बैंक खाते में ₹2,850 की रिफंड और ₹100 प्रति दिन का हर्जाना क्रेडिट कर दिया गया है। पुष्टि के लिए अपना पासबुक जांचें।"
+                      : "The failed booking refund has been approved. Under the RBI TAT settlement order, the refund of ₹2,850 along with the daily delay penalty has been credited to your source bank account. Please verify your bank passbook/statement."
+                  ) : (
+                    lang === "hi" 
+                      ? "आपका ₹50,000 का पीएफ अग्रिम दावा स्वीकृत हो गया है और धन सीधे आपके बैंक खाते (IFSC: SBIN0000001) में हस्तांतरित कर दिया गया है। भुगतान की पुष्टि हेतु 24-48 घंटे प्रतीक्षा करें और बैंक से प्राप्त एसएमएस देखें।"
+                      : "Your PF Advance claim for ₹50,000 has been approved and processed. The funds have been successfully transferred to your registered bank account (IFSC: SBIN0000001). Please check your bank transaction records within 24-48 hours."
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-3">
+              <button
+                type="button"
+                onClick={() => setShowStatusModal(false)}
+                className={`${btnPrimary} w-full py-2 text-[13px] font-bold`}
+              >
+                {lang === "hi" ? "ठीक है / बंद करें" : "Close Notification"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-md border border-amber-300 bg-[#fff8e6] px-4 py-2 text-[12px] text-[#8a6d00]">
         <span>{t(lang,"evalLogin")} — UAN: <b>{SYNTHETIC_CITIZEN.evaluationUan}</b> · Password: <b>{SYNTHETIC_CITIZEN.evaluationPassword}</b> · OTP: <b>{demoOtp || pi.otpAfterCaptcha}</b></span>
         <button type="button" onClick={() => dispatch("RESET")} className="underline hover:text-[#1a4b8e] focus:outline-none focus:ring-2 focus:ring-[#1a4b8e]">{t(lang,"restartSession")}</button>
@@ -264,8 +402,8 @@ export default function Portal() {
                     <p className="mt-1 text-[11px] text-slate-500">{pi.capCryptoNote} {t(lang,"capHint")} <button type="button" onClick={refreshCaptcha} className="underline hover:text-[#1a4b8e]">{pi.needNew}</button></p>
                   </td></tr>
                   <tr><td colSpan={2} className="pt-3">
-                    <button type="button" onClick={() => dispatch("VERIFY_CAPTCHA")} disabled={busy || !uan.trim() || password.length < 4 || !captcha.trim()} className={btnPrimary} aria-busy={busy}>{busy ? t(lang,"verifying") : t(lang,"verifyBtn")}</button>
-                    <p className="mt-2 text-[11px] text-slate-500">Server validates UAN (12 digits), password, and captcha together — not just captcha. Wrong any → new captcha, no OTP.</p>
+                    <button type="button" id="verify-login-btn" onClick={() => dispatch("VERIFY_CAPTCHA")} disabled={busy || !uan.trim() || password.length < 4 || !captcha.trim()} className={btnPrimary} aria-busy={busy}>{busy ? t(lang,"verifying") : t(lang,"verifyBtn")}</button>
+                    <p className="mt-2 text-[11px] text-slate-500">{pi.serverValidateNote}</p>
                   </td></tr>
                 </tbody></table>
               </div>
@@ -293,7 +431,7 @@ export default function Portal() {
                   <button type="button" onClick={() => dispatch("VERIFY_OTP")} disabled={busy || otp.trim().length !== 6 || (otpInfo?.lockedSeconds ?? 0) > 0} className={btnPrimary} aria-busy={busy}>{busy ? t(lang,"verifying") : t(lang,"verifyOtpBtn")}</button>
                   <button type="button" onClick={() => dispatch("RESEND_OTP")} disabled={busy || (otpInfo?.lockedSeconds ?? 0) > 0} className={btnOutline}>{t(lang,"resendOtp")}</button>
                 </div>
-                <p className="mt-2 text-[11px] text-slate-500">{pi.otpDbNote}</p>
+
               </div>
             </section>
           )}
@@ -314,7 +452,7 @@ export default function Portal() {
                     <p className="mt-1 text-lg font-bold text-green-700">Verified ✓</p>
                     <p className="mt-1 text-[11px] text-slate-500">{pi.kycSub}</p>
                   </button>
-                  <button type="button" onClick={() => dispatch("OPEN_CLAIM_FORM")} disabled={busy} className={`${cardCls} p-4 text-left hover:border-[#1a4b8e] focus:outline-none focus:ring-2 focus:ring-[#1a4b8e]`} aria-label="File a PF advance claim — Form 31">
+                  <button type="button" id="file-claim-btn" onClick={() => dispatch("OPEN_CLAIM_FORM")} disabled={busy} className={`${cardCls} p-4 text-left hover:border-[#1a4b8e] focus:outline-none focus:ring-2 focus:ring-[#1a4b8e]`} aria-label="File a PF advance claim — Form 31">
                     <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">{t(lang,"fileClaimCard")}</p>
                     <p className="mt-1 text-lg font-bold text-[#FF9933]">Form-31</p>
                     <p className="mt-1 text-[11px] text-slate-500">{pi.claimSub}</p>
@@ -324,7 +462,7 @@ export default function Portal() {
                   <p className="rounded-sm bg-[#f8fafc] border border-slate-200 p-3"><b>{t(lang,"serviceRecord")}:</b> {portalCitizen.serviceYears} {pi.svcYears} · <b>{t(lang,"bankIfsc")}:</b> {portalCitizen.bankIfsc} {pi.ifscValid}</p>
                   <p className="rounded-sm bg-[#f8fafc] border border-slate-200 p-3"><b>{pi.nomDone}</b> · <b>{pi.trackLabel}</b> {SYNTHETIC_CITIZEN.claimTrackingId}</p>
                 </div>
-                <p className="mt-3 text-[11px] text-slate-500">{pi.dashNote}</p>
+
               </div>
             </section>
           )}
@@ -334,20 +472,20 @@ export default function Portal() {
               <div className={sectionHead}>{t(lang, "claimForm")}</div>
               <div className="p-5">
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-[12px] text-slate-500">Member: <b>{portalCitizen.nameAsPerAadhaar}</b></p>
+                  <p className="text-[12px] text-slate-500">{pi.memberIs} <b>{portalCitizen.nameAsPerAadhaar}</b></p>
                   <button type="button" onClick={() => dispatch("VIEW_DASHBOARD")} disabled={busy} className={btnOutline + " text-[11px]"}>{t(lang,"backToDash")}</button>
                 </div>
                 <table className="w-full max-w-2xl text-[13px]"><tbody>
                   <tr><td className={`${th} w-64`}>{t(lang,"memberName")}</td><td className="border border-slate-300 px-2 py-1">{portalCitizen.nameAsPerAadhaar}</td></tr>
-                  <tr><td className={th}>{t(lang,"serviceRecord")}</td><td className="border border-slate-300 px-2 py-1">{portalCitizen.serviceYears} years</td></tr>
+                  <tr><td className={th}>{t(lang,"serviceRecord")}</td><td className="border border-slate-300 px-2 py-1">{portalCitizen.serviceYears} {pi.svcYears}</td></tr>
                   <tr><td className={th}>{t(lang,"purpose")}</td><td className="border border-slate-300 px-2 py-1">{pi.purposeVal}</td></tr>
                   <tr><td className={th}>{t(lang,"bankIfsc")}</td><td className="border border-slate-300 px-2 py-1">{portalCitizen.bankIfsc}</td></tr>
                   <tr><td className={th}>{t(lang,"amountReq")}</td><td className="border border-slate-300 px-2 py-1">{pi.amountVal}</td></tr>
                 </tbody></table>
-                <label className="mt-4 flex max-w-xl items-start gap-2 text-[12px] leading-snug"><input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#1a4b8e] focus:ring-[#1a4b8e]" /> <span>{t(lang,"declareAgree")} <Link href="/terms" target="_blank" className="underline text-[#1a4b8e] focus:outline-none focus:ring-2 focus:ring-[#1a4b8e]">{t(lang,"termsLink")} (RBI TAT 2019, CPA 2019, DPDP 2023, GIGW 3.0 — latest 22 Aug 2026)</Link>. {pi.synthetic}</span></label>
-                {!terms && <p className="mt-2 text-[11px] text-amber-700">Please accept the Terms & Conditions to submit — required for hackathon honesty + DPDP consent.</p>}
-                <div className="mt-4"><button type="button" onClick={() => dispatch("SUBMIT_ADVANCE_CLAIM")} disabled={busy || !terms} className={btnPrimary} aria-disabled={busy || !terms}>{busy ? t(lang,"submitting") : t(lang,"submitClaimBtn")}</button> <Link href="/terms" target="_blank" className={btnOutline + " ml-2"}>{t(lang, "readTerms")}</Link></div>
-                <p className="mt-2 text-[11px] text-slate-500">{pi.claimDb}</p>
+                <label className="mt-4 flex max-w-xl items-start gap-2 text-[12px] leading-snug"><input type="checkbox" id="terms-checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#1a4b8e] focus:ring-[#1a4b8e]" /> <span>{t(lang,"declareAgree")} <Link href="/terms" target="_blank" className="underline text-[#1a4b8e] focus:outline-none focus:ring-2 focus:ring-[#1a4b8e]">{t(lang,"termsLink")} (RBI TAT 2019, CPA 2019, DPDP 2023, GIGW 3.0 — latest 22 Aug 2026)</Link>. {pi.synthetic}</span></label>
+                {!terms && <p className="mt-2 text-[11px] text-amber-700">{pi.acceptTermsNote}</p>}
+                <div className="mt-4"><button type="button" id="submit-claim-btn" onClick={() => dispatch("SUBMIT_ADVANCE_CLAIM")} disabled={busy || !terms} className={btnPrimary} aria-disabled={busy || !terms}>{busy ? t(lang,"submitting") : t(lang,"submitClaimBtn")}</button> <Link href="/terms" target="_blank" className={btnOutline + " ml-2"}>{t(lang, "readTerms")}</Link></div>
+
               </div>
             </section>
           )}
@@ -362,7 +500,7 @@ export default function Portal() {
                   <tr><td className="border border-slate-300 px-2 py-1">{pi.dayPrefix} {snapshot.simulatedDays}</td><td className="border border-slate-300 px-2 py-1">{pi.evCheck}</td><td className="border border-slate-300 px-2 py-1">{pi.evPending}</td></tr>
                 </tbody></table>
                 <p className="mt-3 text-[12px] text-slate-500">{pi.simDay} {snapshot.simulatedDays} {pi.of} {PROCESSING_DAYS}. {pi.noExpl}</p>
-                <div className="mt-4"><button type="button" onClick={() => dispatch("ADVANCE_DAY")} disabled={busy} className={btnOutline}>{busy ? t(lang,"loading") : t(lang,"advanceDayBtn")}</button></div>
+                <div className="mt-4"><button type="button" id="advance-day-btn" onClick={() => dispatch("ADVANCE_DAY")} disabled={busy} className={btnOutline}>{busy ? t(lang,"loading") : t(lang,"advanceDayBtn")}</button></div>
               </div>
             </section>
           )}
@@ -378,7 +516,7 @@ export default function Portal() {
                   <tr><td className="border border-slate-300 px-2 py-1">{pi.cmpLabel}</td><td className="border border-slate-300 px-2 py-1 font-bold text-green-800">{pi.identical}</td></tr>
                 </tbody></table>
                 <p className="mt-2 text-[11px] text-slate-500">{pi.simNote}</p>
-                <div className="mt-4"><button type="button" onClick={() => dispatch("OPEN_GRIEVANCE")} disabled={busy} className={btnPrimary}>{busy ? t(lang,"loading") : t(lang,"fileGrievanceBtn")}</button></div>
+                <div className="mt-4"><button type="button" id="open-grievance-btn" onClick={() => dispatch("OPEN_GRIEVANCE")} disabled={busy} className={btnPrimary}>{busy ? t(lang,"loading") : t(lang,"fileGrievanceBtn")}</button></div>
               </div>
             </section>
           )}
@@ -390,7 +528,7 @@ export default function Portal() {
                 <p>{t(lang,"trackingPrompt")}</p>
                 <input value={trackingId} onChange={(e) => setTrackingId(e.target.value)} placeholder={`e.g. ${SYNTHETIC_CITIZEN.claimTrackingId}`} className={`${inputCls} mt-2 max-w-xs`} aria-label={t(lang,"trackingIdLabel")} />
                 <p className="mt-2 text-[11px] text-slate-500">{pi.trackCase}</p>
-                <div className="mt-4"><button type="button" onClick={() => dispatch("SUBMIT_GRIEVANCE")} disabled={busy || !trackingId.trim()} className={btnPrimary}>{busy ? t(lang,"submitting") : t(lang,"submitGrievanceBtn")}</button></div>
+                <div className="mt-4"><button type="button" id="submit-grievance-btn" onClick={() => dispatch("SUBMIT_GRIEVANCE")} disabled={busy || !trackingId.trim()} className={btnPrimary}>{busy ? t(lang,"submitting") : t(lang,"submitGrievanceBtn")}</button></div>
               </div>
             </section>
           )}
@@ -414,16 +552,14 @@ export default function Portal() {
                 <table className="mt-4 w-full max-w-2xl text-[13px]"><tbody>
                   <tr><td className={`${th} w-72`}>{t(lang,"escOptions")}</td><td className="border border-slate-300 px-2 py-1">{pi.escNone}</td></tr>
                 </tbody></table>
-                <p className="mt-3 text-[11px] text-slate-500">{t(lang,"fixWithFixer")} <a href="/fixer" className="underline text-[#1a4b8e]">{t(lang,"openConsole")} (CPA 2019 §2(11))</a></p>
+                <p className="mt-3 text-[11px] text-slate-500">{t(lang,"fixWithFixer")} <Link href="/fixer" id="open-console-link" onClick={() => sessionStorage.setItem("allowed_to_login", "true")} className="underline text-[#1a4b8e]">{t(lang,"openConsole")} (CPA 2019 §2(11))</Link></p>
               </div>
             </section>
           )}
         </section>
       </div>
 
-      <p className="mt-4 rounded-md border border-slate-300 bg-white p-3 text-[12px] leading-relaxed text-slate-600">
-        <b>{pi.safetyHead}</b> {pi.safetyBody}
-      </p>
+
     </GovShell>
   );
 }

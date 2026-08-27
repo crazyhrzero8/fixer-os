@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
 import path from "path";
 import { z } from "zod";
-import { appendEvent, CASE_IDS } from "@/lib/ledger";
+import { appendEvent, CASE_IDS, getCase } from "@/lib/ledger";
 
 const entrySchema = z.object({ patterns: z.array(z.string()), service: z.string(), tier: z.literal("OFFICIAL") });
 const registrySchema = z.object({ registry: z.array(entrySchema), sandboxNote: z.string() });
@@ -16,7 +16,7 @@ export interface ProvenanceVerdict {
   note: string;
 }
 
-export function verifyOrigin(caseId: string, origin: string): ProvenanceVerdict {
+export async function verifyOrigin(caseId: string, origin: string): Promise<ProvenanceVerdict> {
   let parsed: URL;
   try {
     parsed = new URL(origin);
@@ -29,13 +29,17 @@ export function verifyOrigin(caseId: string, origin: string): ProvenanceVerdict 
   const tier: ProvenanceVerdict["tier"] = match ? "OFFICIAL" : secure ? "SANDBOX" : "UNKNOWN";
 
   if (Object.values(CASE_IDS).includes(caseId as never)) {
-    appendEvent(caseId, "system", "PROVENANCE_VERIFIED", {
-      origin: normalized,
-      secure,
-      tier,
-      service: match?.service ?? null,
-      method: "allowlist match over simulated government manifest"
-    });
+    const record = await getCase(caseId);
+    const hasProv = record?.events.some((e) => e.type === "PROVENANCE_VERIFIED");
+    if (!hasProv) {
+      await appendEvent(caseId, "system", "PROVENANCE_VERIFIED", {
+        origin: normalized,
+        secure,
+        tier,
+        service: match?.service ?? null,
+        method: "allowlist match over simulated government manifest"
+      });
+    }
   }
 
   return {

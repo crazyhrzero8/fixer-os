@@ -21,7 +21,12 @@ const CONTENT = {
     j3a: "Trial credentials: UAN ", j3b: " / ", j3c: " on Simulated Portal. No real data, no live govt system.",
     ready: "Ready", working: "Working…",
     lrNote: "Left: portal owns status. Right: citizen owns evidence.",
-    secU: "elapsed"
+    secU: "elapsed",
+    eyebrow: "FIXER.OS / Demo theater — deterministic synthetic playback",
+    title: "Same citizen. Two outcomes.",
+    desc: "A synthetic EPFO failure replayed twice: left as the portal leaves citizens, right as an evidence-owning counterparty resolves it. System font, light layout, reduced-motion safe.",
+    openConsole: "Open the console",
+    citations: "Citations: RBI TAT DPSS.CO.PD No.629/2019-20 (₹100/day suo moto) · EPS 1995 §10 / EPS 2026 (10-yr rule, Gazette Jul 2026) · CPA 2019 §2(11) deficiency (Kangra Commission, 20 Jul 2026) · DPDP Act 2023 / Rules 13 Nov 2025 phased · GIGW 3.0 Dec 2023 · Prior art honestly cited: EPFO CITES 2.01 pre-validation (Jul 2026), Delhi e-SLA auto-compensation (2011), Catala/CUTECat rule-checking (France) — none hand the proof to the citizen."
   },
   hi: {
     alone: ["कैप्चा स्वीकृत", "पीएफ अग्रिम जमा", "प्रक्रिया में · दिन 7", "अस्वीकृत: नाम मेल नहीं खाता (झूठा)", "अमान्य ट्रैकिंग आईडी", "अगली शिकायत 30 दिन में", "अटक गया — कोई ज़िम्मेदार नहीं"],
@@ -38,7 +43,12 @@ const CONTENT = {
     j3a: "परीक्षण लॉगिन: UAN ", j3b: " / ", j3c: " नकली पोर्टल पर। असली डेटा नहीं, लाइव सरकारी सिस्टम नहीं।",
     ready: "तैयार", working: "चल रहा है…",
     lrNote: "बाएँ: पोर्टल के पास स्थिति। दाएँ: नागरिक के पास साक्ष्य।",
-    secU: "बीते"
+    secU: "बीते",
+    eyebrow: "FIXER.OS / डेमो थिएटर — नियतात्मक कृत्रिम प्लेबैक",
+    title: "एक ही नागरिक। दो परिणाम।",
+    desc: "एक कृत्रिम EPFO विफलता को दो बार दोहराया गया: बाईं ओर जैसे पोर्टल नागरिक को छोड़ता है, दाईं ओर साक्ष्य-स्वामित्व वाले प्रतिपक्ष के रूप में हल करता है। सिस्टम फॉन्ट, लाइट लेआउट, कम गति सुरक्षित।",
+    openConsole: "कंसोल खोलें",
+    citations: "हवाले: RBI TAT DPSS.CO.PD No.629/2019-20 (₹100/दिन स्वतः) · EPS 1995 §10 / EPS 2026 (10-वर्ष नियम, राजपत्र जुलाई 2026) · CPA 2019 §2(11) सेवा दोष (कांगड़ा आयोग, 20 जुलाई 2026) · DPDP अधिनियम 2023 / नियम 13 नवंबर 2025 चरणबद्ध · GIGW 3.0 दिसंबर 2023 · पूर्व कला ईमानदारी से घोषित: EPFO CITES 2.01 पूर्व-सत्यापन (जुलाई 2026), दिल्ली e-SLA स्वतः मुआवज़ा (2011), कैटाल/CUTECat नियम-जाँच (फ्रांस) — कोई भी नागरिक को प्रमाण नहीं सौंपता।"
   }
 };
 
@@ -55,15 +65,15 @@ export default function Demo() {
     <GovShell active="/demo">
       <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-[#1a4b8e]">FIXER.OS / Demo theater — deterministic synthetic playback</p>
-          <h2 className="mt-1 text-2xl font-bold text-[#1a4b8e] sm:text-3xl">Same citizen. Two outcomes.</h2>
-          <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-slate-600">A synthetic EPFO failure replayed twice: left as the portal leaves citizens, right as an evidence-owning counterparty resolves it. System font, light layout, reduced-motion safe.</p>
+          <p className="text-[11px] font-bold uppercase tracking-widest text-[#1a4b8e]">{c.eyebrow}</p>
+          <h2 className="mt-1 text-2xl font-bold text-[#1a4b8e] sm:text-3xl">{c.title}</h2>
+          <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-slate-600">{c.desc}</p>
         </div>
-        <Link href="/fixer" className={btnOutline}>Open the console</Link>
+        <Link href="/fixer" className={btnOutline}>{c.openConsole}</Link>
       </div>
 
       <div className={`${cardCls} flex flex-wrap items-center gap-3 p-3`}>
-        <button onClick={restart} className="rounded-sm bg-[#1a4b8e] px-4 py-1.5 text-[13px] font-semibold text-white hover:bg-[#123763]">{running ? t(lang,"demoRestartPlayback") : t(lang,"demoRun")}</button>
+        <button id="run-comparison-btn" onClick={restart} className="rounded-sm bg-[#1a4b8e] px-4 py-1.5 text-[13px] font-semibold text-white hover:bg-[#123763]">{running ? t(lang,"demoRestartPlayback") : t(lang,"demoRun")}</button>
         <button onClick={stop} disabled={!running} className={btnOutline + " disabled:opacity-40"}>{t(lang,"demoPause")}</button>
         <span className="font-mono text-[12px] text-slate-600">{String(seconds).padStart(2, "0")}s {c.secU}</span>
         <span className="text-[11px] text-slate-500">{c.lrNote}</span>
@@ -74,17 +84,11 @@ export default function Demo() {
         <Panel title={t(lang,"citizenFixed")} subtitle={c.fixedSub} tone="blue" steps={c.fixed} active={right} final={c.fixedFinal} readyLabel={c.ready} workingLabel={c.working} />
       </div>
 
-      <div className={`${cardCls} mt-5 border-l-4 border-l-[#1a4b8e] p-4`}>
-        <p className="text-[11px] font-bold uppercase tracking-widest text-[#1a4b8e]">{c.noveltyHead}</p>
-        <p className="mt-1 text-[13px] leading-relaxed text-slate-700">{c.noveltyBody}</p>
-        <p className="mt-2 text-[11px] text-slate-500">Citations: RBI TAT DPSS.CO.PD No.629/2019-20 (₹100/day suo moto) · EPS 1995 §10 / EPS 2026 (10-yr rule, Gazette Jul 2026) · CPA 2019 §2(11) deficiency (Kangra Commission, 20 Jul 2026) · DPDP Act 2023 / Rules 13 Nov 2025 phased · GIGW 3.0 Dec 2023 · Prior art honestly cited: EPFO CITES 2.01 pre-validation (Jul 2026), Delhi e-SLA auto-compensation (2011), Catala/CUTECat rule-checking (France) — none hand the proof to the citizen.</p>
-      </div>
-
-      <div className={`${cardCls} mt-5 p-4`}>
-        <h3 className="text-[13px] font-bold text-[#1a4b8e]">{c.judgeHead}</h3>
-        <ol className="mt-2 list-decimal space-y-1 pl-5 text-[12px] leading-relaxed text-slate-700">
-          <li>{c.j1a}<i>{c.j1b}</i>{c.j1c}</li>
-          <li>{c.j2a}<Link href="/fixer" className="underline text-[#1a4b8e]">{c.j2b}</Link>{c.j2c}</li>
+      <div className="mt-5 rounded-md border border-[#1a4b8e]/20 bg-[#eef3f9]/50 p-4 text-[12px]">
+        <h3 className="font-bold text-[#1a4b8e]">{c.judgeHead}</h3>
+        <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-slate-700 leading-relaxed">
+          <li>{c.j1a}<b>{c.j1b}</b>{c.j1c}</li>
+          <li>{c.j2a}<Link href="/fixer" className="font-bold underline text-[#1a4b8e]">{c.j2b}</Link>{c.j2c}</li>
           <li>{c.j3a}<b>100000000000</b>{c.j3b}<b>demo1234</b>{c.j3c}</li>
         </ol>
       </div>

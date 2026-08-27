@@ -7,16 +7,34 @@ export const AGENT_MODE = (process.env.AGENT_MODE ?? "llm") as "llm" | "determin
 
 interface Provider { name: string; baseUrl: string; apiKey: string; model: string; }
 
-export function resolveProvider(): Provider | null {
-  const openai = process.env.OPENAI_API_KEY;
-  if (openai) return { name: "openai", baseUrl: "https://api.openai.com/v1", apiKey: openai, model: process.env.LLM_MODEL ?? "gpt-4o-mini" };
-  const groq = process.env.GROQ_API_KEY;
-  if (groq) return { name: "groq", baseUrl: "https://api.groq.com/openai/v1", apiKey: groq, model: process.env.LLM_MODEL ?? "llama-3.3-70b-versatile" };
-  const gemini = process.env.GEMINI_API_KEY;
-  if (gemini) return { name: "gemini", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai", apiKey: gemini, model: process.env.LLM_MODEL ?? "gemini-2.0-flash" };
-  const gateway = process.env.AI_GATEWAY_API_KEY;
-  if (gateway) return { name: "vercel-ai-gateway", baseUrl: "https://ai-gateway.vercel.sh/v1", apiKey: gateway, model: process.env.LLM_MODEL ?? "zai/glm-5.2" };
-  return null;
+export function resolveProvider(preferredName?: string): Provider | null {
+  const getOpenAI = () => {
+    const key = process.env.OPENAI_API_KEY;
+    if (!key) return null;
+    return { name: "openai", baseUrl: "https://api.openai.com/v1", apiKey: key, model: process.env.OPENAI_MODEL ?? process.env.LLM_MODEL ?? "gpt-4o-mini" };
+  };
+  const getGroq = () => {
+    const key = process.env.GROQ_API_KEY;
+    if (!key) return null;
+    return { name: "groq", baseUrl: "https://api.groq.com/openai/v1", apiKey: key, model: process.env.GROQ_MODEL ?? process.env.LLM_MODEL ?? "llama-3.3-70b-versatile" };
+  };
+  const getGemini = () => {
+    const key = process.env.GEMINI_API_KEY;
+    if (!key) return null;
+    return { name: "gemini", baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai", apiKey: key, model: process.env.GEMINI_MODEL ?? process.env.LLM_MODEL ?? "gemini-2.0-flash" };
+  };
+  const getGateway = () => {
+    const key = process.env.AI_GATEWAY_API_KEY;
+    if (!key) return null;
+    return { name: "vercel-ai-gateway", baseUrl: "https://ai-gateway.vercel.sh/v1", apiKey: key, model: process.env.LLM_MODEL ?? "zai/glm-5.2" };
+  };
+
+  if (preferredName === "openai") return getOpenAI();
+  if (preferredName === "groq") return getGroq();
+  if (preferredName === "gemini") return getGemini();
+  if (preferredName === "vercel-ai-gateway") return getGateway();
+
+  return getOpenAI() ?? getGroq() ?? getGemini() ?? getGateway();
 }
 
 export function activeProviderName(): string {
@@ -84,44 +102,56 @@ export async function decideNextAction(input: {
   remainingActions: string[];
   recentEvents: { actor: string; type: string; payload: Record<string, unknown> }[];
 }): Promise<LLMDecision & { provider: string }> {
-  const provider = resolveProvider();
-  if (!provider) throw new Error("No LLM provider configured");
+  const providers: Provider[] = [];
+  const o = resolveProvider("openai"); if (o) providers.push(o);
+  const g = resolveProvider("groq"); if (g) providers.push(g);
+  const m = resolveProvider("gemini"); if (m) providers.push(m);
+  const w = resolveProvider("vercel-ai-gateway"); if (w) providers.push(w);
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), APP_CONFIG.llm.timeoutMs);
-  try {
-    const response = await fetch(`${provider.baseUrl}/chat/completions`, {
-      method: "POST",
-      signal: controller.signal,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${provider.apiKey}`
-      },
-      body: JSON.stringify({
-        model: provider.model,
-        temperature: 0,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          {
-            role: "user",
-            content: JSON.stringify(sanitizeForLLM({
-              instruction: "Pick one action strictly from remainingActions.",
-              caseKind: input.caseKind,
-              remainingActions: input.remainingActions,
-              caseStatus: input.caseStatus,
-              recentLedgerEvents: input.recentEvents.slice(-6)
-            }))
-          }
-        ]
-      })
-    });
-    if (!response.ok) throw new Error(`LLM HTTP ${response.status} (${provider.name})`);
-    const body = (await response.json()) as { choices?: { message?: { content?: string } }[] };
-    const raw = body.choices?.[0]?.message?.content;
-    if (!raw) throw new Error("Empty completion");
-    return { ...LLMDecision.parse(JSON.parse(raw)), provider: provider.name };
-  } finally {
-    clearTimeout(timer);
+  if (providers.length === 0) throw new Error("No LLM provider configured");
+
+  let lastError: Error | null = null;
+  for (const provider of providers) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), APP_CONFIG.llm.timeoutMs);
+    try {
+      const response = await fetch(`${provider.baseUrl}/chat/completions`, {
+        method: "POST",
+        signal: controller.signal,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${provider.apiKey}`
+        },
+        body: JSON.stringify({
+          model: provider.model,
+          temperature: 0,
+          response_format: { type: "json_object" },
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            {
+              role: "user",
+              content: JSON.stringify(sanitizeForLLM({
+                instruction: "Pick one action strictly from remainingActions.",
+                caseKind: input.caseKind,
+                remainingActions: input.remainingActions,
+                caseStatus: input.caseStatus,
+                recentLedgerEvents: input.recentEvents.slice(-6)
+              }))
+            }
+          ]
+        })
+      });
+      if (!response.ok) throw new Error(`LLM HTTP ${response.status} (${provider.name})`);
+      const body = (await response.json()) as { choices?: { message?: { content?: string } }[] };
+      const raw = body.choices?.[0]?.message?.content;
+      if (!raw) throw new Error("Empty completion");
+      return { ...LLMDecision.parse(JSON.parse(raw)), provider: provider.name };
+    } catch (e: any) {
+      lastError = e;
+      console.warn(`Provider ${provider.name} failed: ${e.message}. Trying fallback...`);
+    } finally {
+      clearTimeout(timer);
+    }
   }
+  throw lastError ?? new Error("All configured LLM providers failed");
 }

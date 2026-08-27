@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { applyAction, getCaptcha, getOtpForTest, getOrCreateSession, otpStatus, refreshCaptcha } from "@/lib/portalSessions";
+import { resetCase } from "@/lib/ledger";
 import { APP_CONFIG } from "@/lib/config";
 import { clientKey, rateLimit } from "@/lib/ratelimit";
 
@@ -53,6 +54,15 @@ export async function POST(request: Request) {
     const newCap = refreshCaptcha(sid);
     const snap = getOrCreateSession(sid).snapshot;
     return NextResponse.json({ snapshot: snap, captcha: newCap, spaced: newCap.split("").join(" ") });
+  }
+
+  if (parsed.data.action === "RESET") {
+    await Promise.all([
+      resetCase("synthetic-epfo-001"),
+      resetCase("synthetic-irctc-001"),
+      resetCase("ramu-epfo-001"),
+      resetCase("radhika-irctc-001")
+    ]);
   }
 
   const snapshot = applyAction(sid, parsed.data.action, valueForSession);

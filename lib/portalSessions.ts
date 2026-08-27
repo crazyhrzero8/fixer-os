@@ -114,9 +114,9 @@ export function applyAction(sid: string, action: PortalAction, value?: string): 
     // captcha ok — now validate UAN/password against synthetic seed (server-side, not client)
     // SYNTHETIC_CITIZEN.evaluation* is synthetic demo credential — never real data
     if (uan || password) {
-      const expectedUan = "100000000000";
+      const allowedUans = ["100000000000", "100000000002", "100000000003"];
       const expectedPass = "demo1234";
-      if (uan !== expectedUan || password !== expectedPass) {
+      if (!allowedUans.includes(uan) || password !== expectedPass) {
         session.captcha = newCaptcha();
         return session.snapshot;
       }

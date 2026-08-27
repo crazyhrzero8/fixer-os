@@ -46,8 +46,8 @@ function evaluate(rule: z.infer<typeof ruleSchema>, ctx: Record<string, unknown>
 
 const registry = registrySchema.parse(JSON.parse(readFileSync(path.join(process.cwd(), "playbooks", "preflight-rules.json"), "utf-8")));
 
-export function runPreflight(caseId: string): PreflightResult[] {
-  const record = getCase(caseId);
+export async function runPreflight(caseId: string): Promise<PreflightResult[]> {
+  const record = await getCase(caseId);
   if (!record || !registry[record.kind]) return [];
   const ctx = { facts: record.facts };
   return registry[record.kind].rules.map((rule) => evaluate(rule, ctx));

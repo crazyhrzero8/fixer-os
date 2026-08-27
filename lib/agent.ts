@@ -17,12 +17,12 @@ for (const file of ["epfo-false-rejection.json", "payment-tat-breach.json"]) {
 }
 
 function buildContext(record: CaseRecord): Record<string, unknown> {
-  const trace = traceSummary(record.id);
+  const trace = traceSummary(record.id, Date.now(), record.facts);
   const base: Record<string, unknown> = {
     facts: record.facts,
     trace: { blocker: trace.blocker, daysOverdue: trace.daysOverdue, tatCompensationAccrued: trace.tatCompensationAccrued },
     sla: { perDayRupees: SLA_COMPENSATION_PER_DAY },
-    letter: escalationLetter(record.id)
+    letter: escalationLetter(record.id, record.facts)
   };
   if (record.kind === "payment-tat-breach") {
     const elapsed = calendarDaysSince(String(record.facts.debitedAt));
@@ -34,9 +34,10 @@ function buildContext(record: CaseRecord): Record<string, unknown> {
 }
 
 export async function nextAgentStep(caseId: string): Promise<AgentResult> {
-  const record = getCase(caseId);
+  const record = await getCase(caseId);
   if (!record) throw new Error("Unknown case");
-  const playbook = byCaseId.get(record.id);
+  const playbookKey = record.kind === "payment-tat-breach" ? "synthetic-irctc-001" : "synthetic-epfo-001";
+  const playbook = byCaseId.get(playbookKey);
   if (!playbook) throw new Error("No playbook for case");
 
   const types = new Set(record.events.map((entry) => entry.type));
@@ -60,7 +61,7 @@ export async function nextAgentStep(caseId: string): Promise<AgentResult> {
       if (match) {
         chosen = match;
         mode = "llm";
-        appendEvent(record.id, "system", "LLM_DECISION", { provider: decision.provider, chosenAction: decision.action, reasoning: decision.reasoning, allowListEnforced: true });
+        await appendEvent(record.id, "system", "LLM_DECISION", { provider: decision.provider, chosenAction: decision.action, reasoning: decision.reasoning, allowListEnforced: true });
       }
     } catch {
       mode = "deterministic";
@@ -69,10 +70,10 @@ export async function nextAgentStep(caseId: string): Promise<AgentResult> {
 
   const ctx = buildContext(record);
   const rendered = renderDeep(chosen, ctx);
-  appendEvent(record.id, rendered.event.actor, rendered.event.type, rendered.event.payload as Record<string, unknown>);
+  await appendEvent(record.id, rendered.event.actor, rendered.event.type, rendered.event.payload as Record<string, unknown>);
   if (rendered.complete) {
-    appendEvent(record.id, "system", rendered.complete.systemEvent.type, rendered.complete.systemEvent.payload as Record<string, unknown>);
-    setCaseStatus(record.id, "RESOLVED");
+    await appendEvent(record.id, "system", rendered.complete.systemEvent.type, rendered.complete.systemEvent.payload as Record<string, unknown>);
+    await setCaseStatus(record.id, "RESOLVED");
   }
   return { action: rendered.action, summary: rendered.summary, detail: rendered.detail, completed: Boolean(rendered.complete), mode };
 }

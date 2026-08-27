@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { t, useLang, type Lang } from "@/lib/i18n";
+import NavBot from "@/components/NavBot";
 
 export const NAV = [
   { href: "/", label: "Home" },
@@ -68,13 +69,14 @@ export function GovShell({ active, children }: { active: string; children: React
 
       <nav className="bg-[#1a4b8e] text-white" aria-label="Main navigation">
         <ul className={`${pageWrap} flex flex-wrap px-2 text-[13px]`}>
-          {[
-            { href: "/", label: t(lang, "navHome") },
-            { href: "/portal", label: t(lang, "navPortal") },
-            { href: "/fixer", label: t(lang, "navFixer") },
-            { href: "/demo", label: t(lang, "navDemo") },
-            { href: "/terms", label: lang === "hi" ? "नियम" : "Terms" },
-          ].map((item) => (
+          {(active === "/fixer"
+            ? [{ href: "/", label: t(lang, "navHome") }]
+            : [
+                { href: "/", label: t(lang, "navHome") },
+                { href: "/portal", label: t(lang, "navPortal") },
+                { href: "/terms", label: lang === "hi" ? "नियम" : "Terms" },
+              ]
+          ).map((item) => (
             <li key={item.href}>
               <Link
                 href={item.href}
@@ -90,28 +92,15 @@ export function GovShell({ active, children }: { active: string; children: React
 
       <main className={`${pageWrap} py-6`}>{children}</main>
 
-      <footer className="mt-8 border-t-4 border-[#FF9933] bg-white">
-        <div className={`${pageWrap} grid grid-cols-2 gap-6 py-6 text-[12px] text-slate-600 sm:grid-cols-4`}>
-          {[
-            [t(lang, "footProduct"), [{ label: t(lang, "fAgentConsole"), href: "/fixer" }, { label: t(lang, "fPortal"), href: "/portal" }, { label: t(lang, "fDemo"), href: "/demo" }]],
-            [t(lang, "footEvidence"), [{ label: t(lang, "fLedger"), href: "/fixer" }, { label: t(lang, "fRuleGuard"), href: "/fixer" }, { label: t(lang, "fPreflight"), href: "/fixer" }]],
-            [t(lang, "footLegal"), [{ label: t(lang, "fRbi"), href: "https://www.rbi.org.in/commonman/English/Scripts/Notification.aspx?Id=3074" }, { label: t(lang, "fCpa"), href: "/terms" }, { label: t(lang, "fDpdp"), href: "/terms" }]],
-            [t(lang, "footAbout"), [{ label: t(lang, "fDossier"), href: "https://github.com/crazyhrzero8/fixer-os/blob/main/docs/hackathon-research.md" }, { label: t(lang, "fCodexLog"), href: "https://github.com/crazyhrzero8/fixer-os/blob/main/CODEX_LOG.md" }, { label: t(lang, "fHonesty"), href: "/terms" }]]
-          ].map(([title, items]) => (
-            <div key={title as string}>
-              <p className="mb-2 font-bold text-[#1a4b8e]">{title as string}</p>
-              <ul className="space-y-1">
-                {(items as { label: string; href: string }[]).map((it) => (
-                  <li key={it.label}>» <Link href={it.href} className="hover:text-[#1a4b8e] hover:underline focus:outline-none focus:ring-2 focus:ring-[#1a4b8e]">{it.label}</Link></li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-        <div className={`${pageWrap} border-t border-slate-200 py-3 text-center text-[11px] text-slate-500`}>
-          {t(lang, "footBottom")}
+      <footer className="mt-8 border-t border-slate-200 bg-white py-6">
+        <div className={`${pageWrap} flex flex-wrap items-center justify-between gap-3 text-[11px] text-slate-500`}>
+          <span>{t(lang, "footBottom")}</span>
+          <div className="flex gap-3">
+            <Link href="/terms" className="underline hover:text-[#1a4b8e]">{lang === "hi" ? "नियम व शर्तें" : "Terms & Conditions"}</Link>
+          </div>
         </div>
       </footer>
+      <NavBot />
     </div>
   );
 }

@@ -14,6 +14,6 @@ export async function POST(request: Request) {
   if (!parsed.success) return NextResponse.json({ error: "Invalid caseId." }, { status: 400 });
 
   const result = await nextAgentStep(parsed.data.caseId);
-  const caseRecord = getCase(parsed.data.caseId);
+  const caseRecord = await getCase(parsed.data.caseId);
   return NextResponse.json({ result, case: caseRecord, verification: caseRecord ? verifyLedger(caseRecord) : null });
 }

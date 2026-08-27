@@ -1,6 +1,6 @@
 import { createHash } from "crypto";
 import { SYNTHETIC_CITIZEN, SYNTHETIC_TXN } from "../data/seed";
-import { caseStore } from "./store";
+import { caseStore, registerSeeds } from "./store";
 
 export const LEDGER_VERSION = "2.0.0";
 export type LedgerActor = "citizen" | "portal" | "agent" | "system";
@@ -35,32 +35,42 @@ function seedPaymentCase(): CaseRecord {
   return { id, kind: "payment-tat-breach", title: "Tatkal payment debited, no ticket", status: "OPEN", facts: { ...SYNTHETIC_TXN }, events: [e1, e2] };
 }
 
-function seedAll(): void {
-  const s = caseStore();
-  s.save(seedEpfoCase());
-  s.save(seedPaymentCase());
+function seedRamuCase(): CaseRecord {
+  const id = "ramu-epfo-001";
+  const e1 = makeEvent(id, 1, 1761000000000, "citizen", "FACTS_VERIFIED", { requestedMemberIdName: "Ramu Prasad", primaryUanName: "Ramu Prasad", bankIfsc: "BARB0MUMBAI", bankIfscValid: true }, GENESIS_HASH);
+  const e2 = makeEvent(id, 2, 1761604800000, "portal", "CLAIM_REJECTED", { reason: "Employer verification pending", portalState: "REJECTED", simulatedDays: 12 }, e1.hash);
+  const e3 = makeEvent(id, 3, 1761691200000, "portal", "GRIEVANCE_LOCKED_OUT", { reason: "Grievance submission disabled", nextGrievanceAllowedDays: 30 }, e2.hash);
+  return { id, kind: "epfo-false-rejection", title: "Ramu: PF Withdrawal Delay", status: "OPEN", facts: { displayName: "Ramu Prasad", nameAsPerAadhaar: "Ramu Prasad", nameAsPerEmployer: "Ramu Prasad", bankIfsc: "BARB0MUMBAI", bankIfscValid: true, serviceYears: 5.2, enominationDone: true, claimTrackingId: "PF/2026/R/0022341", uan: "100000000002" }, events: [e1, e2, e3] };
 }
-seedAll();
 
-export function getCase(caseId: string): CaseRecord | null { return caseStore().get(caseId); }
-export function listCases() { return caseStore().list(); }
-export function resetCase(caseId: string): CaseRecord | null {
-  const fresh = [seedEpfoCase(), seedPaymentCase()].find((c) => c.id === caseId);
+function seedRadhikaCase(): CaseRecord {
+  const id = "radhika-irctc-001";
+  const e1 = makeEvent(id, 1, 1754805840000, "citizen", "FACTS_VERIFIED", { rrn: "RRN202608009988", amountPaise: 285000, debitedAt: "2026-08-10T10:04:00+05:30", ticketIssued: false }, GENESIS_HASH);
+  const e2 = makeEvent(id, 2, 1754892240000, "portal", "PAYMENT_DEBITED_SERVICE_NOT_ISSUED", { rrn: "RRN202608009988", message: "Payment Success, Ticket Booking Failed" }, e1.hash);
+  return { id, kind: "payment-tat-breach", title: "Radhika: Tatkal Ticket Failure", status: "OPEN", facts: { rrn: "RRN202608009988", amountPaise: 285000, merchant: "IRCTC Tatkal", debitedAt: "2026-08-10T10:04:00+05:30", ticketIssued: false, bankReverseDeadlineDays: 5, tatCompensationPerDayPaise: 10000, displayName: "Radhika Sharma", nameAsPerAadhaar: "Radhika Sharma", uan: "100000000003" }, events: [e1, e2] };
+}
+
+registerSeeds(() => [seedEpfoCase(), seedPaymentCase(), seedRamuCase(), seedRadhikaCase()]);
+
+export async function getCase(caseId: string): Promise<CaseRecord | null> { return await caseStore().get(caseId); }
+export async function listCases() { return await caseStore().list(); }
+export async function resetCase(caseId: string): Promise<CaseRecord | null> {
+  const fresh = [seedEpfoCase(), seedPaymentCase(), seedRamuCase(), seedRadhikaCase()].find((c) => c.id === caseId);
   if (!fresh) return null;
-  caseStore().save(fresh);
+  await caseStore().save(fresh);
   return fresh;
 }
-export function appendEvent(caseId: string, actor: LedgerActor, type: string, payload: Record<string, unknown>): LedgerEvent | null {
-  const record = caseStore().get(caseId);
+export async function appendEvent(caseId: string, actor: LedgerActor, type: string, payload: Record<string, unknown>): Promise<LedgerEvent | null> {
+  const record = await caseStore().get(caseId);
   if (!record) return null;
   const previous = record.events.at(-1);
   const next = makeEvent(record.id, record.events.length + 1, Date.now(), actor, type, payload, previous?.hash ?? GENESIS_HASH);
-  caseStore().save({ ...record, events: [...record.events, next] });
+  await caseStore().save({ ...record, events: [...record.events, next] });
   return next;
 }
-export function setCaseStatus(caseId: string, status: CaseStatus): void {
-  const record = caseStore().get(caseId);
-  if (record) caseStore().save({ ...record, status });
+export async function setCaseStatus(caseId: string, status: CaseStatus): Promise<void> {
+  const record = await caseStore().get(caseId);
+  if (record) await caseStore().save({ ...record, status });
 }
 export function verifyLedger(caseRecord: CaseRecord) {
   let previousHash = GENESIS_HASH;
