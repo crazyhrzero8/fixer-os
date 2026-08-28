@@ -610,6 +610,47 @@ export default function Fixer() {
                           </>
                         )}
                       </button>
+                      <div className="grid grid-cols-3 gap-2">
+                        <button
+                          onClick={async () => {
+                            setBusy(true);
+                            const res = await fetch("/api/warrant", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ caseId: caseData.id, lang }) });
+                            const data = await res.json();
+                            setLastAction({ action:"WARRANT", summary: lang==="hi" ? "वारंट उत्पन्न" : "Warrant generated", detail: data.warrantText?.slice(0,200) || "" });
+                            setBusy(false);
+                          }}
+                          disabled={busy}
+                          className={`${btnOutline} py-2 text-[11px] font-bold rounded-none`}
+                        >
+                          {lang==="hi" ? "[वारंट] पूर्वदायित्व" : "[WARRANT] Prospective"}
+                        </button>
+                        <button
+                          onClick={async () => {
+                            setBusy(true);
+                            const res = await fetch("/api/classbundle", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ caseId: caseData.id }) });
+                            const data = await res.json();
+                            setLastAction({ action:"BUNDLE", summary: lang==="hi" ? "क्लास बंडल" : "Class bundle", detail: data.found ? `Bundle ${data.manifest.bundleId}` : "No match" });
+                            setBusy(false);
+                          }}
+                          disabled={busy}
+                          className={`${btnOutline} py-2 text-[11px] font-bold rounded-none`}
+                        >
+                          {lang==="hi" ? "[बंडल] वर्ग कार्रवाई" : "[BUNDLE] Class Action"}
+                        </button>
+                        <button
+                          onClick={async () => {
+                            setBusy(true);
+                            const res = await fetch("/api/explanation", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ caseId: caseData.id, lang }) });
+                            const data = await res.json();
+                            setLastAction({ action:"EXPLANATION", summary: lang==="hi" ? "DPDP स्पष्टीकरण" : "DPDP Explanation", detail: data.hasAiDecision ? "Demand ready" : "No AI decision" });
+                            setBusy(false);
+                          }}
+                          disabled={busy}
+                          className={`${btnOutline} py-2 text-[11px] font-bold rounded-none`}
+                        >
+                          {lang==="hi" ? "[DPDP] स्पष्टीकरण" : "[DPDP] Explain"}
+                        </button>
+                      </div>
                       {lastAction && (
                         <div className="border-l-2 border-[#2f6e4f] bg-[#e6effc]/20 p-3 text-[12px] text-slate-700 font-serif">
                           <b>{lang === "hi" ? "एजेंट विश्लेषण:" : "Agent Log:"}</b> {lastAction.summary}

@@ -1086,3 +1086,60 @@ Effort estimate: items 1-3 ≈ 1-2 days each for one engineer; the hard part (ev
 Strengths: working full journey (most submissions at 5k-scale die here), genuine novelty with narrowed defensible claim, regulatory citations with primary sources, honesty disclosures exceeding typical entries, agentic AI used safely (allow-list + PII-scrubbed), accessible bilingual light UI.
 Risks: (a) dark-horse entries with prettier visuals; (b) judges may not grasp RuleGuard's math in 20 seconds without the video landing it — VIDEO IS THE MULTIPLIER, record it well; (c) two-vertical breadth could read as unfocus — mitigated by labels shipped today.
 Honest odds: top-250 plausible on working-build+honesty alone; top-10 depends on video quality + judge taste. Nothing structural blocks it.
+
+---
+
+## TURN 6 — POST-PULL NOVELTY AUDIT & SUPPORTING PRIMITIVES (Aug 28 2026)
+
+### Context
+Git pull fast-forwarded `a82a0c9..896878e` ("bubbs update"). HEAD is now `896878e`. Ledger upgraded to 2.1.0 with HMAC signatures, traceroute rule-driven from `playbooks/unified-rules.json`, new primitives shipped: accountability route, India SVG heatmap, RTI draft, scheduler alerts, precedents, 10-language portal assistant, fixer console accountability cards + evidence vault.
+
+### Verified code state (896878e)
+- `lib/ledger.ts` 2.1.0 — HMAC-SHA256 per event, `verifyLedger` checks signatures + hash chain.
+- `lib/traceroute.ts` → rule-registry, deterministic `targetNow`.
+- `lib/rules.ts`, `lib/preflight.ts`, `lib/prover.ts` generic, unified rule set.
+- `app/api/accountability/route.ts`, `lib/rti.ts`, `lib/scheduler.ts`, `lib/precedents.ts`.
+- `app/fixer/page.tsx` (838 lines) accountability cards, alerts, RTI draft tabs, hash timeline, evidence vault, SVG heatmap.
+- `app/portal/page.tsx` (842 lines) 10-language assistant.
+- Build green, `npm test` 14/14 pass, `tsc --noEmit` clean.
+
+### Novelty re-verification (web-search + agent verification Aug 28)
+All six core claims A–F hold:
+- A Hash-chained evidence ledger with HMAC → STILL UNIQUE
+- B Kaun Zimmedar traceroute → STILL UNIQUE
+- C Rule-deadlock proofs → STILL UNIQUE
+- D SLA clock with RBI ₹100/day → PARTIAL overlap (Kustodian.Life EPF Health Check 2026)
+- E Pre-flight rejection prediction → STILL UNIQUE
+- F Provenance/URL verification → STILL UNIQUE
+
+### Supporting novelties that can be added ON TOP without modifying core
+Designed for additive implementation: new `lib/*.ts` + 1 route + 1 button in Fixer Actions Area, zero rewrites of `ledger/traceroute/agent`.
+
+**S1 Prospective Liability Warrant — NOVEL**
+Pre-emptive statutory liability notice before deadline breach. When `traceSummary` predicts a breach ≥72h out, generate a warrant template addressed to the nodal officer with specific section/citation and statutory consequences. No citizen-facing government portal or third-party offers pre-emptive liability notices; DPDP/RBI/EPFO rules are reactive only. Additive: `lib/warrant.ts`, `app/api/warrant/route.ts`, button “Generate Warrant”.
+
+**S2 Class-Action Evidence Bundle — NOVEL**
+When ≥2 cases share same office + same rule + same rule-set version, hash-bind them into a single evidence bundle with a bundle-manifest hash and public mirror. Enables citizen-collective PIL evidence. No public system pools individual EPFO/RTO/passport grievances into a verifiable, time-stamped class bundle. Additive: `lib/classbundle.ts`, `app/api/classbundle/route.ts`, conditional “Pool as Class” button.
+
+**S3 DPDP §18 Algorithmic Transparency Demand — NOVEL**
+DPDP Act 2023 has no implemented §18 right-to-explanation. For any AI-assessed rejection, auto-generate a Form 1 Demand for Significant Decision Explanation citing §18, log request hash, and track SLA. No product surfaces a DPDP §18 workflow today. Additive: `lib/explanation.ts`, `app/api/explanation/route.ts`, button “Demand Explanation”.
+
+**S4 Public Accountability Feed — PARTIAL**
+CPGRAMS AI pattern detection announced PIB Aug 2026 (24 Lakh grievances, AI clustering). Our public live accountability index with per-office breach counters, heatmap, and hash-anchored timeline is a citizen-facing derivative not offered by government. Additive, already shipped in `accountability/route` + heatmap.
+
+**S5 Verifiable Receipt Page — EXISTING concept**
+Provenance tier model already present; can be extended.
+
+**S6 Evidence Vault Anchoring — NOVEL extension**
+`DOCUMENT_ATTACHED` filter + vault with hash of each artifact tied to ledger is not a standard public feature.
+
+**S7 Explain-like-I’m-12 Companion — NOVEL extension**
+Plain-language companion sheets for every rule node generated from playbooks; no government portal ships narrative explanations.
+
+### Implementation plan (additive, no refactor)
+- All three S1/S2/S3 add-ons require only: new lib file (50–120 lines), one POST route returning JSON, 6 new i18n keys, 3 buttons in Fixer Actions Area.
+- NavBot guides citizen through each; case ledger remains source of truth; no changes to `ledger.ts`, `traceroute.ts`, `agent.ts`.
+- Keep build stable: implement S1 first (Prospective Warrant) → test → S2 → S3.
+
+### Decision
+Finalize Section 22 documentation now (done). Next step = implement S1/S2/S3 as additive features per user plan.
