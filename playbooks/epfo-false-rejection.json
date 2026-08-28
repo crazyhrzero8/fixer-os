@@ -19,21 +19,30 @@
       "action": "DRAFT_REBUTTAL",
       "event": { "actor": "agent", "type": "REBUTTAL_DRAFTED", "payload": { "subject": "Request for reversal of false name-mismatch rejection", "evidence": "Verified names match in hash-chained ledger" } },
       "summary": "Evidence-backed rebuttal drafted",
-      "detail": "The draft cites matching-name evidence and requests a written disposition."
+      "detail": "The draft cites matching-name evidence and requests a written disposition.",
+      "preconditions": [
+        { "op": "eq", "left": "{{facts.nameAsPerEmployer}}", "right": "{{facts.nameAsPerAadhaar}}" }
+      ]
     },
     {
       "marker": "APPEAL_FILED",
       "action": "FILE_APPEAL",
       "event": { "actor": "agent", "type": "APPEAL_FILED", "payload": { "channel": "Escalation route", "closureGap": "Grievance rejected its own tracking ID" } },
       "summary": "Appeal route opened",
-      "detail": "The agent records the invalid-tracking-ID closure gap rather than retrying the locked grievance form."
+      "detail": "The agent records the invalid-tracking-ID closure gap rather than retrying the locked grievance form.",
+      "preconditions": [
+        { "op": "truthy", "left": "{{facts.bankIfscValid}}" }
+      ]
     },
     {
       "marker": "SLA_BREACH_CALCULATED",
       "action": "CHECK_SLA",
       "event": { "actor": "agent", "type": "SLA_BREACH_CALCULATED", "payload": { "daysOverdue": "{{trace.daysOverdue}}", "compensationAccrued": "{{trace.tatCompensationAccrued}}", "ratePerDay": "{{sla.perDayRupees}}" } },
       "summary": "SLA breach: {{trace.daysOverdue}} days overdue",
-      "detail": "The clock records ₹{{trace.tatCompensationAccrued}} at ₹{{sla.perDayRupees}}/day for the overdue period, per RBI circular DPSS.CO.PD No.629/02.01.014/2019-20."
+      "detail": "The clock records ₹{{trace.tatCompensationAccrued}} at ₹{{sla.perDayRupees}}/day for the overdue period, per RBI circular DPSS.CO.PD No.629/02.01.014/2019-20.",
+      "preconditions": [
+        { "op": "truthy", "left": "{{facts.bankIfscValid}}" }
+      ]
     },
     {
       "marker": "ESCALATION_SENT",
@@ -41,6 +50,9 @@
       "event": { "actor": "agent", "type": "ESCALATION_SENT", "payload": { "addressee": "{{trace.blocker.designation}}", "letter": "{{letter}}" } },
       "summary": "Escalation packet routed",
       "detail": "The accountable blocking node is named, the evidence bundle is chained, and the synthetic case is ready for disposition.",
+      "preconditions": [
+        { "op": "truthy", "left": "{{facts.bankIfscValid}}" }
+      ],
       "complete": { "status": "RESOLVED", "systemEvent": { "type": "CASE_RESOLVED", "payload": { "resolution": "Synthetic escalation packet prepared and routed" } } }
     }
   ]

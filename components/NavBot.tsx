@@ -324,18 +324,23 @@ export default function NavBot() {
           <button
             onClick={() => setIsOpen(true)}
             aria-label="Open Navigation Assistant"
-            className="flex h-12 w-12 items-center justify-between rounded-full bg-[#1a4b8e] px-3.5 shadow-lg hover:scale-105 hover:bg-[#123763] focus:outline-none focus:ring-4 focus:ring-blue-300"
+            className="flex h-10 items-center justify-center gap-2 rounded-none border border-[#1a4b8e] bg-white text-[#1a4b8e] font-bold text-xs uppercase px-4 shadow-md hover:bg-[#eef3f9] focus:outline-none focus:ring-1 focus:ring-[#1a4b8e]"
           >
-            <span className="text-xl">🤖</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a.598.598 0 0 1-.655-.077.598.598 0 0 1-.165-.63l.774-2.87A8.100 8.100 0 0 1 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
+            </svg>
+            <span>{lang === "hi" ? "मार्गदर्शक" : "Guide"}</span>
           </button>
         )}
 
         {/* Chat Widget Panel */}
         {isOpen && (
-          <div className={`${cardCls} w-80 max-w-[calc(100vw-2rem)] border-t-4 border-t-[#1a4b8e] p-4 shadow-2xl`}>
+          <div className={`${cardCls} w-80 max-w-[calc(100vw-2rem)] border-t-4 border-t-[#1a4b8e] p-4 shadow-2xl rounded-none`}>
             <div className="flex items-center justify-between border-b border-slate-200 pb-2">
               <div className="flex items-center gap-2">
-                <span className="text-lg">🤖</span>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-[#1a4b8e]">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a.598.598 0 0 1-.655-.077.598.598 0 0 1-.165-.63l.774-2.87A8.100 8.100 0 0 1 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
+                </svg>
                 <b className="text-[13px] text-[#1a4b8e]">{c.botName}</b>
               </div>
               <button
@@ -353,13 +358,13 @@ export default function NavBot() {
                   <div className="mt-3 flex gap-2">
                     <button
                       onClick={() => setActiveTour("portal")}
-                      className={btnPrimary + " w-full py-1 text-[11px]"}
+                      className={btnPrimary + " w-full py-1 text-[11px] rounded-none"}
                     >
                       {c.botYes}
                     </button>
                     <button
                       onClick={dismissBot}
-                      className={btnOutline + " w-full py-1 text-[11px]"}
+                      className={btnOutline + " w-full py-1 text-[11px] rounded-none"}
                     >
                       {c.botNo}
                     </button>
@@ -369,10 +374,10 @@ export default function NavBot() {
                 <>
                   {completed ? (
                     <div className="text-center py-2">
-                      <p className="font-bold text-green-700">✓ {c.botTourCompleted}</p>
+                      <p className="font-bold text-green-700">[PASS] {c.botTourCompleted}</p>
                       <button
                         onClick={endTour}
-                        className={btnPrimary + " mt-3 w-full py-1 text-[11px]"}
+                        className={btnPrimary + " mt-3 w-full py-1 text-[11px] rounded-none"}
                       >
                         {c.botClose}
                       </button>
@@ -382,7 +387,7 @@ export default function NavBot() {
                       <p className="font-semibold text-slate-800">
                         {lang === "hi" ? "निर्देश:" : "Current Instruction:"}
                       </p>
-                      <p className="mt-1 text-[#1a4b8e] bg-[#eef3f9] p-2 rounded border border-[#1a4b8e]/10 font-medium">
+                      <p className="mt-1 text-[#1a4b8e] bg-[#eef3f9] p-2 rounded-none border border-[#1a4b8e]/10 font-medium">
                         {stepsText[step]}
                       </p>
                       <div className="mt-3 flex items-center justify-between gap-2">
@@ -393,7 +398,7 @@ export default function NavBot() {
                             saveState(activeTour, prev);
                           }}
                           disabled={step === 0}
-                          className={btnOutline + " py-0.5 px-2 text-[10px] disabled:opacity-40"}
+                          className={btnOutline + " py-0.5 px-2 text-[10px] disabled:opacity-40 rounded-none"}
                         >
                           {c.botPrev}
                         </button>
@@ -409,7 +414,7 @@ export default function NavBot() {
                             setStep(next);
                             saveState(activeTour, next);
                           }}
-                          className={btnPrimary + " py-0.5 px-2 text-[10px]"}
+                          className={btnPrimary + " py-0.5 px-2 text-[10px] rounded-none"}
                         >
                           {c.botNext}
                         </button>
@@ -426,19 +431,19 @@ export default function NavBot() {
                   <div className="mt-2 flex flex-col gap-1.5">
                     <button
                       onClick={() => startTour("portal")}
-                      className="w-full rounded border border-slate-200 bg-[#f8fafc] px-3 py-1.5 text-left text-[11px] hover:border-[#1a4b8e] hover:bg-white"
+                      className="w-full rounded-none border border-slate-200 bg-[#f8fafc] px-3 py-1.5 text-left text-[11px] hover:border-[#1a4b8e] hover:bg-white"
                     >
                       {c.tourPortalName}
                     </button>
                     <button
                       onClick={() => startTour("fixer")}
-                      className="w-full rounded border border-slate-200 bg-[#f8fafc] px-3 py-1.5 text-left text-[11px] hover:border-[#1a4b8e] hover:bg-white"
+                      className="w-full rounded-none border border-slate-200 bg-[#f8fafc] px-3 py-1.5 text-left text-[11px] hover:border-[#1a4b8e] hover:bg-white"
                     >
                       {c.tourFixerName}
                     </button>
                     <button
                       onClick={() => startTour("demo")}
-                      className="w-full rounded border border-slate-200 bg-[#f8fafc] px-3 py-1.5 text-left text-[11px] hover:border-[#1a4b8e] hover:bg-white"
+                      className="w-full rounded-none border border-slate-200 bg-[#f8fafc] px-3 py-1.5 text-left text-[11px] hover:border-[#1a4b8e] hover:bg-white"
                     >
                       {c.tourDemoName}
                     </button>

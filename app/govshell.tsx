@@ -39,17 +39,19 @@ export function GovShell({ active, children }: { active: string; children: React
     <div className="min-h-screen bg-[#f5f7fa] font-sans text-slate-900" lang={lang} suppressHydrationWarning>
       <div className="h-1.5 w-full bg-gradient-to-r from-[#FF9933] via-white to-[#138808]" />
       <div className="bg-[#fff8e6] px-4 py-1 text-center text-[11px] text-[#8a6d00]">
-        {t(lang, "simOnly")} · <span aria-hidden>☎</span> Helpline (synthetic): <b>1800-425-0000</b> · <a href="mailto:tnhealthinsurance@example.com" className="underline">fixer-os@example.com</a>
+        {t(lang, "simOnly")} · Helpline (synthetic): <b>1800-425-0000</b> · <a href="mailto:tnhealthinsurance@example.com" className="underline">fixer-os@example.com</a>
       </div>
 
       <header className="border-b-2 border-[#1a4b8e] bg-white">
         <div className={`${pageWrap} flex flex-wrap items-center justify-between gap-3 py-3`}>
           <Link href="/" className="flex items-center gap-3">
-            <div className="grid h-11 w-11 place-items-center rounded-full border-2 border-[#1a4b8e] bg-[#f0f4fa] text-[9px] leading-tight text-[#1a4b8e]">
-              FIXER
-              <br />
-              .OS
-            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" className="h-11 w-11">
+              <circle cx="32" cy="32" r="28" fill="#f0f4fa" stroke="#1a4b8e" stroke-width="3.5" />
+              <path d="M 33 25 H 24 C 20.5 25 20.5 33 24 33 H 30" fill="none" stroke="#1a4b8e" stroke-width="5.5" stroke-linecap="round" />
+              <path d="M 34 25 H 40 C 43.5 25 43.5 33 40 33 H 31" fill="none" stroke="#1a4b8e" stroke-width="5.5" stroke-linecap="round" />
+              <line x1="31.5" y1="28.5" x2="32.5" y2="29.5" stroke="#f0f4fa" stroke-width="2" />
+              <text x="32" y="49" font-family="Courier, monospace" font-size="7.5" font-weight="bold" fill="#1a4b8e" text-anchor="middle" letter-spacing="1">FIXER.OS</text>
+            </svg>
             <div>
               <p className="text-[10px] uppercase tracking-wider text-slate-500">{t(lang, "headerSub")}</p>
               <h1 className="text-lg font-bold leading-tight text-[#1a4b8e]">{t(lang, "headerTitle")}</h1>

@@ -7,5 +7,6 @@ export async function GET(request: Request) {
   const requested = url.searchParams.get("case") || CASE_IDS.epfo;
   const record = await getCase(requested);
   const facts = record?.facts;
-  return NextResponse.json({ ...traceSummary(requested, Date.now(), facts), escalationLetter: escalationLetter(requested, facts), caseId: requested });
+  const events = record?.events;
+  return NextResponse.json({ ...traceSummary(requested, Date.now(), facts, events), escalationLetter: escalationLetter(requested, facts, events), caseId: requested });
 }

@@ -1,9 +1,10 @@
 import { readFileSync } from "fs";
 import path from "path";
-import { appendEvent, CASE_IDS, getCase, setCaseStatus, type CaseRecord } from "@/lib/ledger";
+import { appendEvent, getCase, setCaseStatus, type CaseRecord } from "@/lib/ledger";
 import { calendarDaysSince, escalationLetter, SLA_COMPENSATION_PER_DAY, traceSummary } from "@/lib/traceroute";
 import { AGENT_MODE, decideNextAction } from "@/lib/llm";
 import { playbookSchema, renderDeep, type Playbook, type PlaybookStep } from "@/lib/playbooks";
+import { evaluateRule } from "./rules";
 
 export const AGENT_ACTIONS = ["INTERPRET_STATE", "DRAFT_REBUTTAL", "FILE_APPEAL", "CHECK_SLA", "ESCALATE"] as const;
 export type AgentAction = (typeof AGENT_ACTIONS)[number];
@@ -17,12 +18,12 @@ for (const file of ["epfo-false-rejection.json", "payment-tat-breach.json"]) {
 }
 
 function buildContext(record: CaseRecord): Record<string, unknown> {
-  const trace = traceSummary(record.id, Date.now(), record.facts);
+  const trace = traceSummary(record.id, Date.now(), record.facts, record.events);
   const base: Record<string, unknown> = {
     facts: record.facts,
     trace: { blocker: trace.blocker, daysOverdue: trace.daysOverdue, tatCompensationAccrued: trace.tatCompensationAccrued },
     sla: { perDayRupees: SLA_COMPENSATION_PER_DAY },
-    letter: escalationLetter(record.id, record.facts)
+    letter: escalationLetter(record.id, record.facts, record.events)
   };
   if (record.kind === "payment-tat-breach") {
     const elapsed = calendarDaysSince(String(record.facts.debitedAt));
@@ -41,7 +42,22 @@ export async function nextAgentStep(caseId: string): Promise<AgentResult> {
   if (!playbook) throw new Error("No playbook for case");
 
   const types = new Set(record.events.map((entry) => entry.type));
-  const pending: PlaybookStep[] = playbook.steps.filter((step) => !types.has(step.marker));
+  
+  // Filter pending steps by execution status and preconditions
+  const pending: PlaybookStep[] = playbook.steps.filter((step) => {
+    if (types.has(step.marker)) return false;
+    
+    if (step.preconditions) {
+      const ctx = buildContext(record);
+      for (const cond of step.preconditions) {
+        const dummyRule = { id: "precond", test: cond, failStatus: "FAIL" as const, message: "" };
+        const result = evaluateRule(dummyRule, ctx);
+        if (result.status !== "PASS") return false;
+      }
+    }
+    return true;
+  });
+
   if (pending.length === 0) {
     return { action: "ESCALATE", summary: "Case already resolved", detail: "Restart the case to replay the evidence trail.", completed: true, mode: "deterministic" };
   }

@@ -1,11 +1,19 @@
 import { z } from "zod";
 
+const preconditionSchema = z.object({
+  op: z.enum(["eq", "neq", "truthy", "notInRange", "lt", "lte", "gt", "gte"]),
+  left: z.string(),
+  right: z.unknown().optional(),
+  range: z.tuple([z.number(), z.number()]).optional()
+});
+
 const stepSchema = z.object({
   marker: z.string().min(3),
   action: z.enum(["INTERPRET_STATE", "DRAFT_REBUTTAL", "FILE_APPEAL", "CHECK_SLA", "ESCALATE"]),
   event: z.object({ actor: z.enum(["citizen", "portal", "agent", "system"]), type: z.string().min(3), payload: z.record(z.unknown()) }),
   summary: z.string(),
   detail: z.string(),
+  preconditions: z.array(preconditionSchema).optional(),
   complete: z.object({
     status: z.literal("RESOLVED"),
     systemEvent: z.object({ type: z.string().min(3), payload: z.record(z.unknown()) })

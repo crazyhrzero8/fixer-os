@@ -4,7 +4,7 @@ import { test } from "node:test";
 
 process.env.OPENAI_API_KEY = "";
 
-const { verifyLedger } = require("../lib/ledger.ts");
+const { verifyLedger, signEventPayload, hashEvent } = require("../lib/ledger.ts");
 const { provePensionDeadlock } = require("../lib/prover.ts");
 const { initialPortalSnapshot, transitionPortal, PORTAL_STATES, PROCESSING_DAYS } = require("../lib/portalFsm.ts");
 const { traceSummary, escalationLetter } = require("../lib/traceroute.ts");
@@ -12,11 +12,18 @@ const { sanitizeForLLM } = require("../lib/llm.ts");
 
 test("ledger detects tampering at the exact event", () => {
   const seeded = { id: "c1", kind: "epfo-false-rejection", title: "t", status: "OPEN", facts: {}, events: [] };
-  const mk = (n: number, prev: string) => ({ id: `evt-${n}`, caseId: "c1", ts: n, actor: "portal", type: `T${n}`, payload: { n }, prevHash: prev, hash: "" });
+  const mk = (n: number, prev: string) => {
+    const actor = "portal";
+    const type = `T${n}`;
+    const payload = { n };
+    const ts = n;
+    const signature = signEventPayload(actor, prev, ts, type, payload);
+    return { id: `evt-${n}`, caseId: "c1", ts, actor, type, payload, prevHash: prev, signature, hash: "" };
+  };
   const e1 = { ...mk(1, "0".repeat(64)), hash: "" };
-  e1.hash = createHash("sha256").update(`${e1.prevHash}|${e1.ts}|${e1.actor}|${e1.type}|${JSON.stringify(e1.payload)}`).digest("hex");
+  e1.hash = hashEvent(e1);
   const e2 = { ...mk(2, e1.hash), hash: "" };
-  e2.hash = createHash("sha256").update(`${e2.prevHash}|${e2.ts}|${e2.actor}|${e2.type}|${JSON.stringify(e2.payload)}`).digest("hex");
+  e2.hash = hashEvent(e2);
   const clean = { ...seeded, events: [e1, e2] };
   assert.equal(verifyLedger(clean).valid, true);
   const tampered = { ...clean, events: [{ ...e1, payload: { n: 999 } }, e2] };
@@ -118,4 +125,30 @@ test("OTP lockout: 3 wrong attempts trigger 2-minute cooldown; verify+resend blo
   const still = otpStatus(sid);
   assert.ok(still.lockedSeconds > 0, "lock persists — no immediate retry");
   assert.ok(still.expiresInSeconds <= locked.expiresInSeconds + 1, "no new OTP minted during cooldown");
+});
+
+test("regression: preflight engine evaluates boolean literals and sanitizeForLLM scrubs dynamic names", () => {
+  const { evaluateRule } = require("../lib/rules.ts");
+  const rule = {
+    id: "test-bool",
+    test: { op: "eq", left: "{{facts.ticketIssued}}", right: true },
+    failStatus: "FAIL" as const,
+    message: "ticket not issued"
+  };
+  const ctxTrue = { facts: { ticketIssued: true } };
+  const ctxFalse = { facts: { ticketIssued: false } };
+  assert.equal(evaluateRule(rule, ctxTrue).status, "PASS");
+  assert.equal(evaluateRule(rule, ctxFalse).status, "FAIL");
+
+  const dirty = {
+    recentLedgerEvents: [
+      { actor: "citizen", type: "FACTS_VERIFIED", payload: { nameAsPerAadhaar: "Radhika Sharma", displayName: "Ramu Prasad" } }
+    ]
+  };
+  const clean = sanitizeForLLM(dirty);
+  const s = JSON.stringify(clean);
+  assert.equal(s.includes("Radhika"), false, "dynamic name Radhika leaked");
+  assert.equal(s.includes("Sharma"), false, "dynamic name Sharma leaked");
+  assert.equal(s.includes("Ramu"), false, "dynamic name Ramu leaked");
+  assert.equal(s.includes("Prasad"), false, "dynamic name Prasad leaked");
 });

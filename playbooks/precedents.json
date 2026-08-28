@@ -1,0 +1,14 @@
+[
+  {
+    "id": "kangra-2026",
+    "tags": ["rounding-disputes", "epfo-false-rejection"],
+    "citation": "Kangra Consumer Commission CC/297/2025 (Abhinay Katoch vs EPFO, 20 Jul 2026)",
+    "legalText": "EPFO has been held to be a service provider for CPA 2019 §2(11) deficiency — most recently Kangra Consumer Commission CC/297/2025 (Abhinay Katoch vs EPFO, 20 Jul 2026) awarding shortfall + 9% interest + ₹1,000 harassment + ₹2,500 costs for arbitrarily rounding down service period (LiveLaw). The Chandigarh line on software glitches not excusing delay applies in parallel."
+  },
+  {
+    "id": "rbi-tat-2019",
+    "tags": ["tat-breach", "payment-tat-breach"],
+    "citation": "RBI Circular DPSS.CO.PD No.629/02.01.014/2019-20 (20 Sep 2019)",
+    "legalText": "RBI circular DPSS.CO.PD No.629/02.01.014/2019-20 (20 Sep 2019, Annex 4b, T+5 calendar days, para 5 suo moto) mandates auto-reversal of this failed UPI merchant debit within T+5 calendar days and ₹100/day compensation thereafter — no claim form is required; para 5 obliges the bank to credit it suo moto, and para 6 routes denial to the RBI Integrated Ombudsman Scheme 2021."
+  }
+]

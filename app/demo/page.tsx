@@ -72,9 +72,9 @@ export default function Demo() {
         <Link href="/fixer" className={btnOutline}>{c.openConsole}</Link>
       </div>
 
-      <div className={`${cardCls} flex flex-wrap items-center gap-3 p-3`}>
-        <button id="run-comparison-btn" onClick={restart} className="rounded-sm bg-[#1a4b8e] px-4 py-1.5 text-[13px] font-semibold text-white hover:bg-[#123763]">{running ? t(lang,"demoRestartPlayback") : t(lang,"demoRun")}</button>
-        <button onClick={stop} disabled={!running} className={btnOutline + " disabled:opacity-40"}>{t(lang,"demoPause")}</button>
+      <div className={`${cardCls} flex flex-wrap items-center gap-3 p-3 rounded-none`}>
+        <button id="run-comparison-btn" onClick={restart} className="rounded-none bg-[#1a4b8e] px-4 py-1.5 text-[13px] font-semibold text-white hover:bg-[#123763]">{running ? t(lang,"demoRestartPlayback") : t(lang,"demoRun")}</button>
+        <button onClick={stop} disabled={!running} className={btnOutline + " disabled:opacity-40 rounded-none"}>{t(lang,"demoPause")}</button>
         <span className="font-mono text-[12px] text-slate-600">{String(seconds).padStart(2, "0")}s {c.secU}</span>
         <span className="text-[11px] text-slate-500">{c.lrNote}</span>
       </div>
@@ -84,7 +84,7 @@ export default function Demo() {
         <Panel title={t(lang,"citizenFixed")} subtitle={c.fixedSub} tone="blue" steps={c.fixed} active={right} final={c.fixedFinal} readyLabel={c.ready} workingLabel={c.working} />
       </div>
 
-      <div className="mt-5 rounded-md border border-[#1a4b8e]/20 bg-[#eef3f9]/50 p-4 text-[12px]">
+      <div className="mt-5 rounded-none border border-[#1a4b8e]/20 bg-[#eef3f9]/50 p-4 text-[12px]">
         <h3 className="font-bold text-[#1a4b8e]">{c.judgeHead}</h3>
         <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-slate-700 leading-relaxed">
           <li>{c.j1a}<b>{c.j1b}</b>{c.j1c}</li>
@@ -101,14 +101,14 @@ function Panel({ title, subtitle, tone, steps, active, final, readyLabel, workin
   const dotActive = tone === "red" ? "bg-red-700 text-white" : "bg-[#1a4b8e] text-white";
   const heading = tone === "red" ? "text-red-800" : "text-[#1a4b8e]";
   return (
-    <section className={`${cardCls} p-5 ${frame}`}>
+    <section className={`${cardCls} p-5 ${frame} rounded-none`}>
       <p className={`text-[11px] font-bold uppercase tracking-widest ${heading}`}>{title}</p>
       <h3 className={`mt-1 text-[16px] font-bold ${completed ? heading : "text-slate-900"}`}>{completed ? final : active ? workingLabel : readyLabel}</h3>
       <p className="mt-1 min-h-10 text-[12px] leading-relaxed text-slate-600">{subtitle}</p>
       <div className="mt-4 space-y-2">
         {steps.map((step, index) => (
-          <div key={step} className={`flex gap-3 rounded-sm border p-3 text-[12px] leading-relaxed ${index < active ? "border-slate-300 bg-white text-slate-900" : "border-slate-200 bg-white/60 text-slate-500"}`}>
-            <span className={`mt-0 grid h-5 w-5 place-items-center rounded-full text-[11px] font-bold ${index < active ? dotActive : "border border-slate-300 text-slate-400"}`}>{index < active ? "✓" : index + 1}</span>
+          <div key={step} className={`flex gap-3 rounded-none border p-3 text-[12px] leading-relaxed ${index < active ? "border-slate-300 bg-white text-slate-900" : "border-slate-200 bg-white/60 text-slate-500"}`}>
+            <span className={`mt-0 grid h-5 w-5 place-items-center rounded-none text-[11px] font-bold ${index < active ? dotActive : "border border-slate-300 text-slate-400"}`}>{index < active ? "+" : index + 1}</span>
             <span>{step}</span>
           </div>
         ))}

@@ -1,0 +1,31 @@
+{
+  "epfo-false-rejection": {
+    "rules": [
+      { "id": "name-consistency", "test": { "op": "eq", "left": "{{facts.nameAsPerEmployer}}", "right": "{{facts.nameAsPerAadhaar}}" }, "failStatus": "FAIL", "message": "Member-ID name differs from Primary-UAN name — the exact cause of most silent rejections.", "fix": "Update KYC via employer or Aadhaar seeding before filing." },
+      { "id": "ifsc-liveness", "test": { "op": "truthy", "left": "{{facts.bankIfscValid}}" }, "failStatus": "FAIL", "message": "Bank IFSC failed post-merger liveness check — claims fail SILENTLY on dead IFSCs.", "fix": "Re-validate IFSC on the bank's site; update KYC." },
+      { "id": "enomination", "test": { "op": "truthy", "left": "{{facts.enominationDone}}" }, "failStatus": "WARN", "message": "E-nomination missing — some claim classes are blocked until filed.", "fix": "File e-nomination on the member portal." },
+      { "id": "pension-deadlock-zone", "test": { "op": "notInRange", "left": "{{facts.serviceYears}}", "range": [9.5, 10] }, "failStatus": "WARN", "message": "Service years fall inside the documented pension deadlock interval [9.5, 10) — the rule engine has no valid outcome here.", "fix": "Expect rejection; use the RuleGuard route-around (manual application + annexure)." }
+    ]
+  },
+  "payment-tat-breach": {
+    "rules": [
+      { "id": "ticket-issuance", "test": { "op": "eq", "left": "{{facts.ticketIssued}}", "right": true }, "failStatus": "FAIL", "message": "Debit recorded without ticket issuance — qualifies as a failed transaction under RBI TAT row 'debited but confirmation not received'.", "fix": "No citizen action needed; entitlement accrues automatically." },
+      { "id": "rrn-present", "test": { "op": "truthy", "left": "{{facts.rrn}}" }, "failStatus": "FAIL", "message": "Missing RRN makes reversal tracking impossible.", "fix": "Retrieve RRN from bank statement before filing complaints." }
+    ]
+  },
+  "statutory-sla-rules": {
+    "rules": [
+      { "id": "epfo-portal-limit", "test": { "op": "lte", "left": "{{daysHeld}}", "right": 1 }, "failStatus": "FAIL", "message": "Claim intake and automated validation" },
+      { "id": "epfo-field-limit", "test": { "op": "lte", "left": "{{daysHeld}}", "right": 7 }, "failStatus": "FAIL", "message": "Claim verification queue" },
+      { "id": "epfo-regional-limit", "test": { "op": "lte", "left": "{{daysHeld}}", "right": 15 }, "failStatus": "FAIL", "message": "Disposition and grievance supervision" },
+      { "id": "irctc-gateway-limit", "test": { "op": "lte", "left": "{{daysHeld}}", "right": 5 }, "failStatus": "FAIL", "message": "RBI TAT: auto-reverse failed UPI merchant debit within T+5 calendar days" },
+      { "id": "irctc-refunds-limit", "test": { "op": "lte", "left": "{{daysHeld}}", "right": 7 }, "failStatus": "FAIL", "message": "Railway Refund Rules 2015 — failed-transaction reversal" }
+    ]
+  },
+  "pension-eligibility-rules": {
+    "rules": [
+      { "id": "epfo-withdrawal-limit", "test": { "op": "lt", "left": "{{serviceYears}}", "right": 9.5 }, "failStatus": "FAIL", "message": "Rule A (portal withdrawal engine, observed): withdrawal allowed only if service < 9.5 years (unrounded)." },
+      { "id": "epfo-pension-limit", "test": { "op": "gte", "left": "{{serviceYears}}", "right": 10 }, "failStatus": "FAIL", "message": "Rule B (portal pension engine, observed): monthly pension allowed only if service >= 10 years (unrounded)." }
+    ]
+  }
+}

@@ -62,13 +62,45 @@ const PII_PATTERNS: [RegExp, string][] = [
   [/\b[A-Z]{2,4}\/\d{4}\/[A-Z](?:\/\d{4,10})?\b/g, "[TRACKING_REDACTED]"] // claim tracking ID (e.g. PF/2026/A/0091847)
 ];
 
-const PII_NAME_PATTERN = /\b(Arjun|Kumar)\b/g;
 const PII_CODE_PATTERN = /\b\d{6}\b(?!\s*days)/g;
 
 export function sanitizeForLLM<T>(input: T): T {
+  const names = new Set<string>();
+  
+  const collectNamesFromPayload = (val: unknown) => {
+    if (!val) return;
+    if (Array.isArray(val)) {
+      for (const item of val) collectNamesFromPayload(item);
+    } else if (typeof val === "object") {
+      for (const [k, v] of Object.entries(val)) {
+        if (typeof v === "string" && (
+          k.toLowerCase().includes("name") || 
+          k === "displayName" || 
+          k === "nameAsPerAadhaar" || 
+          k === "nameAsPerEmployer" ||
+          k === "requestedMemberIdName" ||
+          k === "primaryUanName"
+        )) {
+          const words = v.split(/\s+/).map(w => w.replace(/[^a-zA-Z]/g, "")).filter(w => w.length > 2);
+          for (const word of words) {
+            names.add(word);
+          }
+        }
+        collectNamesFromPayload(v);
+      }
+    }
+  };
+
+  collectNamesFromPayload(input);
+  names.add("Arjun");
+  names.add("Kumar");
+
+  const sortedNames = Array.from(names).sort((a, b) => b.length - a.length);
+  const nameRegex = new RegExp(`\\b(${sortedNames.join("|")})\\b`, "gi");
+
   const scrub = (value: unknown): unknown => {
     if (typeof value === "string") {
-      let out = value.replace(PII_NAME_PATTERN, "[NAME_REDACTED]");
+      let out = value.replace(nameRegex, "[NAME_REDACTED]");
       for (const [pattern, replacement] of PII_PATTERNS) out = out.replace(pattern, replacement);
       return out.replace(PII_CODE_PATTERN, "[CODE_REDACTED]");
     }

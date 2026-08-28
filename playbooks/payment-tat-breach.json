@@ -19,21 +19,30 @@
       "action": "DRAFT_REBUTTAL",
       "event": { "actor": "agent", "type": "TAT_DEMAND_DRAFTED", "payload": { "rrn": "{{facts.rrn}}", "basis": "RBI TAT direction — auto-reversal within T+5 days, ₹100/day thereafter, effected suo moto without a claim" } },
       "summary": "Auto-credit demand drafted",
-      "detail": "Cites RRN {{facts.rrn}} and the RBI TAT direction: the bank must reverse automatically; no claim form is even required."
+      "detail": "Cites RRN {{facts.rrn}} and the RBI TAT direction: the bank must reverse automatically; no claim form is even required.",
+      "preconditions": [
+        { "op": "truthy", "left": "{{facts.rrn}}" }
+      ]
     },
     {
       "marker": "GATEWAY_COMPLAINT_FILED",
       "action": "FILE_APPEAL",
       "event": { "actor": "agent", "type": "GATEWAY_COMPLAINT_FILED", "payload": { "channel": "Bank grievance + merchant refund cell (parallel)", "closureGap": "No reversal credited past the T+5 window" } },
       "summary": "Parallel complaints recorded",
-      "detail": "Bank grievance cites the RRN; a parallel RTI-ready note is filed against the merchant's refund cell."
+      "detail": "Bank grievance cites the RRN; a parallel RTI-ready note is filed against the merchant's refund cell.",
+      "preconditions": [
+        { "op": "truthy", "left": "{{facts.rrn}}" }
+      ]
     },
     {
       "marker": "SLA_BREACH_CALCULATED",
       "action": "CHECK_SLA",
       "event": { "actor": "agent", "type": "SLA_BREACH_CALCULATED", "payload": { "daysElapsed": "{{tat.daysElapsed}}", "daysOverdue": "{{tat.daysOverdue}}", "compensationPaise": "{{tat.compensationPaise}}", "approximation": "calendar-day approximation of working days" } },
       "summary": "TAT breach: {{tat.daysOverdue}} day(s) overdue",
-      "detail": "₹{{tat.compensationRupees}} accrued at ₹100/day beyond the T+5 reversal deadline."
+      "detail": "₹{{tat.compensationRupees}} accrued at ₹100/day beyond the T+5 reversal deadline.",
+      "preconditions": [
+        { "op": "truthy", "left": "{{facts.rrn}}" }
+      ]
     },
     {
       "marker": "ESCALATION_SENT",
@@ -41,6 +50,9 @@
       "event": { "actor": "agent", "type": "ESCALATION_SENT", "payload": { "addressee": "{{trace.blocker.designation}}", "letter": "{{letter}}" } },
       "summary": "Escalation packet routed",
       "detail": "The accountable node is named with the codified RBI entitlement attached.",
+      "preconditions": [
+        { "op": "truthy", "left": "{{facts.rrn}}" }
+      ],
       "complete": { "status": "RESOLVED", "systemEvent": { "type": "CASE_RESOLVED", "payload": { "resolution": "Synthetic escalation packet prepared and routed" } } }
     }
   ]
