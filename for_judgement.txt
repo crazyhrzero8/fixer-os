@@ -1,0 +1,53 @@
+FIXER.OS - Build What Moves India Submission
+
+SUMMARY - 222 words
+Everyone builds compliance copilots for citizens. Nobody audits the state back.
+FIXER.OS is the accountability layer between citizens and hostile public-service portals, prototyped on EPFO’s most documented failures: a PF advance rejected for a “name mismatch” that never existed, a grievance form that rejects its own tracking ID, and a 30-day lockout. We rebuilt that portal faithfully as a mock; FIXER.OS is the auditing counterparty, not another form-filler.
+
+It anchors the citizen's verified facts in a tamper-evident SHA-256 hash-chained ledger and proves the state's rejection contradicts its own records. An OpenAI-compatible model picks each step strictly from a five-action allow-list; every name, ID, and identifier is scrubbed before any model call—proven by wire-level tests—keeping execution deterministic and compliant with DPDP 2023 data-minimization.
+
+Three primitives make it a platform: a Rejection Wind-Tunnel predicting silent rejections before filing; RuleGuard, which mathematically proves no pension outcome exists for service in [9.5,10) years and emits a developer-ready bug report; and Kaun-Zimmedar traceroute naming the blocking office with days-over statutory deadlines while the RBI-mandated ₹100/day compensation clock accrues live.
+
+Ledger, proofs, playbook engine, in-flow provenance verifier, and bilingual English/Hindi interface are real today; the portal and facts are mocks. The same engine already runs a second vertical — RBI TAT payment recovery (IRCTC). Safe production path: Postgres adapter and DigiLocker-authenticated ingestion. Ownership, not another form.
+
+JUDGEMENT METHOD - How judges score
+Problem - Real citizen pain: false rejection + lockout loop.
+Working Build - End-to-end journey works with no hand-waving.
+Usability - Fewer steps, clearer language, Hindi parity, keyboard accessible.
+Product Thinking - Accountability layer vs compliance copilot; allow-list safety; pre-flight prevention.
+End-to-End Thinking - Ledger → prover → traceroute → escalation → SLA; production adapter plan.
+Honesty - Mock portal disclosed, real vs mock checklist shown, PII scrub proven.
+
+VIDEO TRANSCRIPTION - 2:00 exact, normal speed, judge-facing
+
+0:00-0:08 Hook - calm, serious
+On screen: / portal landing.
+Spoken: Seven crore Indians trust EPFO with their retirement money. When claims fail, the rejection is often false — and nobody audits the state back. This is FIXER.OS.
+
+0:08-0:25 Citizen start - neutral demo
+On screen: login captcha OTP Form-31 ₹50,000 filed.
+Spoken: Watch the documented reality. I log in, verify with OTP, file a fifty-thousand rupee medical advance. Day one: under process.
+
+0:25-0:42 False rejection - slight tension
+On screen: advance 7 days, REJECTED Name mismatch.
+Spoken: Day seven: claim rejected for name mismatch. Portal’s own records show identical names. Rejection is false.
+
+0:42-0:58 Lockout - frustration
+On screen: grievance → Invalid tracking ID → 30 day lockout.
+Spoken: I file a grievance. Portal rejects its own tracking ID, then locks me out for thirty days. Classic dead-end.
+
+1:00-1:18 The counterparty - confident
+On screen: /fixer console PIN 1902, ledger hash chain verified.
+Spoken: Now the accountability counterparty. Step one proves contradiction against a local SHA-256 hash-chained ledger. Step two drafts rebuttal. Step three logs closure gap.
+
+1:18-1:35 Proof & liability - authoritative
+On screen: SLA clock ₹2,600, traceroute red node Regional Office, Download Letter.
+Spoken: Step four runs compensation clock: twenty-six hundred rupees. Same ₹100-a-day rule drives our IRCTC case. Step five names the Regional Commissioner, twenty-six days overdue, and downloads a pre-addressed escalation draft.
+
+1:35-1:50 Novelty - measured pride
+On screen: RuleGuard interval proof, Hindi toggle.
+Spoken: RuleGuard mathematically proves a citizen with nine-point-eight years service is trapped in pension deadlock and outputs a developer bug report. Entire console toggles instantly into Hindi.
+
+1:50-2:00 Honesty close - transparent
+On screen: Real vs Mock checklist, logo.
+Spoken: We built ledger, proofs and playbooks. We honestly mocked EPFO interface. Agent is safe-by-design, scrubbing all PII at wire. FIXER.OS: the ownership layer India skipped.
