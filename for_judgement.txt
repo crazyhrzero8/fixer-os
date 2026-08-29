@@ -11,47 +11,57 @@ Three primitives make it a platform: a Rejection Wind-Tunnel predicting silent r
 Ledger, proofs, playbook engine, in-flow provenance verifier, and bilingual English/Hindi interface are real today; the portal and facts are mocks. The same engine already runs a second vertical — RBI TAT payment recovery (IRCTC). Safe production path: Postgres adapter and DigiLocker-authenticated ingestion. Ownership, not another form.
 
 JUDGEMENT METHOD
-Problem - Real EPFO false rejection + lockout.
-Working Build - End-to-end citizen journey works.
-Usability - 2-column dossier, low clutter, Hindi parity, keyboard accessible.
-Product Thinking - Accountability layer, allow-list safety, pre-flight prevention.
+Problem - real EPFO false rejection + lockout.
+Working Build - end-to-end journey works.
+Usability - 2-column dossier, low clutter, Hindi parity, keyboard accessible, font A+ / A- controls.
+Product Thinking - accountability layer, allow-list safety, pre-flight prevention.
 End-to-End - Ledger → prover → traceroute → escalation → SLA; production plan.
-Honesty - Mock portal disclosed, real vs mock checklist shown.
+Honesty - mock portal disclosed, real vs mock checklist shown.
+
+NAVIGATION & UI MAP
+GovShell header: tricolour bar, synthetic helpline banner, logo FIXER.OS with Hindi subtitle लोक सेवा जवाबदेही परत. Top right: English/Hindi toggle, A+ A- font controls.
+Main nav bar blue: Home / Simulated Portal / Agent Console / Demo Theater. Active page highlighted.
+Footer: Terms & Conditions link.
+
+NavBot floating guide bottom-right:
+Auto-pops after 1.5s. Offers Portal / Fixer / Demo tours. Highlights elements with pulsing red ring. Portal tour steps: #uan → #file-claim-btn → #terms-checkbox → #submit-claim-btn → #advance-day-btn → #open-grievance-btn → tracking input → #submit-grievance-btn → #open-console-link. Fixer tour steps: #admin-password → #admin-login-btn → case list → #run-step-btn → #download-letter-btn. Guides maintain state in sessionStorage.
+
+Home page provides three entry points: Simulated Portal, FIXER.OS Control Console, Demo Theater.
 
 VIDEO TRANSCRIPTION - 2:00, normal speed, judge-facing
 
 0:00-0:08 Hook calm serious
-On screen: Home page then /portal.
+On screen: GovShell header, nav Home/Simulated Portal/Agent Console, NavBot guide pops.
 Spoken: Seven crore Indians trust EPFO. When claims fail, rejection is often false — and nobody audits the state back. This is FIXER.OS.
 
 0:08-0:25 Citizen start
-On screen: /portal login UAN 100000000000 demo1234, captcha, OTP, Form-31 ₹50,000.
+On screen: /portal via nav. UAN 100000000000 demo1234, captcha, OTP, Form-31 ₹50,000. NavBot highlights #file-claim-btn.
 Spoken: I log in, verify OTP, file a medical advance. Day one: under process.
 
 0:25-0:42 False rejection
-On screen: portal advances 7 days REJECTED name mismatch. Side proof shows names identical.
+On screen: #advance-day-btn clicked 7 days, REJECTED name mismatch. Side proof shows names identical.
 Spoken: Day seven: rejected for name mismatch. Portal’s own records show identical names. Rejection is false.
 
 0:42-0:58 Lockout
-On screen: grievance → Invalid tracking ID → 30 day lockout.
+On screen: #open-grievance-btn → tracking input → #submit-grievance-btn → Invalid tracking ID → 30 day lockout.
 Spoken: I file grievance. Portal rejects its own tracking ID, then locks me out thirty days. Dead end.
 
 1:00-1:15 Enter console
-On screen: Home → FIXER.OS Control Console → PIN 1902. Dashboard shows Total Audited Cases, Total SLA Compensation, Worst Blocker Office, Avg Delay EPFO/Pay.
-Spoken: Now the counterparty. PIN opens the audit workspace. Systemic dashboard shows where delays accrue nationally.
+On screen: Nav → Agent Console → PIN 1902. Dashboard shows Total Audited Cases, Total SLA Compensation, Worst Blocker Office, Avg Delay EPFO/Pay. Left Citizen list Arjun Kumar Folio 001 selected.
+Spoken: Now the counterparty. PIN opens audit workspace. Systemic dashboard shows where delays accrue nationally.
 
 1:15-1:30 Case dossier
-On screen: left Citizen list → select Arjun Kumar Folio 001. Right panel Appeal Status REJECTED/UNDER AUDIT, Alerts, SLA Compensation Accrued ₹2,600, Proof of Delay office tracker Regional PF Commissioner 26 days over.
+On screen: Right panel Appeal Status REJECTED/UNDER AUDIT, Alerts, SLA Compensation Accrued ₹2,600, Proof of Delay office tracker Regional PF Commissioner 26 days over, [SECURED] Tamper-Proof Audit Ledger hash chain verified with event dots.
 Spoken: I open Arjun’s dossier. Ledger is verified. Traceroute names the blocking office and the RBI ₹100 per day clock is live.
 
 1:30-1:42 Evidence & actions
-On screen: Ledger event timeline with hash chain dots, Evidence Vault attach proof, Actions Area Audit button + [WARRANT] Prospective, [BUNDLE] Class Action, [DPDP] Explain.
+On screen: Ledger event timeline with Block Hash, Evidence Vault attach proof, Actions Area Audit Submission & Verify Claims + [WARRANT] Prospective / [BUNDLE] Class Action / [DPDP] Explain buttons.
 Spoken: Hash-chained events are tamper-proof. Evidence vault is hash-anchored. One Audit step generates a court-ready rebuttal and escalation letter.
 
 1:42-1:52 Map & scale
-On screen: National Delay Heatmap SVG India. Click Uttar Pradesh. Panel shows avg delay 51 days, 1,520 overdue cases, total compensation ₹77,52,000.
+On screen: National Delay Heatmap SVG India. Click Uttar Pradesh. Panel shows avg delay 51 days, 1,520 overdue grievances, total compensation ₹77,52,000. Legend low/medium/severe.
 Spoken: Heatmap shows state-wise SLA breach. Uttar Pradesh averages 51 days delay with crores in accrued liability.
 
 1:52-2:00 Novelty & honesty
-On screen: RuleGuard interval proof, Hindi toggle, Real vs Mock checklist.
+On screen: RuleGuard interval proof, Hindi toggle हिन्दी/English, Real vs Mock checklist.
 Spoken: RuleGuard proves pension deadlock for 9.8 years service and outputs a bug report. Hindi toggles instantly. Portal is mocked, ledger and proofs are real. Ownership, not another form.
