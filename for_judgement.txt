@@ -10,44 +10,48 @@ Three primitives make it a platform: a Rejection Wind-Tunnel predicting silent r
 
 Ledger, proofs, playbook engine, in-flow provenance verifier, and bilingual English/Hindi interface are real today; the portal and facts are mocks. The same engine already runs a second vertical — RBI TAT payment recovery (IRCTC). Safe production path: Postgres adapter and DigiLocker-authenticated ingestion. Ownership, not another form.
 
-JUDGEMENT METHOD - How judges score
-Problem - Real citizen pain: false rejection + lockout loop.
-Working Build - End-to-end journey works with no hand-waving.
-Usability - Fewer steps, clearer language, Hindi parity, keyboard accessible.
-Product Thinking - Accountability layer vs compliance copilot; allow-list safety; pre-flight prevention.
-End-to-End Thinking - Ledger → prover → traceroute → escalation → SLA; production adapter plan.
-Honesty - Mock portal disclosed, real vs mock checklist shown, PII scrub proven.
+JUDGEMENT METHOD
+Problem - Real EPFO false rejection + lockout.
+Working Build - End-to-end citizen journey works.
+Usability - 2-column dossier, low clutter, Hindi parity, keyboard accessible.
+Product Thinking - Accountability layer, allow-list safety, pre-flight prevention.
+End-to-End - Ledger → prover → traceroute → escalation → SLA; production plan.
+Honesty - Mock portal disclosed, real vs mock checklist shown.
 
-VIDEO TRANSCRIPTION - 2:00 exact, normal speed, judge-facing
+VIDEO TRANSCRIPTION - 2:00, normal speed, judge-facing
 
-0:00-0:08 Hook - calm, serious
-On screen: / portal landing.
-Spoken: Seven crore Indians trust EPFO with their retirement money. When claims fail, the rejection is often false — and nobody audits the state back. This is FIXER.OS.
+0:00-0:08 Hook calm serious
+On screen: Home page then /portal.
+Spoken: Seven crore Indians trust EPFO. When claims fail, rejection is often false — and nobody audits the state back. This is FIXER.OS.
 
-0:08-0:25 Citizen start - neutral demo
-On screen: login captcha OTP Form-31 ₹50,000 filed.
-Spoken: Watch the documented reality. I log in, verify with OTP, file a fifty-thousand rupee medical advance. Day one: under process.
+0:08-0:25 Citizen start
+On screen: /portal login UAN 100000000000 demo1234, captcha, OTP, Form-31 ₹50,000.
+Spoken: I log in, verify OTP, file a medical advance. Day one: under process.
 
-0:25-0:42 False rejection - slight tension
-On screen: advance 7 days, REJECTED Name mismatch.
-Spoken: Day seven: claim rejected for name mismatch. Portal’s own records show identical names. Rejection is false.
+0:25-0:42 False rejection
+On screen: portal advances 7 days REJECTED name mismatch. Side proof shows names identical.
+Spoken: Day seven: rejected for name mismatch. Portal’s own records show identical names. Rejection is false.
 
-0:42-0:58 Lockout - frustration
+0:42-0:58 Lockout
 On screen: grievance → Invalid tracking ID → 30 day lockout.
-Spoken: I file a grievance. Portal rejects its own tracking ID, then locks me out for thirty days. Classic dead-end.
+Spoken: I file grievance. Portal rejects its own tracking ID, then locks me out thirty days. Dead end.
 
-1:00-1:18 The counterparty - confident
-On screen: /fixer console PIN 1902, ledger hash chain verified.
-Spoken: Now the accountability counterparty. Step one proves contradiction against a local SHA-256 hash-chained ledger. Step two drafts rebuttal. Step three logs closure gap.
+1:00-1:15 Enter console
+On screen: Home → FIXER.OS Control Console → PIN 1902. Dashboard shows Total Audited Cases, Total SLA Compensation, Worst Blocker Office, Avg Delay EPFO/Pay.
+Spoken: Now the counterparty. PIN opens the audit workspace. Systemic dashboard shows where delays accrue nationally.
 
-1:18-1:35 Proof & liability - authoritative
-On screen: SLA clock ₹2,600, traceroute red node Regional Office, Download Letter.
-Spoken: Step four runs compensation clock: twenty-six hundred rupees. Same ₹100-a-day rule drives our IRCTC case. Step five names the Regional Commissioner, twenty-six days overdue, and downloads a pre-addressed escalation draft.
+1:15-1:30 Case dossier
+On screen: left Citizen list → select Arjun Kumar Folio 001. Right panel Appeal Status REJECTED/UNDER AUDIT, Alerts, SLA Compensation Accrued ₹2,600, Proof of Delay office tracker Regional PF Commissioner 26 days over.
+Spoken: I open Arjun’s dossier. Ledger is verified. Traceroute names the blocking office and the RBI ₹100 per day clock is live.
 
-1:35-1:50 Novelty - measured pride
-On screen: RuleGuard interval proof, Hindi toggle.
-Spoken: RuleGuard mathematically proves a citizen with nine-point-eight years service is trapped in pension deadlock and outputs a developer bug report. Entire console toggles instantly into Hindi.
+1:30-1:42 Evidence & actions
+On screen: Ledger event timeline with hash chain dots, Evidence Vault attach proof, Actions Area Audit button + [WARRANT] Prospective, [BUNDLE] Class Action, [DPDP] Explain.
+Spoken: Hash-chained events are tamper-proof. Evidence vault is hash-anchored. One Audit step generates a court-ready rebuttal and escalation letter.
 
-1:50-2:00 Honesty close - transparent
-On screen: Real vs Mock checklist, logo.
-Spoken: We built ledger, proofs and playbooks. We honestly mocked EPFO interface. Agent is safe-by-design, scrubbing all PII at wire. FIXER.OS: the ownership layer India skipped.
+1:42-1:52 Map & scale
+On screen: National Delay Heatmap SVG India. Click Uttar Pradesh. Panel shows avg delay 51 days, 1,520 overdue cases, total compensation ₹77,52,000.
+Spoken: Heatmap shows state-wise SLA breach. Uttar Pradesh averages 51 days delay with crores in accrued liability.
+
+1:52-2:00 Novelty & honesty
+On screen: RuleGuard interval proof, Hindi toggle, Real vs Mock checklist.
+Spoken: RuleGuard proves pension deadlock for 9.8 years service and outputs a bug report. Hindi toggles instantly. Portal is mocked, ledger and proofs are real. Ownership, not another form.
